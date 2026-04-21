@@ -1,10 +1,10 @@
-# 🌌 Ascent AI | The Intelligent Learning Architect
+# Ascent AI | The Intelligent Learning Architect
 
 **Ascent AI** is a sophisticated, AI-driven learning orchestration platform designed to transform complex intellectual goals into structured, actionable mastery trajectories. By synthesizing high-density knowledge into intuitive, motion-enhanced mindmaps, Ascent AI empowers users to navigate the "Guided Ascent" from curiosity to expertise.
 
 ![Ascent AI Hero Interface](Screenshots/home.png)
 
-## 🏛️ Core Architecture
+## Core Architecture
 
 ### 1. The Protocol Architect
 Leveraging the power of **Google Gemini 2.0 Flash**, Ascent AI generates comprehensive learning roadmaps with deep dependency mapping. Every node is architected to ensure a logical progression from conceptual foundations to technical mastery.
@@ -28,7 +28,7 @@ Monitor your growth velocity with the **Neural Sync Dashboard**. Track your cons
 
 ---
 
-## 🛠️ Technical Specification
+## Technical Specification
 
 - **Core Engine**: React 19 + TypeScript
 - **Bundler**: Vite 6
@@ -39,7 +39,7 @@ Monitor your growth velocity with the **Neural Sync Dashboard**. Track your cons
 
 ---
 
-## 🚀 Deployment & Installation
+## Deployment & Installation
 
 ### Local Protocol Initialization
 
