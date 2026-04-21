@@ -1,29 +1,47 @@
-#  Ascent AI: The Intelligent Learning Architect
+# 🌌 Ascent AI | The Intelligent Learning Architect
 
-**Ascent AI** is a state-of-the-art AI-powered roadmap planner designed to transform vague learning goals into structured, actionable mastery journeys. Built for the modern learner, it synthesizes vast knowledge into visual, interactive roadmaps that guide you from novice to expert.
+**Ascent AI** is a sophisticated, AI-driven learning orchestration platform designed to transform complex intellectual goals into structured, actionable mastery trajectories. By synthesizing high-density knowledge into intuitive, motion-enhanced mindmaps, Ascent AI empowers users to navigate the "Guided Ascent" from curiosity to expertise.
 
-![Ascent AI Logo](Screenshots/Screenshot 2026-04-21 014932.png)
+![Ascent AI Hero Interface](Screenshots/home.png)
 
-##  Features
+## 🏛️ Core Architecture
 
-- ** Dynamic Roadmap Generation**: Leverage Google Gemini AI to create personalized learning paths specialized for any skill or topic.
-- ** Interactive Mindmaps**: Visualize your progress through a sleek, motion-enhanced interface.
-- ** Curated Resources**: Every node comes with hand-picked videos, documentation, and articles from top-tier providers like W3Schools and MDN.
-- ** Growth Tracking**: Mark modules as complete, track your daily activity streaks, and visualize your progress on a dedicated dashboard.
-- ** Practice Hub**: Solidify your knowledge with challenges and quizzes integrated directly into your path.
-- ** BYOK Security**: "Bring Your Own Key" architecture ensures your API credentials stay private and secure in your local storage.
+### 1. The Protocol Architect
+Leveraging the power of **Google Gemini 2.0 Flash**, Ascent AI generates comprehensive learning roadmaps with deep dependency mapping. Every node is architected to ensure a logical progression from conceptual foundations to technical mastery.
 
-## Tech Stack
+![Dynamic Roadmap Generator](Screenshots/roadmap.png)
 
-- **Frontend**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Animations**: [Motion](https://motion.dev/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **AI Engine**: [Google Generative AI (Gemini)](https://ai.google.dev/)
+### 2. Chronos Scheduling
+The **Chronos Architecture** integrates your learning path into a high-performance calendar system, allowing you to visualize your commitment and manage your "Neural Sync" across days and weeks.
 
-##  Getting Started
+![Intelligent Planner](Screenshots/planner.png)
 
-### Local Development
+### 3. The Manifest & Pulse Hub
+Verify your comprehension through the **Pulse Quiz** system and solidify your technical skills via **Manifest Challenges**. These modules are dynamically curated to match your specific roadmap nodes.
+
+![Evaluation Hub](Screenshots/practice.png)
+
+### 4. Neural Analytics
+Monitor your growth velocity with the **Neural Sync Dashboard**. Track your consistency delta, calculate module decryption progress, and visualize your mastery percentage in real-time.
+
+![Performance Dashboard](Screenshots/stats.png)
+
+---
+
+## 🛠️ Technical Specification
+
+- **Core Engine**: React 19 + TypeScript
+- **Bundler**: Vite 6
+- **Styling Strategy**: Post-Modern CSS / Tailwind v4
+- **Animation Layer**: Motion (Framermotion) v12
+- **Intelligence Layer**: Google Generative AI (Gemini SDK)
+- **Security**: "Bring Your Own Key" (BYOK) Client-Side Encryption for API credentials.
+
+---
+
+## 🚀 Deployment & Installation
+
+### Local Protocol Initialization
 
 1. **Clone the repository**:
    ```bash
@@ -31,28 +49,22 @@
    cd Ascent-AI
    ```
 
-2. **Install dependencies**:
+2. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-3. **Run the development server**:
+3. **Launch Environment**:
    ```bash
    npm run dev
    ```
 
-4. **Open the app**: Navigate to `http://localhost:3000` and enter your Gemini API key to start building.
-
-##  Deployment
-
-This project is optimized for deployment on **Render** as a Static Site.
-
-1. Push your code to GitHub.
-2. Connect your repo to Render.
-3. Use the following settings:
-   - **Build Command**: `npm run build`
-   - **Publish Directory**: `dist`
+### Live Synchronization (Render)
+This project is optimized for deployment as a **Static Site** on Render.
+- **Build Command**: `npm run build`
+- **Publish Directory**: `dist`
 
 ---
 
-Built with half brain by [Naveed Farhan](https://github.com/NAVEED-FARHAN)
+Built with precision by [Naveed Farhan](https://github.com/NAVEED-FARHAN)
+Project: **Ascent AI** | Status: **Operational**
