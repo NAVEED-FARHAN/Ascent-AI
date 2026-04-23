@@ -56,12 +56,17 @@ export default function App() {
       const savedRoadmap = localStorage.getItem('learning_roadmap');
       const savedProgress = localStorage.getItem('learning_progress');
       const savedKey = localStorage.getItem('ascent_ai_key');
+      // @ts-ignore - process.env is injected by Vite
+      const envKey = (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) || '';
 
       if (savedRoadmap) setRoadmap(JSON.parse(savedRoadmap));
       if (savedProgress) setProgress(JSON.parse(savedProgress));
       
       if (savedKey) {
         setApiKey(savedKey);
+      } else if (envKey && envKey !== 'undefined' && envKey !== 'MY_API_KEY') {
+        setApiKey(envKey);
+        localStorage.setItem('ascent_ai_key', envKey);
       } else {
         setView('onboarding');
       }
@@ -105,12 +110,19 @@ export default function App() {
       }));
       setView('roadmap');
     } catch (error: any) {
-      console.error(error);
       const message = error?.message || "";
+      console.error("Roadmap generation error:", error);
+
       if (message.includes("429") || message.includes("quota")) {
         alert("API limit reached or quota exceeded. Please wait a moment or check your API key's free tier availability.");
+      } else if (message.includes("API key not valid") || message.includes("INVALID_ARGUMENT")) {
+        if (confirm("The API key provided appears to be invalid. Would you like to reset it and try again?")) {
+          localStorage.removeItem('ascent_ai_key');
+          setApiKey(null);
+          setView('onboarding');
+        }
       } else {
-        alert("Failed to generate roadmap. Please check your connection and try again.");
+        alert("Failed to generate roadmap. Please check your connection and API key, then try again.");
       }
     } finally {
       setIsLoading(false);
