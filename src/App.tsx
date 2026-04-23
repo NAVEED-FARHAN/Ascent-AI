@@ -122,7 +122,7 @@ export default function App() {
           setView('onboarding');
         }
       } else {
-        alert("Failed to generate roadmap. Please check your connection and API key, then try again.");
+        alert(`Failed to generate roadmap: ${message || "Unknown Error"}. Please check your connection and API key.`);
       }
     } finally {
       setIsLoading(false);
