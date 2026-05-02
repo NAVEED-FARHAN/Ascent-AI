@@ -541,7 +541,7 @@ export default function App() {
                                 }`}
                             >
                               <div className="flex justify-between items-start mb-4">
-                                <div>
+                                <div className="flex-1 min-w-0 mr-4">
                                   <h4 className="text-xl font-bold text-white mb-1">{sub.title}</h4>
                                   <p className="text-sm text-text-secondary leading-relaxed line-clamp-2">{sub.description}</p>
                                 </div>
@@ -550,7 +550,7 @@ export default function App() {
                                     e.stopPropagation();
                                     toggleSubTopicCompletion(selectedNode.id, sub.id);
                                   }}
-                                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${progress.completedSubTopicIds.includes(sub.id)
+                                  className={`w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center transition-all ${progress.completedSubTopicIds.includes(sub.id)
                                       ? 'bg-accent-success text-white'
                                       : 'bg-white/5 text-text-secondary border border-white/10 hover:border-accent-glow hover:text-accent-glow'
                                     }`}
