@@ -84,49 +84,62 @@ const roadmapSchema = {
 export async function generateRoadmap(goal: string, apiKey: string): Promise<Roadmap> {
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `
-    You are an expert learning consultant. Generate a comprehensive and structured learning roadmap for the following goal: "${goal}".
+    You are an expert learning consultant. Generate a structured learning roadmap for: "${goal}".
     
-    Structure the roadmap as a series of connected nodes. Each node represents a major skill area or milestone.
-    Inside each node, provide a list of detailed subtopics.
+    Structure: connected nodes (milestones) with detailed subtopics.
     For each subtopic, include:
-    - 4-5 free resources (at least one from W3Schools, one from GeeksforGeeks, and others like YouTube videos, official documentation). Provide REAL, accurate, and functional links.
-    - An estimated number of hours to master this subtopic.
-    - A clear description.
-    - 2-3 REAL online quizzes or practice tests (e.g., from Tutorialspoint, GeeksforGeeks, Sanfoundry, Quizizz).
-    - 1-2 practical challenges (coding tasks, mini-assignments, or project-based challenges). Include external links if applicable (e.g., LeetCode, HackerRank).
+    - 2 high-quality free resources (e.g., official docs, one YouTube/W3Schools/GeeksforGeeks). Provide REAL, functional links.
+    - Estimated hours to master.
+    - 1-2 sentences description.
+    - 1 REAL online quiz or practice test.
+    - 1 practical mini-challenge (coding task or assignment).
     
-    Ensure the dependencies are logical (e.g., Basics come before Advanced).
-    The response must be a strictly valid JSON matching the provided schema.
+    Keep dependencies logical. Response MUST be valid JSON matching the schema.
   `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: roadmapSchema,
-      systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive."
+  const generate = async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: roadmapSchema,
+        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive."
+      }
+    });
+
+    if (!response.text) {
+      throw new Error("Failed to generate roadmap: No response from AI");
     }
-  });
+    return response;
+  };
 
-  if (!response.text) {
-    throw new Error("Failed to generate roadmap: No response from AI");
+  // Simple exponential backoff for 429s
+  let lastError;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const response = await generate();
+      const data = JSON.parse(response.text!);
+      // Add isCompleted field to nodes and subtopics
+      data.nodes = data.nodes.map((node: any) => ({
+        ...node,
+        isCompleted: false,
+        subTopics: node.subTopics.map((sub: any) => ({
+          ...sub,
+          isCompleted: false
+        }))
+      }));
+      return data as Roadmap;
+    } catch (err: any) {
+      lastError = err;
+      if ((err?.status === 429 || err?.message?.includes("429")) && i < 2) {
+        await new Promise(r => setTimeout(r, (i + 1) * 3000));
+        continue;
+      }
+      break;
+    }
   }
 
-  try {
-    const data = JSON.parse(response.text);
-    // Add isCompleted field to nodes and subtopics
-    data.nodes = data.nodes.map((node: any) => ({
-      ...node,
-      isCompleted: false,
-      subTopics: node.subTopics.map((sub: any) => ({
-        ...sub,
-        isCompleted: false
-      }))
-    }));
-    return data as Roadmap;
-  } catch (err) {
-    console.error("Error parsing JSON response:", err);
-    throw new Error("Failed to parse roadmap data");
-  }
+  console.error("Error generating roadmap after retries:", lastError);
+  throw lastError;
 }

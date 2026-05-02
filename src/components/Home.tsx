@@ -1,13 +1,15 @@
 
 import { useState, FormEvent } from 'react';
-import { Search, Sparkles, ArrowRight, Zap, Book, Network, Globe, FileText, Play, X, Map } from 'lucide-react';
+import { Search, Sparkles, ArrowRight, Zap, Book, Network, Globe, FileText, Play, X, Map, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Roadmap } from '../types';
 
 interface HomeProps {
   onStart: (goal: string) => void;
   onContinue: () => void;
+  onLogout: () => void;
   roadmap: Roadmap | null;
+  isLoading: boolean;
 }
 
 const PRESET_GOALS = [
@@ -19,7 +21,7 @@ const PRESET_GOALS = [
   "Master Data Visualization with D3.js"
 ];
 
-export default function Home({ onStart, onContinue, roadmap }: HomeProps) {
+export default function Home({ onStart, onContinue, onLogout, roadmap, isLoading }: HomeProps) {
   const [goal, setGoal] = useState('');
   const [activeTab, setActiveTab] = useState<'none' | 'explore' | 'resources'>('none');
 
@@ -57,6 +59,15 @@ export default function Home({ onStart, onContinue, roadmap }: HomeProps) {
             <Search className="w-4 h-4 text-text-secondary" />
             <input className="bg-transparent border-none outline-none text-sm w-48 text-white placeholder:text-text-secondary/30" placeholder="Search paths..." />
           </div>
+          <button 
+            onClick={onLogout}
+            className="p-3 rounded-xl bg-white/5 border border-white/5 text-text-secondary hover:text-white hover:bg-white/10 transition-all group relative"
+          >
+            <LogOut className="w-5 h-5" />
+            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[8px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap uppercase tracking-widest">
+              Sign Out
+            </div>
+          </button>
         </div>
       </nav>
 
@@ -204,10 +215,20 @@ export default function Home({ onStart, onContinue, roadmap }: HomeProps) {
                 />
                 <button
                   type="submit"
-                  className="bg-accent-glow text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black text-sm uppercase tracking-widest hover:bg-accent-glow/80 active:scale-95 transition-all shadow-lg"
+                  disabled={isLoading}
+                  className={`bg-accent-glow text-white px-8 py-4 rounded-2xl flex items-center gap-2 font-black text-sm uppercase tracking-widest active:scale-95 transition-all shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:bg-accent-glow/80'}`}
                 >
-                  Start Journey
-                  <ArrowRight className="w-5 h-5" />
+                  {isLoading ? (
+                    <>
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Architecting...
+                    </>
+                  ) : (
+                    <>
+                      Start Journey
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
                 </button>
               </div>
 

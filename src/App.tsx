@@ -114,7 +114,7 @@ export default function App() {
       console.error("Roadmap generation error:", error);
 
       if (message.includes("429") || message.includes("quota")) {
-        alert("API limit reached or quota exceeded. Please wait a moment or check your API key's free tier availability.");
+        alert("API limit reached. This model (Gemini 2.5) may have strict quotas or your billing tier needs refresh. Please wait a moment or verify your quota in Google AI Studio.");
       } else if (message.includes("API key not valid") || message.includes("INVALID_ARGUMENT")) {
         if (confirm("The API key provided appears to be invalid. Would you like to reset it and try again?")) {
           localStorage.removeItem('ascent_ai_key');
@@ -122,7 +122,7 @@ export default function App() {
           setView('onboarding');
         }
       } else {
-        alert(`Failed to generate roadmap: ${message || "Unknown Error"}. Please check your connection and API key.`);
+        alert(`Engine Error: ${message || "Unknown Failure"}. \n\nPlease verify your API key and network connection.`);
       }
     } finally {
       setIsLoading(false);
@@ -271,7 +271,7 @@ export default function App() {
             exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Home onStart={handleStartGoal} onContinue={handleResume} roadmap={roadmap} />
+            <Home onStart={handleStartGoal} onContinue={handleResume} onLogout={handleLogout} roadmap={roadmap} isLoading={isLoading} />
           </motion.div>
         ) : (
           <motion.div
