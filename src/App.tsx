@@ -12,10 +12,20 @@ import Planner from './components/Planner';
 import Dashboard from './components/Dashboard';
 import PracticeHub from './components/PracticeHub';
 import Onboarding from './components/Onboarding';
+import Modal from './components/Modal';
 import { BookOpen, Map, Calendar, BarChart3, Loader2, Home as HomeIcon, Plus, Info, Settings, Search, Menu, Zap, Book, ArrowRight, Sparkles, Activity, X, Clock, CheckCircle2, Circle, Play, FileText, FlaskConical, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 type View = 'onboarding' | 'home' | 'roadmap' | 'planner' | 'dashboard' | 'practice';
+
+interface ModalConfig {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'error' | 'success' | 'danger';
+  confirmText?: string;
+  onConfirm?: () => void;
+}
 
 const BACKGROUNDS = {
   home: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80',
@@ -41,7 +51,21 @@ export default function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const [modalConfig, setModalConfig] = useState<ModalConfig>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
   const mainContentRef = useRef<HTMLElement>(null);
+
+  const showModal = (config: Omit<ModalConfig, 'isOpen'>) => {
+    setModalConfig({ ...config, isOpen: true });
+  };
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
 
   // Scroll to top on view change
   useEffect(() => {
@@ -114,15 +138,29 @@ export default function App() {
       console.error("Roadmap generation error:", error);
 
       if (message.includes("429") || message.includes("quota")) {
-        alert("API limit reached. This model (Gemini 2.5) may have strict quotas or your billing tier needs refresh. Please wait a moment or verify your quota in Google AI Studio.");
+        showModal({
+          title: "Quota Depleted",
+          message: "API limit reached. This model (Gemini 2.5) may have strict quotas. Please wait a moment or verify your quota in Google AI Studio.",
+          type: 'warning'
+        });
       } else if (message.includes("API key not valid") || message.includes("INVALID_ARGUMENT")) {
-        if (confirm("The API key provided appears to be invalid. Would you like to reset it and try again?")) {
-          localStorage.removeItem('ascent_ai_key');
-          setApiKey(null);
-          setView('onboarding');
-        }
+        showModal({
+          title: "Key Invalidated",
+          message: "The API key provided appears to be invalid. Would you like to reset it and try again?",
+          type: 'danger',
+          confirmText: 'Reset Key',
+          onConfirm: () => {
+            localStorage.removeItem('ascent_ai_key');
+            setApiKey(null);
+            setView('onboarding');
+          }
+        });
       } else {
-        alert(`Engine Error: ${message || "Unknown Failure"}. \n\nPlease verify your API key and network connection.`);
+        showModal({
+          title: "Engine Failure",
+          message: `Engine Error: ${message || "Unknown Failure"}. Please verify your API key and network connection.`,
+          type: 'error'
+        });
       }
     } finally {
       setIsLoading(false);
@@ -205,16 +243,23 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    if (confirm("Sign out and clear API key? Your roadmap and progress will be saved.")) {
-      localStorage.removeItem('ascent_ai_key');
-      setApiKey(null);
-      setView('onboarding');
-    }
+    showModal({
+      title: "Confirm Sign Out",
+      message: "Are you sure you want to clear your API key? Your roadmap and progress will be saved locally.",
+      type: 'danger',
+      confirmText: 'Sign Out',
+      onConfirm: () => {
+        localStorage.removeItem('ascent_ai_key');
+        setApiKey(null);
+        setView('onboarding');
+      }
+    });
   };
 
   return (
     <div className="min-h-screen font-sans selection:bg-accent-glow selection:text-white bg-bg-base overflow-x-hidden">
       <div className="mesh-background" />
+      <Modal {...modalConfig} onClose={closeModal} />
 
       <AnimatePresence mode="wait">
         {isLoading ? (
@@ -467,7 +512,13 @@ export default function App() {
                 ))}
                 <div className="w-[1px] h-8 bg-white/10 mx-2" />
                 <button
-                  onClick={() => confirm("New roadmap? Progress stays.") && setView('home')}
+                  onClick={() => showModal({
+                    title: "Initialize New Path",
+                    message: "Are you sure you want to start a new journey? Your current roadmap and progress will be archived but saved.",
+                    type: 'info',
+                    confirmText: 'New Roadmap',
+                    onConfirm: () => setView('home')
+                  })}
                   className="p-4 text-text-secondary hover:text-accent-glow transition-all hover:rotate-90"
                 >
                   <Plus className="w-6 h-6" />
