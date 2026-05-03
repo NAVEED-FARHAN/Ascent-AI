@@ -1,124 +1,252 @@
-import { useState } from 'react';
-import { Sparkles, Key, ArrowRight, BookOpen, ExternalLink, ShieldCheck, Zap } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { Sparkles, Key, ArrowRight, Clipboard, ExternalLink, ShieldCheck, Zap, ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface OnboardingProps {
   onComplete: (apiKey: string) => void;
 }
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
+  const [step, setStep] = useState(0);
   const [apiKey, setApiKey] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [showManual, setShowManual] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (apiKey.trim().length < 20) {
-      alert('Please enter a valid Gemini API key.');
-      return;
+  const steps = [
+    {
+      title: "The Ascent Awaits",
+      subtitle: "Protocol Initiation",
+      description: "Experience the most powerful AI roadmap architect. Total privacy. Zero cost.",
+      icon: Sparkles
+    },
+    {
+      title: "Secure Intelligence",
+      subtitle: "Privacy First",
+      description: "Your API key never leaves this machine. No servers, no tracking.",
+      icon: ShieldCheck
+    },
+    {
+      title: "Get Your Engine",
+      subtitle: "1-Click Hand-off",
+      description: "Click generate to open Google AI Studio. We'll wait here for your key.",
+      icon: ExternalLink
+    },
+    {
+      title: "Finalizing Sync",
+      subtitle: "Detection Mode",
+      description: "Copy your key from Google, then click finalize below to launch.",
+      icon: Zap
     }
-    setIsSubmitting(true);
-    // Add a slight delay for aesthetic effect
-    setTimeout(() => {
-      onComplete(apiKey.trim());
-    }, 800);
+  ];
+
+  const handleNext = () => {
+    if (step < steps.length - 1) setStep(step + 1);
   };
 
+  const handleBack = () => {
+    if (step > 0) setStep(step - 1);
+  };
+
+  const handleMagicRedirect = () => {
+    window.open('https://aistudio.google.com/app/apikey', '_blank');
+    // Automatically jump to the final step
+    setStep(3);
+  };
+
+  // Automatically try to detect when user comes back to the tab
+  useEffect(() => {
+    const handleFocus = () => {
+      if (step === 3 && !apiKey) {
+        handleFinalize();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [step, apiKey]);
+
+  const handleFinalize = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim().length >= 20) {
+        setApiKey(text.trim());
+        setIsSubmitting(true);
+        onComplete(text.trim());
+      }
+    } catch (err) {
+      // If blocked or empty, just show the manual box immediately
+      setShowManual(true);
+    }
+  };
+
+  const currentStep = steps[step];
+  const Icon = currentStep.icon;
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="mesh-background" />
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-bg-base font-sans">
+      <div className="mesh-background opacity-30" />
       
-      <motion.div 
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="max-w-2xl w-full"
-      >
-        <div className="frosted-glass rounded-[40px] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-accent-glow/10 rounded-full blur-[100px]" />
-          
-          <div className="relative z-10">
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-accent-glow/20 border border-accent-glow/30 flex items-center justify-center text-accent-glow shadow-lg">
-                <Sparkles className="w-8 h-8" />
-              </div>
-              <div>
-                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-text-secondary/60">Initialize Protocol</h2>
-                <h1 className="text-4xl font-serif italic text-white tracking-tight">Ascent AI</h1>
+      {/* Top Brand Marker */}
+      <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
+        <Zap className="w-5 h-5 text-accent-glow fill-current" />
+        <span className="text-xl font-serif italic text-white tracking-tighter">Ascent AI</span>
+      </div>
+
+      <div className="max-w-4xl w-full relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step + (showManual ? '-manual' : '')}
+            initial={{ opacity: 0, y: 40, filter: 'blur(20px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -40, filter: 'blur(20px)' }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center text-center"
+          >
+            {/* Step Icon */}
+            <div className="mb-10 relative">
+              <div className="absolute inset-0 bg-accent-glow/20 blur-[80px] rounded-full animate-pulse" />
+              <div className="relative z-10 w-32 h-32 flex items-center justify-center">
+                 {isSubmitting ? (
+                   <CheckCircle2 className="w-24 h-24 text-accent-success animate-bounce" />
+                 ) : isDetecting ? (
+                   <Loader2 className="w-24 h-24 text-accent-glow animate-spin" />
+                 ) : showManual ? (
+                   <Key className="w-24 h-24 text-accent-glow" />
+                 ) : (
+                   <Icon className="w-24 h-24 text-accent-glow" />
+                 )}
               </div>
             </div>
 
-            <div className="space-y-6 mb-10">
-              <p className="text-xl text-text-secondary leading-relaxed serif italic">
-                Welcome to the high-performance architect for your learning journey. To ensure secure and private generation of your roadmaps, you'll need to provide your own intelligence engine.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-start gap-3">
-                  <ShieldCheck className="w-5 h-5 text-accent-success shrink-0" />
-                  <p className="text-xs text-text-secondary">Your key is stored locally in your browser and never sent to our servers.</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-start gap-3">
-                  <Zap className="w-5 h-5 text-accent-glow shrink-0" />
-                  <p className="text-xs text-text-secondary">Use the Free Tier from Google AI Studio for 0 cost roadmap generation.</p>
-                </div>
-              </div>
+            {/* Typography */}
+            <div className="mb-14">
+               <h2 className="text-[10px] font-black uppercase tracking-[0.8em] text-accent-glow/60 mb-5">
+                 {showManual ? "Manual Override" : currentStep.subtitle}
+               </h2>
+               <h1 className="text-6xl md:text-9xl font-serif italic text-white tracking-tighter leading-[0.85] mb-10">
+                {isSubmitting ? "Success" : isDetecting ? "Detecting" : showManual ? "Paste Key" : currentStep.title}
+               </h1>
+               <p className="max-w-xl mx-auto text-xl md:text-3xl text-text-secondary font-serif italic leading-relaxed opacity-80">
+                {isSubmitting 
+                  ? "Intelligence Sync Complete. Launching..." 
+                  : showManual 
+                  ? "Clipboard access was denied. Please paste your secret key below to proceed." 
+                  : currentStep.description}
+               </p>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-text-secondary ml-1">
-                  Gemini API Key
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-text-secondary group-focus-within:text-accent-glow transition-colors">
-                    <Key className="w-5 h-5" />
-                  </div>
+            {/* Actions */}
+            <div className="w-full max-w-md">
+              {step < 2 && (
+                <button
+                  onClick={handleNext}
+                  className="px-16 py-7 rounded-full bg-white text-black font-black text-sm uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10"
+                >
+                  Continue
+                </button>
+              )}
+
+              {step === 2 && (
+                <button
+                  onClick={handleMagicRedirect}
+                  className="w-full py-8 rounded-full bg-accent-glow text-white font-black text-sm uppercase tracking-[0.4em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/20 flex items-center justify-center gap-4 group"
+                >
+                  <ExternalLink className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                  Generate Key
+                </button>
+              )}
+
+              {step === 3 && !showManual && (
+                <button
+                  onClick={handleFinalize}
+                  disabled={isSubmitting || isDetecting}
+                  className={`
+                    w-full py-8 rounded-full font-black text-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 shadow-2xl
+                    ${isSubmitting ? 'bg-accent-success text-white shadow-accent-success/20' : 'bg-white text-black shadow-white/10'}
+                    hover:scale-105 active:scale-95 disabled:opacity-50
+                  `}
+                >
+                  {isSubmitting ? "Synchronized" : isDetecting ? "Scanning..." : "Finalize Ascent"}
+                  {!isSubmitting && !isDetecting && <Clipboard className="w-5 h-5" />}
+                </button>
+              )}
+
+              {step === 3 && showManual && (
+                <div className="space-y-6">
                   <input
                     type="password"
+                    autoFocus
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="Enter your API key here..."
-                    className="w-full bg-black/20 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white placeholder:text-text-secondary/30 focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono"
+                    placeholder="Enter Key Manually..."
+                    className="w-full bg-white/5 border border-white/10 rounded-full py-6 px-10 text-white placeholder:text-text-secondary/20 focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono text-center tracking-widest shadow-2xl"
                   />
-                </div>
-                <div className="flex justify-between items-center px-1">
-                  <a 
-                    href="https://aistudio.google.com/app/apikey" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[10px] font-bold text-accent-glow hover:text-white transition-colors flex items-center gap-1.5 uppercase tracking-widest"
+                  <button
+                    onClick={() => onComplete(apiKey.trim())}
+                    disabled={apiKey.length < 20}
+                    className="w-full py-6 rounded-full bg-accent-glow text-white font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-30 shadow-xl shadow-accent-glow/20"
                   >
-                    <ExternalLink className="w-3 h-3" />
-                    Get your free key from Google
-                  </a>
-                  <span className="text-[10px] text-text-secondary/40 font-medium">Encrypted @ LocalStorage</span>
+                    Confirm & Launch
+                  </button>
                 </div>
-              </div>
+              )}
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-5 rounded-2xl bg-accent-glow text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-accent-glow/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
-              >
-                {isSubmitting ? (
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Initialize Engine
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </>
+
+              {step > 0 && step < 3 && (
+                <button
+                  onClick={handleBack}
+                  className="mt-10 text-[10px] font-black uppercase tracking-[0.5em] text-text-secondary/40 hover:text-white transition-colors"
+                >
+                  Go Back
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Technical Progress Dashboard */}
+      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-2xl px-8">
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-between items-end px-1">
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black text-accent-glow uppercase tracking-[0.4em] mb-1.5">Protocol Stage</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">{currentStep.subtitle}</span>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
+                {step + 1} / {steps.length}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex gap-3 h-2">
+            {steps.map((_, i) => (
+              <div key={i} className="flex-1 relative overflow-hidden rounded-full bg-white/5">
+                <motion.div 
+                  className="absolute inset-0 bg-accent-glow"
+                  animate={{ 
+                    x: i <= step ? '0%' : '-100%',
+                    opacity: i <= step ? 1 : 0
+                  }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                />
+                {i === step && (
+                  <motion.div 
+                    className="absolute inset-0 bg-white/20"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
                 )}
-              </button>
-            </form>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <p className="text-center mt-8 text-[10px] font-black uppercase tracking-[0.5em] text-text-secondary/30">
-          Intelligence Orchestration Protocol v2.5
-        </p>
-      </motion.div>
+      </div>
     </div>
   );
 }
+
+
+
+
