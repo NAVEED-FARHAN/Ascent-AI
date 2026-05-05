@@ -136,7 +136,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             </div>
 
             {/* Actions */}
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md flex flex-col items-center">
               {step < 2 && (
                 <button
                   onClick={handleNext}

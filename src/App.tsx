@@ -12,7 +12,7 @@ import Planner from './components/Planner';
 import Dashboard from './components/Dashboard';
 import PracticeHub from './components/PracticeHub';
 import Onboarding from './components/Onboarding';
-import Modal from './components/Modal';
+import Modal from './components/Modal.tsx';
 import { BookOpen, Map, Calendar, BarChart3, Loader2, Home as HomeIcon, Plus, Info, Settings, Search, Menu, Zap, Book, ArrowRight, Sparkles, Activity, X, Clock, CheckCircle2, Circle, Play, FileText, FlaskConical, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
