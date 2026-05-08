@@ -69,7 +69,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.02] blur-[150px] -z-10" />
       
       {/* Header Slab */}
-      <section className="py-20 border-b border-white/5 flex flex-col lg:flex-row items-end justify-between gap-12">
+      <section className="py-20 border-b border-border-primary flex flex-col lg:flex-row items-end justify-between gap-12">
         <div className="space-y-6">
           <motion.h2 
             initial={{ opacity: 0, x: -20 }}
@@ -81,21 +81,21 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-7xl md:text-9xl font-serif italic text-white tracking-tighter leading-[0.8] -ml-2"
+            className="text-7xl md:text-9xl font-serif italic text-text-primary tracking-tighter leading-[0.8] -ml-2"
           >
             Chronos <br />
-            <span className="text-text-secondary/20 font-light text-6xl md:text-8xl">Architecture</span>
+            <span className="text-text-muted/20 font-light text-6xl md:text-8xl">Architecture</span>
           </motion.h1>
         </div>
 
-        <div className="flex items-center gap-4 frosted-glass p-2 rounded-2xl border border-white/10">
-           <button onClick={handlePrevMonth} className="p-4 hover:bg-white/5 rounded-xl text-text-secondary hover:text-white transition-all">
+        <div className="flex items-center gap-4 bg-bg-secondary/80 backdrop-blur-3xl p-2 rounded-2xl border border-border-pill">
+           <button onClick={handlePrevMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
               <ChevronLeft className="w-6 h-6" />
            </button>
-           <span className="text-xl font-serif italic text-white px-8 min-w-[200px] text-center">
+           <span className="text-xl font-serif italic text-text-primary px-8 min-w-[200px] text-center">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
            </span>
-           <button onClick={handleNextMonth} className="p-4 hover:bg-white/5 rounded-xl text-text-secondary hover:text-white transition-all">
+           <button onClick={handleNextMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
               <ChevronRight className="w-6 h-6" />
            </button>
         </div>
@@ -103,17 +103,17 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
 
       {/* Calendar Grid Slab */}
       <section className="py-12">
-        <div className="grid grid-cols-7 border border-white/5 rounded-3xl overflow-hidden shadow-3xl bg-white/[0.01] backdrop-blur-3xl">
+        <div className="grid grid-cols-7 border border-border-primary rounded-3xl overflow-hidden shadow-3xl bg-bg-secondary/20 backdrop-blur-3xl">
           {/* Day Headers */}
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="p-6 text-center border-b border-r border-white/5 bg-white/[0.03]">
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-text-secondary/40">{day}</span>
+            <div key={day} className="p-6 text-center border-b border-r border-border-primary bg-bg-secondary/40">
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted/40">{day}</span>
             </div>
           ))}
 
           {/* Calendar Cells */}
           {daysInMonth.map((date, idx) => {
-            if (!date) return <div key={`empty-${idx}`} className="p-6 border-b border-r border-white/5 bg-white/[0.005]" />;
+            if (!date) return <div key={`empty-${idx}`} className="p-6 border-b border-r border-border-primary bg-bg-secondary/5" />;
             
             const dateKey = date.toISOString().split('T')[0];
             const dayTasks = scheduledTasks[dateKey] || [];
@@ -122,12 +122,12 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
             return (
               <motion.div 
                 key={dateKey}
-                whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+                whileHover={{ backgroundColor: 'var(--bg-secondary)' }}
                 onClick={() => dayTasks.length > 0 && setSelectedDay(date)}
-                className={`min-h-[160px] p-6 border-b border-r border-white/5 relative group cursor-pointer transition-all ${isToday ? 'bg-accent-glow/[0.03]' : ''}`}
+                className={`min-h-[160px] p-6 border-b border-r border-border-primary relative group cursor-pointer transition-all ${isToday ? 'bg-accent-glow/5' : ''}`}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className={`text-2xl font-serif italic ${isToday ? 'text-accent-glow scale-110' : 'text-text-secondary/40'}`}>
+                  <span className={`text-2xl font-serif italic ${isToday ? 'text-accent-glow scale-110' : 'text-text-muted/40'}`}>
                     {date.getDate()}
                   </span>
                   {dayTasks.length > 0 && (
@@ -167,46 +167,46 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl z-[70] p-12 frosted-glass rounded-[2rem] border border-white/10 shadow-4xl"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl z-[70] p-12 bg-bg-secondary/95 backdrop-blur-3xl rounded-[2rem] border border-border-pill shadow-4xl"
             >
                <div className="space-y-12">
                   <div className="flex justify-between items-start">
                      <div>
                         <h3 className="text-[11px] font-black text-accent-glow uppercase tracking-[0.4em] mb-4">Daily Manifest</h3>
-                        <h2 className="text-5xl font-serif italic text-white tracking-tighter">
+                        <h2 className="text-5xl font-serif italic text-text-primary tracking-tighter">
                            {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </h2>
                      </div>
-                     <button onClick={() => setSelectedDay(null)} className="p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all text-text-secondary">
+                     <button onClick={() => setSelectedDay(null)} className="p-4 bg-bg-secondary/40 rounded-2xl hover:bg-bg-secondary transition-all text-text-muted">
                         <X className="w-6 h-6" />
                      </button>
                   </div>
 
                   <div className="space-y-8 max-h-[400px] overflow-y-auto pr-6 scrollbar-hide">
                      {(scheduledTasks[selectedDay.toISOString().split('T')[0]] || []).map((t, i) => (
-                        <div key={i} className="p-8 rounded-3xl bg-white/[0.03] border border-white/5 space-y-6 group/item hover:border-accent-glow/30 transition-all">
+                        <div key={i} className="p-8 rounded-3xl bg-bg-secondary/40 border border-border-primary space-y-6 group/item hover:border-accent-glow/30 transition-all">
                            <div className="flex justify-between items-start">
                               <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-text-secondary/30 uppercase tracking-widest">{t.nodeTitle}</p>
-                                 <h4 className="text-3xl font-serif italic text-white group-hover/item:text-accent-glow transition-colors">{t.subTopic.title}</h4>
+                                 <p className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest">{t.nodeTitle}</p>
+                                 <h4 className="text-3xl font-serif italic text-text-primary group-hover/item:text-accent-glow transition-colors">{t.subTopic.title}</h4>
                               </div>
                               <div className="px-4 py-2 rounded-xl bg-accent-glow/10 border border-accent-glow/20 text-xs font-black text-accent-glow uppercase tracking-tighter">
                                  {t.subTopic.estimatedHours}h Dev
                               </div>
                            </div>
-                           <p className="text-base text-text-secondary/60 leading-relaxed font-medium">
+                           <p className="text-base text-text-muted/60 leading-relaxed font-medium italic">
                               {t.subTopic.description}
                            </p>
-                           <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4">
+                           <div className="pt-6 border-t border-border-primary grid grid-cols-2 gap-4">
                               {t.subTopic.resources.slice(0, 2).map((res, ri) => (
                                 <a 
                                   key={ri}
                                   href={res.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-accent-glow/20 transition-all group/link"
+                                  className="flex items-center justify-between p-4 rounded-xl bg-bg-secondary/40 border border-border-primary hover:bg-bg-secondary hover:border-accent-glow/20 transition-all group/link"
                                 >
-                                   <span className="text-[10px] font-black text-white uppercase tracking-widest truncate max-w-[150px]">{res.title}</span>
+                                   <span className="text-[10px] font-black text-text-primary uppercase tracking-widest truncate max-w-[150px]">{res.title}</span>
                                    <ExternalLink className="w-3 h-3 text-accent-glow group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
                                 </a>
                               ))}
@@ -215,10 +215,10 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                      ))}
                   </div>
 
-                  <div className="pt-8 border-t border-white/5 flex justify-between items-center">
+                  <div className="pt-8 border-t border-border-primary flex justify-between items-center">
                      <div className="flex items-center gap-4">
                         <Clock className="w-5 h-5 text-accent-glow opacity-40" />
-                        <span className="text-sm font-bold text-text-secondary underline decoration-accent-glow/20 underline-offset-8 italic">Synchronize temporal delta</span>
+                        <span className="text-sm font-bold text-text-muted underline decoration-accent-glow/20 underline-offset-8 italic">Synchronize temporal delta</span>
                      </div>
                      <button className="flex items-center gap-3 px-8 py-4 bg-accent-glow text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-2xl active:scale-95 transition-all">
                         Launch Sequence <ArrowRight className="w-4 h-4" />

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { Roadmap } from "../types";
 
@@ -81,6 +80,31 @@ const roadmapSchema = {
   required: ['goal', 'nodes']
 };
 
+function translateGeminiError(err: any): string {
+  const message = err?.message || String(err);
+  
+  if (message.includes("429") || message.includes("QUOTA_EXCEEDED")) {
+    return "Neural capacity reached. Please wait a few seconds for the next synchronization cycle.";
+  }
+  if (message.includes("503") || message.includes("UNAVAILABLE")) {
+    return "High computational load detected on the server. The architecture is stabilizing—please try again in a moment.";
+  }
+  if (message.includes("403") || message.includes("PERMISSION_DENIED") || message.includes("API_KEY_INVALID")) {
+    return "Security Alert: Access protocol denied. Please verify your API credentials in the configuration module.";
+  }
+  if (message.includes("INVALID_ARGUMENT")) {
+    return "Protocol error: The request configuration is invalid. Please refine your goal and re-initialize.";
+  }
+  
+  // Clean up JSON strings if they still slip through
+  try {
+    const parsed = JSON.parse(message);
+    if (parsed.error?.message) return parsed.error.message;
+  } catch (e) {}
+
+  return message;
+}
+
 export async function generateRoadmap(goal: string, apiKey: string): Promise<Roadmap> {
   const ai = new GoogleGenAI({ apiKey });
   const prompt = `
@@ -141,5 +165,5 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
   }
 
   console.error("Error generating roadmap after retries:", lastError);
-  throw lastError;
+  throw new Error(translateGeminiError(lastError));
 }

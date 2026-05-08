@@ -1,87 +1,110 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Crimson Pro", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  --color-bg-base: #0f172a;
-  --color-glass-bg: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --color-accent-glow: #6366f1;
-  --color-accent-success: #22c55e;
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
+  /* Theme-aware semantic colors */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-track: var(--bg-track);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-placeholder: var(--text-placeholder);
+  
+  --color-border-primary: var(--border-primary);
+  --color-border-pill: var(--border-pill);
 
-  --grid-template-columns-15: repeat(15, minmax(0, 1fr));
+  /* Constant accents */
+  --color-accent-glow: #5d5dff;
+  --color-accent-success: #22c55e;
+  --color-accent-danger: #f43f5e;
 }
 
 @layer base {
-  body {
-    @apply antialiased bg-bg-base text-text-primary selection:bg-accent-glow selection:text-white;
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f4f4f5; /* Zinc 100 */
+    --bg-surface: #fafafa;
+    --bg-track: rgba(0, 0, 0, 0.08); /* Problem 2 Fix */
+    
+    --text-primary: #09090b; /* Zinc 950 */
+    --text-secondary: #3f3f46; /* Zinc 700 */
+    --text-muted: #6b7280; /* Zinc 500 - Problem 5 Fix */
+    --text-placeholder: #71717a; /* Zinc 500 - Problem 3 Fix */
+    
+    --border-primary: rgba(0, 0, 0, 0.12);
+    --border-pill: rgba(0, 0, 0, 0.22); /* Problem 4 Fix */
+  }
+
+  .dark {
+    --bg-primary: #0a0a0c;
+    --bg-secondary: #121216;
+    --bg-surface: #18181b;
+    --bg-track: rgba(255, 255, 255, 0.12);
+    
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --text-placeholder: rgba(255, 255, 255, 0.4);
+    
+    --border-primary: rgba(255, 255, 255, 0.1);
+    --border-pill: rgba(255, 255, 255, 0.2);
+  }
+
+  html, body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    font-family: "Outfit", ui-sans-serif, system-ui, sans-serif !important;
+    @apply antialiased selection:bg-accent-glow selection:text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: "Crimson Pro", serif !important;
+    color: var(--text-primary) !important;
   }
 }
 
-.frosted-glass {
-  @apply backdrop-blur-2xl bg-glass-bg border border-glass-border;
+/* Custom utilities for the premium aesthetic */
+.glass-panel {
+  @apply bg-bg-secondary/40 border border-border-primary backdrop-blur-xl shadow-xl rounded-2xl;
 }
 
-.view-background {
-  @apply fixed inset-0 -z-20 pointer-events-none overflow-hidden;
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-text-primary via-text-primary to-text-secondary;
 }
 
-.view-background img {
-  @apply absolute w-[150%] h-[150%] -top-[25%] -left-[25%] object-cover opacity-20 filter blur-[100px] saturate-[2] transition-opacity duration-1000;
-}
-
-.watermark {
-  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.03] pointer-events-none -z-10 mix-blend-overlay;
-  animation: watermark-pulse 10s ease-in-out infinite;
-}
-
-@keyframes watermark-pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.03; }
-  50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 0.05; }
-}
-
-.mesh-background {
-  @apply fixed inset-0 -z-10;
-  background: 
-    radial-gradient(circle at 10% 10%, #1e293b 0%, transparent 40%),
-    radial-gradient(circle at 90% 20%, #312e81 0%, transparent 40%),
-    radial-gradient(circle at 50% 80%, #1e1b4b 0%, transparent 50%),
-    radial-gradient(circle at 80% 90%, #4338ca 0%, transparent 30%);
-}
-
-.mesh-background::after {
-  content: "";
-  @apply absolute inset-0 opacity-[0.03] pointer-events-none;
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* Custom Scrollbar */
+/* Scrollbar Theme Awareness */
 ::-webkit-scrollbar {
   width: 6px;
-  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-primary);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-primary);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
-.grid-cols-15 {
-  grid-template-columns: repeat(15, minmax(0, 1fr));
+/* View Transition Styles */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  clip-path: var(--magicui-theme-toggle-clip-start);
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-group(root) {
+  animation-duration: var(--magicui-theme-toggle-vt-duration);
 }

@@ -83,13 +83,13 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const Icon = currentStep.icon;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-bg-base font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-bg-primary font-sans">
       <div className="mesh-background opacity-30" />
       
       {/* Top Brand Marker */}
       <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
         <Zap className="w-5 h-5 text-accent-glow fill-current" />
-        <span className="text-xl font-serif italic text-white tracking-tighter">Ascent AI</span>
+        <span className="text-xl font-serif italic text-text-primary tracking-tighter">Ascent AI</span>
       </div>
 
       <div className="max-w-4xl w-full relative z-10">
@@ -123,10 +123,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                <h2 className="text-[10px] font-black uppercase tracking-[0.8em] text-accent-glow/60 mb-5">
                  {showManual ? "Manual Override" : currentStep.subtitle}
                </h2>
-               <h1 className="text-6xl md:text-9xl font-serif italic text-white tracking-tighter leading-[0.85] mb-10">
+               <h1 className="text-6xl md:text-9xl font-serif italic text-text-primary tracking-tighter leading-[0.85] mb-10">
                 {isSubmitting ? "Success" : isDetecting ? "Detecting" : showManual ? "Paste Key" : currentStep.title}
                </h1>
-               <p className="max-w-xl mx-auto text-xl md:text-3xl text-text-secondary font-serif italic leading-relaxed opacity-80">
+               <p className="max-w-xl mx-auto text-xl md:text-3xl text-text-muted font-serif italic leading-relaxed opacity-80">
                 {isSubmitting 
                   ? "Intelligence Sync Complete. Launching..." 
                   : showManual 
@@ -140,7 +140,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step < 2 && (
                 <button
                   onClick={handleNext}
-                  className="px-16 py-7 rounded-full bg-white text-black font-black text-sm uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10"
+                  className="px-16 py-7 rounded-full bg-text-primary text-bg-primary font-black text-sm uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/10"
                 >
                   Continue
                 </button>
@@ -162,7 +162,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   disabled={isSubmitting || isDetecting}
                   className={`
                     w-full py-8 rounded-full font-black text-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 shadow-2xl
-                    ${isSubmitting ? 'bg-accent-success text-white shadow-accent-success/20' : 'bg-white text-black shadow-white/10'}
+                    ${isSubmitting ? 'bg-accent-success text-white shadow-accent-success/20' : 'bg-text-primary text-bg-primary shadow-accent-glow/10'}
                     hover:scale-105 active:scale-95 disabled:opacity-50
                   `}
                 >
@@ -179,7 +179,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     placeholder="Enter Key Manually..."
-                    className="w-full bg-white/5 border border-white/10 rounded-full py-6 px-10 text-white placeholder:text-text-secondary/20 focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono text-center tracking-widest shadow-2xl"
+                    className="w-full bg-bg-secondary/40 border border-border-pill rounded-full py-6 px-10 text-text-primary placeholder:text-text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono text-center tracking-widest shadow-2xl"
                   />
                   <button
                     onClick={() => onComplete(apiKey.trim())}
@@ -195,7 +195,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step > 0 && step < 3 && (
                 <button
                   onClick={handleBack}
-                  className="mt-10 text-[10px] font-black uppercase tracking-[0.5em] text-text-secondary/40 hover:text-white transition-colors"
+                  className="mt-10 text-[10px] font-black uppercase tracking-[0.5em] text-text-muted/40 hover:text-text-primary transition-colors"
                 >
                   Go Back
                 </button>
@@ -211,10 +211,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           <div className="flex justify-between items-end px-1">
             <div className="flex flex-col">
               <span className="text-[8px] font-black text-accent-glow uppercase tracking-[0.4em] mb-1.5">Protocol Stage</span>
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{currentStep.subtitle}</span>
+              <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">{currentStep.subtitle}</span>
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">
+              <div className="text-[10px] font-black text-text-muted/40 uppercase tracking-[0.4em]">
                 {step + 1} / {steps.length}
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           
           <div className="flex gap-3 h-2">
             {steps.map((_, i) => (
-              <div key={i} className="flex-1 relative overflow-hidden rounded-full bg-white/5">
+              <div key={i} className="flex-1 relative overflow-hidden rounded-full bg-bg-secondary">
                 <motion.div 
                   className="absolute inset-0 bg-accent-glow"
                   animate={{ 
@@ -233,7 +233,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 />
                 {i === step && (
                   <motion.div 
-                    className="absolute inset-0 bg-white/20"
+                    className="absolute inset-0 bg-accent-glow/20"
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   />
