@@ -235,7 +235,16 @@ export default function App() {
     );
   }
 
-  if (!user) return <Landing onShowModal={showModal} />;
+  if (!user) return (
+    <Landing 
+      onGetStarted={() => showModal({
+        title: "Authentication Required",
+        message: "Please sign in with Google to architect your intellectual destiny.",
+        type: 'info'
+      })} 
+      onGoogleSignIn={() => signInWithPopup(auth, googleProvider)} 
+    />
+  );
 
   return (
     <div className="h-screen bg-bg-primary text-text-primary flex flex-col overflow-hidden relative">

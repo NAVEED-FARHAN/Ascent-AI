@@ -1,12 +1,11 @@
 import { motion } from 'motion/react';
 import { Zap, Book, ArrowRight, ShieldCheck, Sparkles, Network, Target } from 'lucide-react';
 import SpotlightCard from './SpotlightCard';
+import { AnimatedThemeToggler } from './AnimatedThemeToggler';
 
 interface LandingProps {
   onGetStarted: () => void;
   onGoogleSignIn: () => void;
-  onLogin: () => void;
-  onGuestAccess: () => void;
 }
 
 const GoogleLogo = () => (
