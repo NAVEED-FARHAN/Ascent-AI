@@ -82,7 +82,7 @@ const roadmapSchema = {
 
 function translateGeminiError(err: any): string {
   const message = err?.message || String(err);
-  
+
   if (message.includes("429") || message.includes("QUOTA_EXCEEDED")) {
     return "Neural capacity reached. Please wait a few seconds for the next synchronization cycle.";
   }
@@ -95,12 +95,12 @@ function translateGeminiError(err: any): string {
   if (message.includes("INVALID_ARGUMENT")) {
     return "Protocol error: The request configuration is invalid. Please refine your goal and re-initialize.";
   }
-  
+
   // Clean up JSON strings if they still slip through
   try {
     const parsed = JSON.parse(message);
     if (parsed.error?.message) return parsed.error.message;
-  } catch (e) {}
+  } catch (e) { }
 
   return message;
 }
@@ -123,7 +123,7 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
 
   const generate = async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         responseMimeType: "application/json",
