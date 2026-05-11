@@ -24,6 +24,7 @@ export default function Home({
 }: HomeProps) {
   const [goal, setGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
 
   const loadHistory = async () => {
@@ -84,7 +85,7 @@ export default function Home({
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-6xl md:text-8xl font-serif italic leading-[1.1] tracking-tight"
+          className="text-6xl md:text-8xl font-serif italic leading-[1.1] tracking-tight text-white"
         >
           Master anything with<br />
           <span className="text-accent-glow underline decoration-accent-glow/20 underline-offset-8">Architected Learning</span>
@@ -94,50 +95,62 @@ export default function Home({
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto font-serif leading-relaxed"
+          className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto font-serif leading-relaxed opacity-60"
         >
           Personalized AI-driven roadmaps that transform your intellectual curiosity into structured mastery.
         </motion.p>
       </div>
 
       {/* Search & Launch Section */}
-      <div className="w-full max-w-3xl space-y-6">
+      <div className="w-full flex flex-col items-center gap-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative group"
+          className="relative group w-full max-w-xl"
         >
-          <div className="absolute -inset-1 bg-accent-glow/10 blur-2xl group-focus-within:opacity-40 transition-opacity" />
-          <div className="relative flex items-center bg-bg-secondary border border-border-primary rounded-[2.5rem] p-2 backdrop-blur-3xl shadow-2xl overflow-hidden group-focus-within:border-accent-glow/50 transition-all">
+          <motion.form 
+            onSubmit={(e) => { e.preventDefault(); goal.trim() && onStartGoal(goal); }}
+            animate={{ 
+              scale: isFocused ? 1.02 : 1,
+              boxShadow: isFocused ? '0 0 50px rgba(124,111,250,0.15)' : '0 10px 30px rgba(0,0,0,0.2)'
+            }}
+            className={`relative flex items-center bg-white/[0.03] border rounded-2xl p-2 backdrop-blur-3xl shadow-2xl overflow-hidden transition-all duration-500 ${isFocused ? 'border-[#7c6ffa]/50 bg-white/[0.06] ring-1 ring-[#7c6ffa]/20' : 'border-white/[0.08]'}`}
+          >
             <input 
               type="text" 
               value={goal} 
               onChange={(e) => setGoal(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               placeholder="What do you want to learn today?" 
-              className="flex-1 bg-transparent border-none px-8 py-6 text-xl text-text-primary outline-none placeholder:text-text-placeholder font-serif italic"
-              onKeyDown={(e) => e.key === 'Enter' && goal.trim() && onStartGoal(goal)}
+              className="flex-1 bg-transparent border-none px-8 py-6 text-[17px] text-white outline-none placeholder:text-[#4a4465] font-serif italic tracking-wide"
             />
-            <button 
+            <motion.button 
+              type="submit"
               disabled={!isNeuralReady || !goal.trim()}
-              onClick={() => onStartGoal(goal)}
-              className={`px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] transition-all flex items-center gap-3 shadow-lg ${
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`px-8 py-3.5 rounded-xl font-black uppercase tracking-[0.15em] text-[11px] transition-all flex items-center gap-3 shadow-lg ${
                 isNeuralReady && goal.trim()
-                  ? 'bg-accent-glow text-white hover:bg-accent-glow/80 active:scale-[0.98]' 
-                  : 'bg-bg-track text-text-muted border border-border-primary cursor-not-allowed'
+                  ? 'bg-accent-glow text-white hover:opacity-90' 
+                  : 'bg-white/[0.05] text-[#c8c0e8] border border-white/[0.1] cursor-not-allowed opacity-50'
               }`}
             >
               {isNeuralReady ? (
-                <>Start Journey <ArrowRight className="w-4 h-4" /></>
+                <>Start Journey <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
               ) : (
                 <>Synchronizing <Loader2 className="w-4 h-4 animate-spin" /></>
               )}
-            </button>
-          </div>
+            </motion.button>
+
+            {/* Gradient Border Glow */}
+            <div className={`absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-[#7c6ffa]/20 via-transparent to-[#a855f7]/20 opacity-0 transition-opacity duration-500 ${isFocused ? 'opacity-100' : ''}`} />
+          </motion.form>
         </motion.div>
 
         {/* Continue Active Journey Badge */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {roadmap && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }} 
@@ -147,10 +160,10 @@ export default function Home({
             >
               <button 
                 onClick={() => onSelectRoadmap(roadmap)}
-                className="group flex items-center gap-3 px-6 py-3 rounded-full bg-bg-secondary border border-border-pill hover:border-accent-glow/30 transition-all shadow-md"
+                className="group flex items-center gap-3 px-6 py-3 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-[#7c6ffa]/30 transition-all shadow-md backdrop-blur-md"
               >
-                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Continue Active Journey:</span>
-                <span className="text-[11px] font-serif italic text-text-primary group-hover:text-accent-glow transition-colors">{roadmap.goal}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#6b6485]">Continue Active Journey:</span>
+                <span className="text-[11px] font-serif italic text-white group-hover:text-accent-glow transition-colors">{roadmap.goal}</span>
                 <ArrowRight className="w-3 h-3 text-accent-glow" />
               </button>
             </motion.div>
