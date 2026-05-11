@@ -26,6 +26,7 @@ import Modal from './components/Modal';
 import RoadmapDetailOverlay from './components/RoadmapDetailOverlay';
 import { Dock, DockIcon, DockSeparator } from './components/Dock';
 import LoadingScreen from './components/LoadingScreen';
+import Balatro from './components/Balatro';
 
 // Libs
 
@@ -50,6 +51,9 @@ export default function App() {
   const [view, setView] = useState<View>('landing');
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(() => 
+    typeof document !== 'undefined' ? document.documentElement.classList.contains("dark") : true
+  );
   const [progress, setProgress] = useState<UserProgress>({
     completedSubTopicIds: [],
     completedChallengeIds: [],
@@ -79,6 +83,19 @@ export default function App() {
   });
 
   const mainContentRef = useRef<HTMLDivElement>(null);
+
+  // Sync theme state
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -224,163 +241,185 @@ export default function App() {
     signOut(auth).then(() => setView('landing'));
   };
 
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-        <div className="relative">
-          <div className="w-12 h-12 border-4 border-accent-glow/20 border-t-accent-glow rounded-full animate-spin" />
-          <div className="absolute inset-0 bg-accent-glow/20 blur-xl animate-pulse" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) return (
-    <Landing 
-      onGetStarted={() => showModal({
-        title: "Authentication Required",
-        message: "Please sign in with Google to architect your intellectual destiny.",
-        type: 'info'
-      })} 
-      onGoogleSignIn={() => signInWithPopup(auth, googleProvider)} 
-    />
-  );
-
   return (
     <div className="h-screen bg-bg-primary text-text-primary flex flex-col overflow-hidden relative">
-      {/* Immersive Background Mesh */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent-glow/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+      {/* Neural Continuum (Theme-Aware) */}
+      <div className="fixed inset-0 bg-bg-primary -z-50" />
+      
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+        style={{ viewTransitionName: 'none' } as any}
+      >
+        {/* Native Balatro Neural Shader */}
+        <div className="absolute inset-0 opacity-80">
+          <Balatro
+            isRotate={false}
+            mouseInteraction={true}
+            pixelFilter={2000}
+            color1="#2c2e6c"
+            color2={isDark ? "#000000" : "#ffffff"}
+            color3={isDark ? "#000000" : "#9697e9"}
+          />
+        </div>
+
+        {/* Global Noise Texture Overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.035] mix-blend-overlay"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
+        />
+
+        {/* Global Frosty Glass Detail Overlay - Architectural Moderate */}
+        <div className={`absolute inset-0 transition-all duration-500 ${isDark ? 'backdrop-blur-[5px] bg-[#04040d]/30' : 'backdrop-blur-[5px] bg-white/25'}`} />
       </div>
 
-      <header className="relative z-50 px-8 py-6 flex items-center justify-between border-b border-border-primary backdrop-blur-md bg-bg-primary/40">
-        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setView('home')}>
-          <div className="w-10 h-10 bg-accent-glow rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent-glow/20 group-hover:scale-110 transition-transform">
-            <Book className="w-6 h-6" />
+      {isAuthLoading ? (
+        <div className="flex-1 flex items-center justify-center relative z-50">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-accent-glow/20 border-t-accent-glow rounded-full animate-spin" />
+            <div className="absolute inset-0 bg-accent-glow/20 blur-xl animate-pulse" />
           </div>
-          <h1 className="text-xl font-black tracking-tighter uppercase italic">Ascent <span className="text-accent-glow">AI</span></h1>
         </div>
+      ) : !user ? (
+        <div className="flex-1 relative z-50 overflow-y-auto scrollbar-hide">
+          <Landing 
+            onGetStarted={() => showModal({
+              title: "Authentication Required",
+              message: "Please sign in with Google to architect your intellectual destiny.",
+              type: 'info'
+            })} 
+            onGoogleSignIn={() => signInWithPopup(auth, googleProvider)} 
+          />
+        </div>
+      ) : (
+        <>
+          <header className="relative z-50 px-8 py-6 flex items-center justify-between border-b border-border-primary backdrop-blur-md bg-bg-primary/40">
+            <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setView('home')}>
+              <div className="w-10 h-10 bg-accent-glow rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent-glow/20 group-hover:scale-110 transition-transform">
+                <Book className="w-6 h-6" />
+              </div>
+              <h1 className="text-xl font-black tracking-tighter uppercase italic">Ascent <span className="text-accent-glow">AI</span></h1>
+            </div>
 
-        <div className="flex items-center gap-6">
-          {isLoading && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-accent-glow/10 rounded-full border border-border-pill animate-pulse">
-              <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow">Architecting Knowledge...</span>
+            <div className="flex items-center gap-6">
+              {isLoading && (
+                <div className="flex items-center gap-3 px-4 py-2 bg-accent-glow/10 rounded-full border border-border-pill animate-pulse">
+                  <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow">Architecting Knowledge...</span>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-2">
+                <AnimatedThemeToggler variant="circle" />
+                
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button 
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="w-10 h-10 rounded-full border-2 border-accent-glow/30 overflow-hidden hover:border-accent-glow transition-all"
+                  >
+                    <img src={user.photoURL || ''} alt="User" className="w-full h-full object-cover" referrerPolicy="no-referrer" crossOrigin="anonymous" />
+                  </button>
+
+                  <AnimatePresence>
+                    {isProfileMenuOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute top-full right-0 mt-4 w-48 py-2 rounded-2xl bg-bg-secondary border border-border-pill shadow-2xl backdrop-blur-xl z-[100]"
+                      >
+                        <div className="px-4 py-3 border-b border-border-primary mb-2">
+                          <p className="text-[9px] text-text-muted uppercase tracking-widest font-black">Authenticated</p>
+                          <h3 className="text-xs font-bold truncate text-text-primary">{user.displayName}</h3>
+                        </div>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted hover:text-rose-500 hover:bg-rose-500/5 transition-all"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
+            <AnimatePresence mode="wait">
+              <motion.div key={view} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
+                {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={handleStartGoal} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
+                {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
+                {view === 'planner' && roadmap && <Planner roadmap={roadmap} progress={progress} />}
+                {view === 'dashboard' && <Dashboard roadmap={roadmap} progress={progress} />}
+                {view === 'practice' && roadmap ? (
+                  <PracticeHub 
+                    roadmap={roadmap} 
+                    progress={progress} 
+                    onCompleteChallenge={toggleChallenge}
+                    onNavigateHome={() => setView('home')}
+                  />
+                ) : view === 'practice' ? (
+                  <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-10">
+                    <FlaskConical className="w-16 h-16 text-accent-glow/20" />
+                    <h3 className="text-2xl font-serif italic text-text-secondary/60">No Active Mission Found</h3>
+                    <p className="text-sm text-text-secondary/40 max-w-md uppercase tracking-widest leading-loose">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
+                    <button onClick={() => setView('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
+                  </div>
+                ) : null}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+
+          {/* Global Neural Detail Overlay (Stacking Fix) */}
+          <AnimatePresence>
+            {selectedNodeId && roadmap && (
+              <RoadmapDetailOverlay 
+                node={roadmap.nodes.find(n => n.id === selectedNodeId)!}
+                progress={progress}
+                onClose={() => setSelectedNodeId(null)}
+                onToggleSubTopic={toggleSubTopic}
+              />
+            )}
+          </AnimatePresence>
+
+          {view !== 'home' && (
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200]">
+              <Dock>
+                {navItems.slice(0, 3).map((item) => (
+                  <DockIcon 
+                    key={item.id} 
+                    onClick={() => setView(item.id as View)}
+                    label={item.label}
+                    active={view === item.id}
+                    hasNotification={item.id === 'planner' && progress.completedSubTopicIds.length === 0} // Example: notification if no progress
+                  >
+                    <item.icon className="w-full h-full" />
+                  </DockIcon>
+                ))}
+                <DockSeparator />
+                {navItems.slice(3).map((item) => (
+                  <DockIcon 
+                    key={item.id} 
+                    onClick={() => setView(item.id as View)}
+                    label={item.label}
+                    active={view === item.id}
+                  >
+                    <item.icon className="w-full h-full" />
+                  </DockIcon>
+                ))}
+              </Dock>
             </div>
           )}
-          
-          <div className="flex items-center gap-2">
-            <AnimatedThemeToggler variant="circle" />
-            
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <button 
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="w-10 h-10 rounded-full border-2 border-accent-glow/30 overflow-hidden hover:border-accent-glow transition-all"
-              >
-                <img src={user.photoURL || ''} alt="User" className="w-full h-full object-cover" referrerPolicy="no-referrer" crossOrigin="anonymous" />
-              </button>
 
-              <AnimatePresence>
-                {isProfileMenuOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute top-full right-0 mt-4 w-48 py-2 rounded-2xl bg-bg-secondary border border-border-pill shadow-2xl backdrop-blur-xl z-[100]"
-                  >
-                    <div className="px-4 py-3 border-b border-border-primary mb-2">
-                      <p className="text-[9px] text-text-muted uppercase tracking-widest font-black">Authenticated</p>
-                      <h3 className="text-xs font-bold truncate text-text-primary">{user.displayName}</h3>
-                    </div>
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted hover:text-rose-500 hover:bg-rose-500/5 transition-all"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </header>
+          <AnimatePresence>
+            {isLoading && <LoadingScreen />}
+          </AnimatePresence>
 
-      <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
-        <AnimatePresence mode="wait">
-          <motion.div key={view} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-            {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={handleStartGoal} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
-            {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
-            {view === 'planner' && roadmap && <Planner roadmap={roadmap} progress={progress} />}
-            {view === 'dashboard' && <Dashboard roadmap={roadmap} progress={progress} />}
-            {view === 'practice' && roadmap ? (
-              <PracticeHub 
-                roadmap={roadmap} 
-                progress={progress} 
-                onCompleteChallenge={toggleChallenge}
-                onNavigateHome={() => setView('home')}
-              />
-            ) : view === 'practice' ? (
-              <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-10">
-                <FlaskConical className="w-16 h-16 text-accent-glow/20" />
-                <h3 className="text-2xl font-serif italic text-text-secondary/60">No Active Mission Found</h3>
-                <p className="text-sm text-text-secondary/40 max-w-md uppercase tracking-widest leading-loose">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
-                <button onClick={() => setView('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
-              </div>
-            ) : null}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-
-      {/* Global Neural Detail Overlay (Stacking Fix) */}
-      <AnimatePresence>
-        {selectedNodeId && roadmap && (
-          <RoadmapDetailOverlay 
-            node={roadmap.nodes.find(n => n.id === selectedNodeId)!}
-            progress={progress}
-            onClose={() => setSelectedNodeId(null)}
-            onToggleSubTopic={toggleSubTopic}
-          />
-        )}
-      </AnimatePresence>
-
-      {view !== 'home' && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200]">
-          <Dock>
-            {navItems.slice(0, 3).map((item) => (
-              <DockIcon 
-                key={item.id} 
-                onClick={() => setView(item.id as View)}
-                label={item.label}
-                active={view === item.id}
-                hasNotification={item.id === 'planner' && progress.completedSubTopicIds.length === 0} // Example: notification if no progress
-              >
-                <item.icon className="w-full h-full" />
-              </DockIcon>
-            ))}
-            <DockSeparator />
-            {navItems.slice(3).map((item) => (
-              <DockIcon 
-                key={item.id} 
-                onClick={() => setView(item.id as View)}
-                label={item.label}
-                active={view === item.id}
-              >
-                <item.icon className="w-full h-full" />
-              </DockIcon>
-            ))}
-          </Dock>
-        </div>
+          <Modal {...modalConfig} onClose={closeModal} />
+        </>
       )}
-
-      <AnimatePresence>
-        {isLoading && <LoadingScreen />}
-      </AnimatePresence>
-
-      <Modal {...modalConfig} onClose={closeModal} />
     </div>
   );
 }
