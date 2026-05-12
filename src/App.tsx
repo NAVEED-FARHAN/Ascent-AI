@@ -259,6 +259,7 @@ export default function App() {
             color1="#2c2e6c"
             color2={isDark ? "#000000" : "#ffffff"}
             color3={isDark ? "#000000" : "#9697e9"}
+            isPaused={isLoading}
           />
         </div>
 

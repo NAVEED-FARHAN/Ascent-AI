@@ -1,9 +1,8 @@
 import { motion } from 'motion/react';
-import { Loader2, Zap, ShieldCheck, Activity } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import MagicRings from './MagicRings';
 
 export default function LoadingScreen() {
-  const pulses = Array.from({ length: 3 });
-
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -12,7 +11,22 @@ export default function LoadingScreen() {
       className="fixed inset-0 z-[1000] bg-bg-primary flex flex-col items-center justify-center overflow-hidden"
     >
       {/* Cinematic Background */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 opacity-40">
+          <MagicRings
+            color="#7c6ffa"
+            colorTwo="#6366F1"
+            ringCount={8}
+            speed={0.5}
+            attenuation={8}
+            lineThickness={2.5}
+            baseRadius={0.2}
+            radiusStep={0.12}
+            scaleRate={0.08}
+            opacity={0.6}
+            blur={2}
+          />
+        </div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-glow/5 blur-[120px] rounded-full animate-pulse" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
       </div>
