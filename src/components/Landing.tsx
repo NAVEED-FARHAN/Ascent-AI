@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Book, ArrowRight, Sparkles, Target, Layout, ShieldCheck } from 'lucide-react';
 import { AnimatedThemeToggler } from './AnimatedThemeToggler';
 import Balatro from './Balatro';
+import StarBorder from './StarBorder';
 
 interface LandingProps {
   onGetStarted: () => void;
@@ -47,6 +48,29 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
 
   return (
     <div className="min-h-screen text-[#e8e4f0] font-sans overflow-x-hidden relative">
+      <div className="fixed inset-0 bg-[#04040d] -z-50" />
+
+      {/* Cinematic Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-80">
+        <Balatro
+          isRotate={true}
+          mouseInteraction={true}
+          spinSpeed={0.2}
+          spinRotation={-0.1}
+          pixelFilter={2000}
+          color1="#2c2e6c"
+          color2="#000000"
+          color3="#000000"
+          contrast={4.5}
+          lighting={0.5}
+        />
+      </div>
+
+      {/* Noise Texture Overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.035] -z-10"
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
+      />
 
       <nav className="fixed top-0 left-0 right-0 z-[100] px-10 h-[62px] flex items-center justify-between border-b border-white/[0.055] bg-[#04040d]/70 backdrop-blur-[20px]">
         <div className="flex items-center gap-4 group cursor-pointer">
@@ -57,8 +81,8 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
         </div>
         <div className="flex items-center gap-6">
           <AnimatedThemeToggler variant="circle" />
-          <button onClick={onGoogleSignIn} className="text-[13.5px] text-[#9990b8] hover:text-[#e8e4f0] transition-colors font-medium tracking-tight">Sign In</button>
-          <button onClick={onGetStarted} className="px-5 py-2 rounded-lg bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] text-white font-semibold text-[13px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-[0_0_24px_rgba(124,111,250,0.35)] uppercase">Initiate</button>
+          <button onClick={onGoogleSignIn} className="text-[13.5px] text-[#9990b8] hover:text-[#e8e4f0] transition-colors">Sign In</button>
+          <button onClick={onGetStarted} className="px-5 py-2 rounded-lg bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] text-white font-semibold text-[13px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-[0_0_24px_rgba(124,111,250,0.35)]">INITIATE</button>
         </div>
       </nav>
 
@@ -77,17 +101,18 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
         </h1>
 
         <p className="max-w-md mx-auto text-[16px] text-[#7a7295] font-light leading-[1.7] mb-12 tracking-wide">
-          Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-[#9990b8]">master architects.</span>
+          Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-[#9990b8]">master architects.</span> Pure knowledge architecture, refined for mastery.
         </p>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-32">
-          <motion.button
+          <StarBorder
+            as="button"
             onClick={onGetStarted}
-            whileHover={{ y: -2 }}
-            className="w-full md:w-auto bg-white text-[#111] px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 font-semibold text-[13px] tracking-widest transition-all shadow-xl hover:bg-[#f0ebff] group"
+            speed="3s"
+            className="w-full md:w-auto"
           >
             START JOURNEY <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </motion.button>
+          </StarBorder>
           <motion.button
             onClick={onGoogleSignIn}
             whileHover={{ y: -2 }}

@@ -7,6 +7,7 @@ import {
 import { User } from 'firebase/auth';
 import { Roadmap, RoadmapRecord } from '../types';
 import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
+import StarBorder from './StarBorder';
 
 interface HomeProps {
   user: User | null;
@@ -126,15 +127,17 @@ export default function Home({
               placeholder="What do you want to learn today?" 
               className="flex-1 bg-transparent border-none px-8 py-6 text-[17px] text-white outline-none placeholder:text-[#4a4465] font-serif italic tracking-wide"
             />
-            <motion.button 
+            <StarBorder
+              as={motion.button}
               type="submit"
               disabled={!isNeuralReady || !goal.trim()}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`px-8 py-3.5 rounded-xl font-black uppercase tracking-[0.15em] text-[11px] transition-all flex items-center gap-3 shadow-lg ${
+              speed="3s"
+              className={`w-auto shadow-lg transition-opacity duration-300 ${
                 isNeuralReady && goal.trim()
-                  ? 'bg-accent-glow text-white hover:opacity-90' 
-                  : 'bg-white/[0.05] text-[#c8c0e8] border border-white/[0.1] cursor-not-allowed opacity-50'
+                  ? 'opacity-100' 
+                  : 'opacity-50 cursor-not-allowed'
               }`}
             >
               {isNeuralReady ? (
@@ -142,7 +145,7 @@ export default function Home({
               ) : (
                 <>Synchronizing <Loader2 className="w-4 h-4 animate-spin" /></>
               )}
-            </motion.button>
+            </StarBorder>
 
             {/* Gradient Border Glow */}
             <div className={`absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-[#7c6ffa]/20 via-transparent to-[#a855f7]/20 opacity-0 transition-opacity duration-500 ${isFocused ? 'opacity-100' : ''}`} />
