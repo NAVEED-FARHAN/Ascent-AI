@@ -9,6 +9,8 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ roadmap, progress }: DashboardProps) {
+  if (!roadmap) return null;
+  
   const totalSubTopics = roadmap.nodes.reduce((acc, n) => acc + n.subTopics.length, 0);
   const completedSubTopics = progress.completedSubTopicIds.length;
   const progressPercent = Math.round((completedSubTopics / (totalSubTopics || 1)) * 100);

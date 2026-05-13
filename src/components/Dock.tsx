@@ -1,3 +1,5 @@
+"use client"
+
 import React, { PropsWithChildren, useRef } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import {
@@ -27,7 +29,7 @@ const DEFAULT_DISTANCE = 140
 const DEFAULT_DISABLEMAGNIFICATION = false
 
 const dockVariants = cva(
-  "mx-auto flex h-[68px] w-max items-center justify-center gap-2 rounded-[32px] border border-border-primary bg-bg-secondary/40 backdrop-blur-2xl px-3 py-2 shadow-xl relative before:absolute before:inset-0 before:rounded-[32px] before:border-t before:border-border-primary/20 before:pointer-events-none"
+  "supports-backdrop-blur:bg-white/10 supports-backdrop-blur:dark:bg-black/10 mx-auto mt-8 flex h-[58px] w-max items-center justify-center gap-2 rounded-2xl border p-2 backdrop-blur-md"
 )
 
 const Dock = React.forwardRef<HTMLDivElement, DockProps>(
@@ -70,7 +72,6 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         ref={ref}
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        {...props}
         className={cn(dockVariants({ className }), {
           "items-start": direction === "top",
           "items-center": direction === "middle",
@@ -96,9 +97,6 @@ export interface DockIconProps extends Omit<
   mouseX?: MotionValue<number>
   className?: string
   children?: React.ReactNode
-  label?: string
-  active?: boolean
-  hasNotification?: boolean
   props?: PropsWithChildren
 }
 
@@ -110,12 +108,12 @@ const DockIcon = ({
   mouseX,
   className,
   children,
+  isActive,
   label,
-  active,
-  hasNotification,
   ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null)
+  const padding = Math.max(6, size * 0.2)
   const defaultMouseX = useMotionValue(Infinity)
 
   const distanceCalc = useTransform(mouseX ?? defaultMouseX, (val: number) => {
@@ -137,46 +135,24 @@ const DockIcon = ({
     damping: 12,
   })
 
-  // We only scale the icon container, not the entire button with label
-  const iconScale = useTransform(scaleSize, [size, targetSize], [1, targetSize / size])
-
   return (
     <motion.div
       ref={ref}
-      onClick={props.onClick}
+      style={{ width: scaleSize, height: scaleSize, padding }}
       className={cn(
-        "relative flex flex-col items-center justify-center transition-all duration-300 px-3 py-2 rounded-2xl cursor-pointer group",
-        active ? "bg-accent-glow text-white shadow-lg shadow-accent-glow/20" : "text-text-muted hover:bg-bg-secondary hover:text-text-primary",
+        "flex aspect-square cursor-pointer items-center justify-center rounded-full",
+        disableMagnification && "hover:bg-muted-foreground transition-colors",
         className
       )}
       {...props}
     >
-      <motion.div
-        style={{ scale: iconScale }}
-        className="relative flex items-center justify-center w-5 h-5 mb-1"
-      >
+      <div className="flex items-center justify-center w-full h-full">
         {children}
-        {hasNotification && (
-          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full border border-bg-primary shadow-sm" />
-        )}
-      </motion.div>
-      
-      {label && (
-        <span className={cn(
-          "text-[9px] font-black uppercase tracking-widest transition-opacity duration-300",
-          active ? "opacity-100 text-white" : "text-text-muted group-hover:text-text-primary"
-        )}>
-          {label}
-        </span>
-      )}
+      </div>
     </motion.div>
   )
 }
 
-const DockSeparator = () => (
-  <div className="w-[1px] h-8 bg-border-primary mx-2" />
-)
-
 DockIcon.displayName = "DockIcon"
 
-export { Dock, DockIcon, DockSeparator, dockVariants }
+export { Dock, DockIcon, dockVariants }

@@ -11,9 +11,11 @@ import {
   FlaskConical, 
   BarChart3, 
   Loader2,
-  X
+  X,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { cn } from './lib/utils';
 
 // Components
 import Landing from './components/Landing';
@@ -24,7 +26,15 @@ import Dashboard from './components/Dashboard';
 import PracticeHub from './components/PracticeHub';
 import Modal from './components/Modal';
 import RoadmapDetailOverlay from './components/RoadmapDetailOverlay';
-import { Dock, DockIcon, DockSeparator } from './components/Dock';
+import { Dock, DockIcon } from './components/Dock';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./components/ui/tooltip";
+import { buttonVariants } from "./components/ui/button";
+import { Separator } from "./components/ui/separator";
 import LoadingScreen from './components/LoadingScreen';
 import Balatro from './components/Balatro';
 
@@ -66,6 +76,7 @@ export default function App() {
   const [isNeuralReady, setIsNeuralReady] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const navItems = [
     { id: 'home', icon: HomeIcon, label: 'Home' },
@@ -259,7 +270,7 @@ export default function App() {
             color1="#2c2e6c"
             color2={isDark ? "#000000" : "#ffffff"}
             color3={isDark ? "#000000" : "#9697e9"}
-            isPaused={isLoading}
+            isPaused={isLoading || isMenuOpen}
           />
         </div>
 
@@ -292,60 +303,111 @@ export default function App() {
           />
         </div>
       ) : (
-        <>
-          <header className="relative z-50 px-8 py-6 flex items-center justify-between border-b border-border-primary backdrop-blur-md bg-bg-primary/40">
-            <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setView('home')}>
-              <div className="w-10 h-10 bg-accent-glow rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent-glow/20 group-hover:scale-110 transition-transform">
-                <Book className="w-6 h-6" />
-              </div>
-              <h1 className="text-xl font-black tracking-tighter uppercase italic">Ascent <span className="text-accent-glow">AI</span></h1>
-            </div>
-
-            <div className="flex items-center gap-6">
-              {isLoading && (
-                <div className="flex items-center gap-3 px-4 py-2 bg-accent-glow/10 rounded-full border border-border-pill animate-pulse">
-                  <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow">Architecting Knowledge...</span>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {view === 'home' && (
+            <header className="relative z-[100] px-8 py-8 flex items-center justify-between">
+              {/* Left: System Branding */}
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-5 group cursor-pointer"
+                onClick={() => setView('home')}
+              >
+                <div className="relative">
+                  <div className="w-12 h-12 bg-accent-glow rounded-2xl flex items-center justify-center text-white shadow-[0_0_30px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-all duration-500">
+                    <Book className="w-6 h-6" />
+                  </div>
+                  <div className="absolute -inset-1 bg-accent-glow/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-              )}
-              
-              <div className="flex items-center gap-2">
-                <AnimatedThemeToggler variant="circle" />
+                <div className="flex flex-col">
+                  <h1 className="text-2xl font-black tracking-tighter uppercase italic leading-none">
+                    Ascent <span className="text-accent-glow">AI</span>
+                  </h1>
+                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 mt-1">Master Architect v2.0</span>
+                </div>
+              </motion.div>
+
+              {/* Center: Status Matrix */}
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="hidden lg:flex items-center gap-8 px-8 py-3 bg-white/[0.03] border border-white/5 backdrop-blur-2xl rounded-full"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-accent-success shadow-[0_0_10px_#10b981] animate-pulse" />
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white/30">Neural Sync</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Operational</span>
+                  </div>
+                </div>
+                <div className="w-[1px] h-4 bg-white/10" />
+                <div className="flex items-center gap-3">
+                  <Activity className="w-3.5 h-3.5 text-accent-glow" />
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white/30">Processing</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Nominal</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Right: User Matrix */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-6"
+              >
+                {isLoading && (
+                  <div className="flex items-center gap-3 px-4 py-2 bg-accent-glow/10 rounded-full border border-accent-glow/20 animate-pulse">
+                    <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow italic">Syncing...</span>
+                  </div>
+                )}
                 
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
-                  <button 
-                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="w-10 h-10 rounded-full border-2 border-accent-glow/30 overflow-hidden hover:border-accent-glow transition-all"
-                  >
-                    <img src={user.photoURL || ''} alt="User" className="w-full h-full object-cover" referrerPolicy="no-referrer" crossOrigin="anonymous" />
-                  </button>
+                <div className="flex items-center gap-4">
+                  <AnimatedThemeToggler variant="circle" />
+                  
+                  <div className="relative group" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      className="flex items-center gap-3 p-1.5 pr-4 rounded-full bg-white/5 border border-white/10 hover:border-accent-glow/40 transition-all"
+                    >
+                      <div className="w-9 h-9 rounded-full border-2 border-accent-glow/30 overflow-hidden shadow-lg">
+                        <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex flex-col items-start text-left">
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Access Key</span>
+                        <span className="text-[10px] font-black text-white truncate max-w-[80px]">{user.displayName?.split(' ')[0]}</span>
+                      </div>
+                    </button>
 
-                  <AnimatePresence>
-                    {isProfileMenuOpen && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute top-full right-0 mt-4 w-48 py-2 rounded-2xl bg-bg-secondary border border-border-pill shadow-2xl backdrop-blur-xl z-[100]"
-                      >
-                        <div className="px-4 py-3 border-b border-border-primary mb-2">
-                          <p className="text-[9px] text-text-muted uppercase tracking-widest font-black">Authenticated</p>
-                          <h3 className="text-xs font-bold truncate text-text-primary">{user.displayName}</h3>
-                        </div>
-                        <button 
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted hover:text-rose-500 hover:bg-rose-500/5 transition-all"
+                    <AnimatePresence>
+                      {isProfileMenuOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute top-full right-0 mt-4 w-56 py-3 rounded-2xl bg-[#0a0a1a]/90 border border-white/10 shadow-2xl backdrop-blur-2xl z-[200]"
                         >
-                          <LogOut className="w-4 h-4" />
-                          Sign Out
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                          <div className="px-5 py-3 border-b border-white/5 mb-2">
+                            <p className="text-[8px] text-white/20 uppercase tracking-[0.2em] font-black mb-1">Authenticated Entity</p>
+                            <h3 className="text-xs font-bold truncate text-white">{user.displayName}</h3>
+                            <p className="text-[9px] text-accent-glow font-medium truncate mt-0.5">{user.email}</p>
+                          </div>
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-4 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Terminate Session
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </header>
+              </motion.div>
+            </header>
+          )}
 
           <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
             <AnimatePresence mode="wait">
@@ -373,6 +435,59 @@ export default function App() {
             </AnimatePresence>
           </main>
 
+          {view !== 'home' && (
+            <div className="fixed bottom-10 left-0 right-0 z-[500] flex flex-col items-center">
+              <TooltipProvider>
+                <Dock direction="middle" className="bg-[#04040d]/40 border-white/10 text-white">
+                  {navItems.map((item) => (
+                    <DockIcon key={item.id} className={cn(view === item.id && "bg-accent-glow/20 border border-accent-glow/40")}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => setView(item.id as View)}
+                            aria-label={item.label}
+                            className={cn(
+                              buttonVariants({ variant: "ghost", size: "icon" }),
+                              "size-12 rounded-full transition-all",
+                              view === item.id ? "text-white" : "text-white/40 hover:text-white"
+                            )}
+                          >
+                            <item.icon className="size-5" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-black uppercase tracking-widest">{item.label}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </DockIcon>
+                  ))}
+                  
+                  <Separator orientation="vertical" className="h-8 mx-1 bg-white/10" />
+
+                  {/* System Action Icons */}
+                  <DockIcon>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={handleLogout}
+                          className={cn(
+                            buttonVariants({ variant: "ghost", size: "icon" }),
+                            "size-12 rounded-full text-white/40 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                          )}
+                        >
+                          <LogOut className="size-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-black uppercase tracking-widest text-rose-500">Terminate Session</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </DockIcon>
+                </Dock>
+              </TooltipProvider>
+            </div>
+          )}
+
           {/* Global Neural Detail Overlay (Stacking Fix) */}
           <AnimatePresence>
             {selectedNodeId && roadmap && (
@@ -385,41 +500,12 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          {view !== 'home' && (
-            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200]">
-              <Dock>
-                {navItems.slice(0, 3).map((item) => (
-                  <DockIcon 
-                    key={item.id} 
-                    onClick={() => setView(item.id as View)}
-                    label={item.label}
-                    active={view === item.id}
-                    hasNotification={item.id === 'planner' && progress.completedSubTopicIds.length === 0} // Example: notification if no progress
-                  >
-                    <item.icon className="w-full h-full" />
-                  </DockIcon>
-                ))}
-                <DockSeparator />
-                {navItems.slice(3).map((item) => (
-                  <DockIcon 
-                    key={item.id} 
-                    onClick={() => setView(item.id as View)}
-                    label={item.label}
-                    active={view === item.id}
-                  >
-                    <item.icon className="w-full h-full" />
-                  </DockIcon>
-                ))}
-              </Dock>
-            </div>
-          )}
-
           <AnimatePresence>
             {isLoading && <LoadingScreen />}
           </AnimatePresence>
 
           <Modal {...modalConfig} onClose={closeModal} />
-        </>
+        </div>
       )}
     </div>
   );
