@@ -327,28 +327,6 @@ export default function App() {
                 </div>
               </motion.div>
 
-              {/* Center: Status Matrix */}
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="hidden lg:flex items-center gap-8 px-8 py-3 bg-white/[0.03] border border-white/5 backdrop-blur-2xl rounded-full"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-accent-success shadow-[0_0_10px_#10b981] animate-pulse" />
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-white/30">Neural Sync</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Operational</span>
-                  </div>
-                </div>
-                <div className="w-[1px] h-4 bg-white/10" />
-                <div className="flex items-center gap-3">
-                  <Activity className="w-3.5 h-3.5 text-accent-glow" />
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-black uppercase tracking-widest text-white/30">Processing</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Nominal</span>
-                  </div>
-                </div>
-              </motion.div>
 
               {/* Right: User Matrix */}
               <motion.div 
