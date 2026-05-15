@@ -72,17 +72,17 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
       />
 
-      <nav className="fixed top-0 left-0 right-0 z-[100] px-10 h-[62px] flex items-center justify-between border-b border-white/[0.055] bg-[#04040d]/70 backdrop-blur-[20px]">
+      <nav className="fixed top-0 left-0 right-0 z-[100] px-10 h-[62px] flex items-center justify-between border-b border-white/[0.055] bg-bg-primary/60 backdrop-blur-[24px] shadow-[0_1px_10px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-transform duration-300">
             <Book className="w-4 h-4 text-white" />
           </div>
-          <span className="text-[15px] font-semibold text-[#f0ecff] tracking-tight">Ascent AI</span>
+          <span className="text-[15px] font-semibold text-text-primary tracking-tight">Ascent AI</span>
         </div>
         <div className="flex items-center gap-6">
           <AnimatedThemeToggler variant="circle" />
-          <button onClick={onGoogleSignIn} className="text-[13.5px] text-[#9990b8] hover:text-[#e8e4f0] transition-colors">Sign In</button>
-          <button onClick={onGetStarted} className="px-5 py-2 rounded-lg bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] text-white font-semibold text-[13px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-[0_0_24px_rgba(124,111,250,0.35)]">INITIATE</button>
+          <button onClick={onGoogleSignIn} className="text-[13.5px] text-text-muted hover:text-text-primary transition-colors">Sign In</button>
+          <button onClick={onGetStarted} className="px-5 py-2 rounded-lg bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] text-white font-semibold text-[13px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-[0_0_24px_rgba(124,111,250,0.45)] hover:shadow-[0_0_35px_rgba(124,111,250,0.6)]">INITIATE</button>
         </div>
       </nav>
 
@@ -96,13 +96,18 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           Intelligence Protocol v2.5
         </motion.div>
 
-        <h1 className="text-6xl md:text-8xl font-serif italic font-light tracking-tight leading-[1.0] mb-8 select-none text-transparent bg-clip-text bg-gradient-to-br from-white via-[#c4b8ff] to-[#9d8cfc]">
+        <h1 className="text-6xl md:text-8xl font-serif italic font-light tracking-tight leading-[1.0] mb-8 select-none text-transparent bg-clip-text bg-gradient-to-br from-text-primary via-[#7c6ffa] to-[#9d8cfc]">
           Architect your <br /> intellectual destiny.
         </h1>
 
-        <p className="max-w-md mx-auto text-[16px] text-[#7a7295] font-light leading-[1.7] mb-12 tracking-wide">
-          Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-[#9990b8]">master architects.</span> Pure knowledge architecture, refined for mastery.
-        </p>
+        <motion.p 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="max-w-md mx-auto text-[16px] text-text-secondary font-light leading-[1.7] mb-12 tracking-wide animate-float"
+        >
+          Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-accent-glow font-medium">master architects.</span> Pure knowledge architecture, refined for mastery.
+        </motion.p>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-32">
           <StarBorder

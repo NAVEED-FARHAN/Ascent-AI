@@ -72,11 +72,44 @@
 
 /* Custom utilities for the premium aesthetic */
 .glass-panel {
-  @apply bg-bg-secondary/40 border border-border-primary backdrop-blur-xl shadow-xl rounded-2xl;
+  @apply bg-bg-secondary/40 border border-border-primary backdrop-blur-xl shadow-xl rounded-2xl transition-all duration-300;
+}
+
+.glass-panel-premium {
+  @apply bg-white/[0.03] border border-white/[0.08] backdrop-blur-[24px] shadow-2xl rounded-[2rem] transition-all duration-500;
 }
 
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-text-primary via-text-primary to-text-secondary;
+}
+
+.neural-glow {
+  box-shadow: 0 0 40px -10px var(--color-accent-glow);
+}
+
+.blueprint-grid {
+  background-image: 
+    linear-gradient(rgba(124, 111, 250, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 111, 250, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 4s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
 }
 
 /* Scrollbar Theme Awareness */
