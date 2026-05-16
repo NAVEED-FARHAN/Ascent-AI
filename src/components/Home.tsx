@@ -231,24 +231,32 @@ export default function Home({
       </div>
 
       {/* Suggestion Tags */}
-      <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
-        <div className="w-full flex items-center gap-4 mb-4">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-border-primary" />
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted">Prompt Protocols</span>
-          <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-border-primary" />
+      <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+        <div className="w-full flex items-center gap-6 mb-6">
+          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-accent-glow/20 to-transparent" />
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-glow/40">Neural Prompt Protocols</span>
+          <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-accent-glow/20 to-transparent" />
         </div>
         {suggestions.map((tag, i) => (
           <motion.button
             key={tag}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 + i * 0.1 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
+            whileHover={{ 
+              scale: 1.05,
+              y: -2,
+              backgroundColor: "rgba(124,111,250,0.08)"
+            }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => { setGoal(tag); onStartGoal(tag); }}
-            className="group relative px-6 py-3 rounded-xl bg-bg-secondary/60 border border-border-pill text-[10px] font-black uppercase tracking-[0.2em] text-text-muted hover:text-text-primary transition-all overflow-hidden"
+            className="group relative px-6 py-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300 overflow-hidden backdrop-blur-md shadow-lg"
           >
-            <div className="absolute inset-0 bg-accent-glow/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative flex items-center gap-3">
-              <Sparkles className="w-3 h-3 text-accent-glow/40 group-hover:text-accent-glow transition-colors" />
+            <div className="absolute inset-0 bg-accent-glow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-accent-glow/20 group-hover:border-accent-glow/40 transition-all duration-500">
+                <Sparkles className="w-3.5 h-3.5 text-accent-glow/40 group-hover:text-accent-glow transition-colors" />
+              </div>
               {tag}
             </div>
           </motion.button>
