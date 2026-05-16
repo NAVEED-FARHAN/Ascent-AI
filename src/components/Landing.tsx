@@ -4,6 +4,7 @@ import { Book, ArrowRight, Sparkles, Target, Layout, ShieldCheck } from 'lucide-
 import { AnimatedThemeToggler } from './AnimatedThemeToggler';
 import Balatro from './Balatro';
 import StarBorder from './StarBorder';
+import PremiumButton from './ui/PremiumButton';
 
 interface LandingProps {
   onGetStarted: () => void;
@@ -55,14 +56,14 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
         <Balatro
           isRotate={true}
           mouseInteraction={true}
-          spinSpeed={0.2}
-          spinRotation={-0.1}
-          pixelFilter={2000}
-          color1="#2c2e6c"
-          color2="#000000"
-          color3="#000000"
-          contrast={4.5}
-          lighting={0.5}
+          spinSpeed={0.4}
+          spinRotation={-0.2}
+          pixelFilter={1500}
+          color1="#1a1c4d"
+          color2="#050505"
+          color3="#0d0d2b"
+          contrast={5.5}
+          lighting={0.6}
         />
       </div>
 
@@ -109,23 +110,45 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-accent-glow font-medium">master architects.</span> Pure knowledge architecture, refined for mastery.
         </motion.p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-32">
-          <StarBorder
-            as="button"
-            onClick={onGetStarted}
-            speed="3s"
-            className="w-full md:w-auto"
-          >
-            START JOURNEY <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </StarBorder>
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-32">
+          <PremiumButton onClick={onGetStarted}>
+            Start Journey
+          </PremiumButton>
+          
           <motion.button
             onClick={onGoogleSignIn}
-            whileHover={{ y: -2 }}
-            className="w-full md:w-auto px-8 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-[#c8c0e8] font-medium text-[13px] tracking-widest hover:bg-white/[0.08] transition-all flex items-center justify-center gap-3 group backdrop-blur-md"
+            whileHover={{ y: -2, backgroundColor: "rgba(255,255,255,0.08)" }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full md:w-auto px-8 py-5 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white/60 font-black text-[11px] tracking-[0.2em] hover:text-white transition-all flex items-center justify-center gap-4 group backdrop-blur-md"
           >
-            <GoogleLogo /> CONTINUE WITH GOOGLE
+            <div className="p-2 rounded-lg bg-white/5 border border-white/10 group-hover:border-white/20 transition-all">
+              <GoogleLogo />
+            </div>
+            CONTINUE WITH GOOGLE
           </motion.button>
         </div>
+
+        {/* Live System Metric Overlay */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="flex items-center justify-center gap-12 mb-20"
+        >
+          {[
+            { label: "Active Architects", value: "12,842", icon: Sparkles },
+            { label: "Neural Roadmaps", value: "842K+", icon: Target },
+            { label: "System Uptime", value: "99.9%", icon: ShieldCheck },
+          ].map((stat, i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-accent-glow">
+                <stat.icon className="w-3 h-3" />
+                <span className="text-sm font-black tracking-tighter text-white">{stat.value}</span>
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/20">{stat.label}</span>
+            </div>
+          ))}
+        </motion.div>
 
         <div className="flex items-center gap-6 max-w-3xl mx-auto mb-16">
           <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#7c6ffa]/20 to-transparent" />
