@@ -32,11 +32,72 @@ export default function LoadingScreen() {
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center px-10">
-        {/* Neural Core */}
-        <div className="relative mb-16">
-          <div className="flex items-center justify-center relative">
-            <div className="absolute inset-0 bg-accent-glow/20 blur-2xl animate-pulse scale-150" />
-            <Loader2 className="w-16 h-16 text-accent-glow animate-spin" />
+        {/* Neural Core Synthesis (Glow-Focused) */}
+        <div className="relative mb-24">
+          <div className="relative w-40 h-40 flex items-center justify-center">
+            {/* Ambient Neural Pulsar */}
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-accent-glow/10 blur-[60px] rounded-full"
+            />
+            
+            {/* Central Core */}
+            <div className="relative">
+              <motion.div 
+                animate={{ 
+                  rotate: 360,
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ 
+                  rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                  scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                }}
+                className="w-16 h-16 rounded-full bg-gradient-to-tr from-accent-glow to-[#a855f7] p-[2px]"
+              >
+                <div className="w-full h-full rounded-full bg-bg-primary flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-accent-glow shadow-[0_0_15px_#7c6ffa]" />
+                </div>
+              </motion.div>
+              
+              {/* External Orbitals (Glow Lines) */}
+              {[0, 1].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ rotate: i === 0 ? 360 : -360 }}
+                  transition={{ duration: 8 + i * 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute -inset-4 border border-accent-glow/10 rounded-full"
+                />
+              ))}
+            </div>
+
+            {/* Neural Sync Particles */}
+            <div className="absolute inset-0">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ 
+                    y: [0, -40, 0],
+                    opacity: [0, 0.5, 0],
+                    scale: [0.5, 1, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    delay: i * 0.5,
+                    ease: "easeInOut" 
+                  }}
+                  className="absolute w-1 h-1 bg-accent-glow rounded-full"
+                  style={{ 
+                    left: `${20 + i * 15}%`, 
+                    top: `${40 + (i % 2) * 20}%` 
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
