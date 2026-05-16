@@ -272,36 +272,40 @@ export default function Home({
                 key={record.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.1, duration: 0.5 }}
+                transition={{ delay: 0.6 + i * 0.1, duration: 0.8, ease: "easeOut" }}
+                whileHover={{ 
+                  y: -10,
+                  transition: { duration: 0.4, ease: "easeOut" }
+                }}
                 onClick={() => onSelectRoadmap(record as any)}
-                className="group relative p-8 rounded-[2rem] bg-bg-secondary/30 border border-border-pill hover:border-accent-glow/40 transition-all cursor-pointer overflow-hidden text-left shadow-lg hover:shadow-accent-glow/10"
+                className="group relative p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/[0.08] hover:border-accent-glow/30 transition-all duration-500 cursor-pointer overflow-hidden text-left shadow-2xl hover:shadow-accent-glow/10"
               >
                 {/* Blueprint Grid Texture Overlay */}
-                <div className="absolute inset-0 blueprint-grid opacity-[0.03] group-hover:opacity-[0.07] transition-opacity" />
+                <div className="absolute inset-0 blueprint-grid opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700" />
                 
                 <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow">
-                      <Target className="w-5 h-5" />
+                  <div className="flex items-start justify-between mb-8">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-accent-glow/20 group-hover:border-accent-glow/40 transition-all duration-500 shadow-inner">
+                      <Target className="w-6 h-6 text-text-muted group-hover:text-accent-glow transition-colors" />
                     </div>
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={(e) => handleDelete(e, record.id!)}
-                        className="p-2.5 rounded-lg bg-rose-500/5 text-rose-500/20 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100"
+                        className="p-3 rounded-xl bg-rose-500/5 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 backdrop-blur-md border border-transparent hover:border-rose-500/20"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                   
-                  <h3 className="text-lg font-serif italic text-text-primary mb-4 line-clamp-2 group-hover:text-accent-glow transition-colors leading-tight">
+                  <h3 className="text-xl font-serif italic text-text-primary mb-6 line-clamp-2 group-hover:text-accent-glow transition-colors leading-tight tracking-tight">
                     {record.goal}
                   </h3>
                   
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-6 border-t border-white/5">
                     <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-text-muted mb-1">Architected On</span>
-                      <span className="text-[10px] font-mono text-text-secondary">
+                      <span className="text-[8px] font-black uppercase tracking-[0.3em] text-white/20 mb-1">Architected On</span>
+                      <span className="text-[10px] font-mono text-text-secondary tracking-tighter">
                         {(() => {
                           if (!record.createdAt) return 'PHASE_01';
                           const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
@@ -309,14 +313,14 @@ export default function Home({
                         })()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-text-muted group-hover:text-accent-glow group-hover:border-accent-glow/20 transition-all">
-                      Details <ArrowRight className="w-3 h-3" />
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.25em] text-text-muted group-hover:text-accent-glow group-hover:border-accent-glow/30 group-hover:bg-accent-glow/5 transition-all shadow-sm">
+                      Protocol <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </div>
 
                 {/* Hover Glow Effect */}
-                <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-accent-glow/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-accent-glow/10 blur-[60px] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none" />
               </motion.div>
             ))}
           </div>
