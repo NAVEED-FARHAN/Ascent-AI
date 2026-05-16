@@ -118,61 +118,93 @@ export default function Home({
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="relative group w-full max-w-2xl"
+          className="relative w-full max-w-3xl"
         >
           <motion.form 
             onSubmit={(e) => { e.preventDefault(); goal.trim() && onStartGoal(goal); }}
             animate={{ 
               scale: isFocused ? 1.01 : 1,
-              boxShadow: isFocused ? '0 0 60px rgba(124,111,250,0.2)' : '0 10px 40px rgba(0,0,0,0.1)'
             }}
-            className={`relative flex items-center bg-white/[0.02] border rounded-2xl p-2 backdrop-blur-[32px] overflow-hidden transition-all duration-700 ${isFocused ? 'border-accent-glow/50 bg-white/[0.05] ring-1 ring-accent-glow/20' : 'border-white/[0.08]'}`}
+            className={`relative flex items-center bg-white/[0.03] border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/5 hover:border-white/10'}`}
           >
+            {/* Ambient Border Glow (Inactive Only) */}
+            {!isFocused && !goal.trim() && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.1, 0.3, 0.1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-[1px] rounded-[2.5rem] border border-accent-glow/30 pointer-events-none"
+              />
+            )}
+
+            {/* Left Icon Decor */}
+            <div className="pl-6 pr-4 flex items-center justify-center">
+              <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-text-muted/20'}`} />
+            </div>
+
             <input 
               type="text" 
               value={goal} 
               onChange={(e) => setGoal(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder="What do you want to learn today?" 
-              className="flex-1 bg-transparent border-none px-8 py-6 text-[18px] text-text-primary outline-none placeholder:text-text-muted/40 font-serif italic tracking-wide"
+              placeholder="What path shall we architect today?" 
+              className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-text-muted/20 font-serif italic tracking-wide"
             />
-            <StarBorder
-              as={motion.button}
+
+            <motion.button
               type="submit"
               disabled={!isNeuralReady || !goal.trim()}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              speed="2s"
-              thickness={2}
-              color="#7c6ffa"
-              className={`px-8 py-4 shadow-xl transition-all duration-500 rounded-xl ${
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`relative h-[64px] px-10 rounded-[1.75rem] font-black text-[10px] uppercase tracking-[0.25em] flex items-center gap-4 transition-all duration-500 overflow-hidden ${
                 isNeuralReady && goal.trim()
-                  ? 'opacity-100 shadow-accent-glow/20' 
-                  : 'opacity-40 cursor-not-allowed grayscale'
+                  ? 'bg-accent-glow text-white shadow-[0_10px_30px_rgba(124,111,250,0.3)] opacity-100' 
+                  : 'bg-white/[0.02] text-white/10 border border-white/5 opacity-60'
               }`}
             >
-              <div className="flex items-center gap-3 font-black text-[11px] uppercase tracking-widest text-white">
-                {isNeuralReady ? (
-                  <>Start Journey <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
-                ) : (
-                  <>Synchronizing <Loader2 className="w-4 h-4 animate-spin" /></>
-                )}
-              </div>
-            </StarBorder>
+              {/* Blueprint Grid for Inactive Button */}
+              {!goal.trim() && (
+                <div className="absolute inset-0 blueprint-grid opacity-[0.1]" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              
+              {isNeuralReady ? (
+                <>
+                  <span className="relative z-10">Initiate Ascent</span>
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span>Syncing</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </>
+              )}
+            </motion.button>
 
-            {/* Neural Sync Pulse */}
+            {/* Neural Pulse Overlay */}
             <AnimatePresence>
               {isFocused && (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  className="absolute inset-0 -z-10 rounded-2xl bg-accent-glow/5 animate-pulse-subtle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 -z-10 rounded-[2rem] bg-accent-glow/[0.02] animate-pulse"
                 />
               )}
             </AnimatePresence>
           </motion.form>
+          
+          {/* Subtle Tip */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isFocused ? 1 : 0 }}
+            className="absolute -bottom-8 left-10 text-[9px] font-black uppercase tracking-[0.2em] text-accent-glow/40 pointer-events-none"
+          >
+            Press Enter to Architect
+          </motion.div>
         </motion.div>
 
         {/* Continue Active Journey Badge */}
