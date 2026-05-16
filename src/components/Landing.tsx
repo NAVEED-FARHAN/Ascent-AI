@@ -156,15 +156,19 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#7c6ffa]/20 to-transparent" />
         </div>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {features.map((feature, i) => (
             <motion.div
               key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className="relative overflow-hidden p-7 text-left rounded-2xl bg-white/[0.03] border border-white/[0.07] transition-all duration-300 hover:translate-y-[-4px] hover:bg-white/[0.055]"
+              className="relative overflow-hidden p-8 text-left rounded-3xl bg-white/[0.03] border border-white/[0.08] transition-all duration-500 hover:translate-y-[-8px] hover:bg-white/[0.06] backdrop-blur-xl"
               style={{
-                borderColor: hoveredIndex === i ? `rgba(124,111,250,0.2)` : undefined
+                borderColor: hoveredIndex === i ? `rgba(124,111,250,0.3)` : undefined
               }}
             >
               {/* Accent Glow */}
