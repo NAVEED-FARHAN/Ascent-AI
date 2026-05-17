@@ -2,8 +2,7 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Book, ArrowRight, Sparkles, Target, Layout, ShieldCheck } from 'lucide-react';
 import { AnimatedThemeToggler } from './AnimatedThemeToggler';
-import Balatro from './Balatro';
-import StarBorder from './StarBorder';
+import ArchitectBackground from './ArchitectBackground';
 import PremiumButton from './ui/PremiumButton';
 
 interface LandingProps {
@@ -51,27 +50,10 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
     <div className="min-h-screen text-[#e8e4f0] font-sans overflow-x-hidden relative">
       <div className="fixed inset-0 bg-[#04040d] -z-50" />
 
-      {/* Cinematic Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-80">
-        <Balatro
-          isRotate={true}
-          mouseInteraction={true}
-          spinSpeed={0.4}
-          spinRotation={-0.2}
-          pixelFilter={1500}
-          color1="#1a1c4d"
-          color2="#050505"
-          color3="#0d0d2b"
-          contrast={5.5}
-          lighting={0.6}
-        />
+      {/* Cinematic Neural Architect Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <ArchitectBackground />
       </div>
-
-      {/* Noise Texture Overlay */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.035] -z-10"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
-      />
 
       <nav className="fixed top-0 left-0 right-0 z-[100] px-10 h-[62px] flex items-center justify-between border-b border-white/[0.055] bg-bg-primary/60 backdrop-blur-[24px] shadow-[0_1px_10px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-4 group cursor-pointer">

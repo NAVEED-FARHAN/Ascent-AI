@@ -36,7 +36,7 @@ import {
 import { buttonVariants } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 import LoadingScreen from './components/LoadingScreen';
-import Balatro from './components/Balatro';
+import ArchitectBackground from './components/ArchitectBackground';
 import CustomCursor from './components/CustomCursor';
 
 // Libs
@@ -263,27 +263,11 @@ export default function App() {
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
         style={{ viewTransitionName: 'none' } as any}
       >
-        {/* Native Balatro Neural Shader */}
-        <div className="absolute inset-0 opacity-80">
-          <Balatro
-            isRotate={false}
-            mouseInteraction={true}
-            pixelFilter={2000}
-            color1="#2c2e6c"
-            color2={isDark ? "#000000" : "#ffffff"}
-            color3={isDark ? "#000000" : "#9697e9"}
-            isPaused={isLoading || isMenuOpen}
-          />
-        </div>
-
-        {/* Global Noise Texture Overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.035] mix-blend-overlay"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
-        />
+        {/* Cinematic Neural Architect Background */}
+        <ArchitectBackground isPaused={isLoading || isMenuOpen} />
 
         {/* Global Frosty Glass Detail Overlay - Architectural Moderate */}
-        <div className={`absolute inset-0 transition-all duration-500 ${isDark ? 'backdrop-blur-[5px] bg-[#04040d]/30' : 'backdrop-blur-[5px] bg-white/25'}`} />
+        <div className={`absolute inset-0 transition-all duration-500 ${isDark ? 'backdrop-blur-[2px] bg-transparent' : 'backdrop-blur-[10px] bg-white/80'}`} />
       </div>
 
       {isAuthLoading ? (
