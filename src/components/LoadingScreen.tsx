@@ -58,9 +58,7 @@ export default function LoadingScreen() {
                 }}
                 className="w-16 h-16 rounded-full bg-gradient-to-tr from-accent-glow to-[#a855f7] p-[2px]"
               >
-                <div className="w-full h-full rounded-full bg-bg-primary flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-accent-glow shadow-[0_0_15px_#7c6ffa]" />
-                </div>
+                <div className="w-full h-full rounded-full bg-bg-primary flex items-center justify-center" />
               </motion.div>
               
               {/* External Orbitals (Glow Lines) */}
@@ -118,8 +116,8 @@ export default function LoadingScreen() {
               transition={{ duration: 1.5, repeat: Infinity, times: [0, 0.5, 1], delay: 0.4 }}
             >.</motion.span>
           </h1>
-          <p className="max-w-xs mx-auto text-lg text-text-muted font-serif italic leading-relaxed opacity-40">
-            Consulting the neural nodes to architect your optimal learning trajectory.
+          <p className="max-w-md mx-auto text-lg text-text-muted font-serif italic leading-relaxed opacity-45 text-center">
+            Consulting the neural nodes to architect <br className="hidden sm:inline" /> your optimal learning trajectory.
           </p>
         </div>
       </div>
