@@ -37,7 +37,6 @@ import { buttonVariants } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 import LoadingScreen from './components/LoadingScreen';
 import ArchitectBackground from './components/ArchitectBackground';
-import CustomCursor from './components/CustomCursor';
 
 // Libs
 
@@ -255,7 +254,6 @@ export default function App() {
 
   return (
     <div className="h-screen bg-bg-primary text-text-primary flex flex-col overflow-hidden relative">
-      <CustomCursor />
       {/* Neural Continuum (Theme-Aware) */}
       <div className="fixed inset-0 bg-bg-primary -z-50" />
       
