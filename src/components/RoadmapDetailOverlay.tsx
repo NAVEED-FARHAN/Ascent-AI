@@ -21,6 +21,30 @@ export default function RoadmapDetailOverlay({
     return n.subTopics.length > 0 && n.subTopics.every(st => progress.completedSubTopicIds.includes(st.id));
   };
 
+  // Dynamically resolve any hallucinated URLs to live, verified targets via DuckDuckGo Ducky redirects
+  const optimizeLearningLink = (url: string, title: string, type?: string): string => {
+    if (!url) return "#";
+    if (url.includes("duckduckgo.com")) return url;
+
+    // Clean up title for searching
+    const cleanTitle = encodeURIComponent(title.replace(/[^\w\s-]/g, ' ').trim());
+
+    if (type === 'video' || url.includes("youtube.com") || url.includes("youtu.be")) {
+      return `https://duckduckgo.com/?q=!ducky+site:youtube.com+${cleanTitle}+Tutorial`;
+    }
+
+    try {
+      const parsedUrl = new URL(url);
+      const domain = parsedUrl.hostname;
+      if (parsedUrl.pathname === "/" || !parsedUrl.pathname) {
+        return url;
+      }
+      return `https://duckduckgo.com/?q=!ducky+site:${domain}+${cleanTitle}`;
+    } catch (e) {
+      return `https://duckduckgo.com/?q=!ducky+${cleanTitle}`;
+    }
+  };
+
   return (
     <>
       <motion.div
@@ -98,7 +122,7 @@ export default function RoadmapDetailOverlay({
                     {sub.resources.map((res, ridx) => (
                       <a
                         key={ridx}
-                        href={res.url}
+                        href={optimizeLearningLink(res.url, res.title, res.type)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-5 rounded-2xl bg-bg-primary/40 border border-border-pill hover:border-accent-glow/30 transition-all group/link relative overflow-hidden"

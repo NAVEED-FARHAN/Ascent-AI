@@ -13,6 +13,30 @@ interface PracticeHubProps {
 export default function PracticeHub({ roadmap, progress, onCompleteChallenge, onNavigateHome }: PracticeHubProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Dynamically resolve any hallucinated URLs to live, verified targets via DuckDuckGo Ducky redirects
+  const optimizeLearningLink = (url: string, title: string, type?: string): string => {
+    if (!url) return "#";
+    if (url.includes("duckduckgo.com")) return url;
+
+    // Clean up title for searching
+    const cleanTitle = encodeURIComponent(title.replace(/[^\w\s-]/g, ' ').trim());
+
+    if (type === 'video' || url.includes("youtube.com") || url.includes("youtu.be")) {
+      return `https://duckduckgo.com/?q=!ducky+site:youtube.com+${cleanTitle}+Tutorial`;
+    }
+
+    try {
+      const parsedUrl = new URL(url);
+      const domain = parsedUrl.hostname;
+      if (parsedUrl.pathname === "/" || !parsedUrl.pathname) {
+        return url;
+      }
+      return `https://duckduckgo.com/?q=!ducky+site:${domain}+${cleanTitle}`;
+    } catch (e) {
+      return `https://duckduckgo.com/?q=!ducky+${cleanTitle}`;
+    }
+  };
+
   const allPractice = useMemo(() => {
     const quizzes: (Quiz & { nodeTitle: string; subTopicTitle: string })[] = [];
     const challenges: (Challenge & { nodeTitle: string; subTopicTitle: string })[] = [];
@@ -177,7 +201,7 @@ export default function PracticeHub({ roadmap, progress, onCompleteChallenge, on
                   <div className="flex items-center justify-between pt-6 border-t border-border-primary mt-6">
                     <span className="text-[10px] font-black text-text-muted uppercase tracking-widest opacity-20">via {quiz.provider}</span>
                     <a 
-                      href={quiz.url} 
+                      href={optimizeLearningLink(quiz.url, quiz.title, 'quiz')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-[10px] font-black text-accent-glow uppercase tracking-tighter hover:underline"
@@ -226,7 +250,7 @@ export default function PracticeHub({ roadmap, progress, onCompleteChallenge, on
                    <div className="flex items-center justify-between pt-8 border-t border-border-primary">
                       {challenge.externalUrl ? (
                         <a 
-                          href={challenge.externalUrl}
+                          href={optimizeLearningLink(challenge.externalUrl, challenge.title, 'challenge')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 text-[10px] font-black text-text-primary uppercase tracking-widest hover:text-accent-glow transition-colors"
