@@ -57,9 +57,7 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
 
       <nav className="fixed top-0 left-0 right-0 z-[100] px-10 h-[62px] flex items-center justify-between border-b border-white/[0.055] bg-bg-primary/60 backdrop-blur-[24px] shadow-[0_1px_10px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-transform duration-300">
-            <Book className="w-4 h-4 text-white" />
-          </div>
+          <img src="/logo.png" alt="Ascent AI Logo" className="w-8 h-8 rounded-lg shadow-[0_0_15px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-transform duration-300 object-cover" />
           <span className="text-[15px] font-semibold text-text-primary tracking-tight">Ascent AI</span>
         </div>
         <div className="flex items-center gap-6">

@@ -298,9 +298,7 @@ export default function App() {
                 onClick={() => setView('home')}
               >
                 <div className="relative">
-                  <div className="w-12 h-12 bg-accent-glow rounded-2xl flex items-center justify-center text-white shadow-[0_0_30px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-all duration-500">
-                    <Book className="w-6 h-6" />
-                  </div>
+                  <img src="/logo.png" alt="Ascent AI Logo" className="w-12 h-12 rounded-2xl shadow-[0_0_30px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-all duration-500 object-cover" />
                   <div className="absolute -inset-1 bg-accent-glow/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <div className="flex flex-col">
