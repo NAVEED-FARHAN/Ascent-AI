@@ -297,9 +297,8 @@ export default function App() {
                 className="flex items-center gap-5 group cursor-pointer"
                 onClick={() => setView('home')}
               >
-                <div className="relative">
-                  <img src="/logo.png" alt="Ascent AI Logo" className="w-12 h-12 rounded-2xl shadow-[0_0_30px_rgba(124,111,250,0.4)] group-hover:scale-110 transition-all duration-500 object-cover" />
-                  <div className="absolute -inset-1 bg-accent-glow/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative flex items-center justify-center">
+                  <img src="/logo.png" alt="Ascent AI Logo" className="w-10 h-10 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
                 </div>
                 <div className="flex flex-col">
                   <h1 className="text-2xl font-black tracking-tighter uppercase italic leading-none">
