@@ -114,13 +114,13 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
     For each subtopic, include:
     - 2 high-quality free resources (official docs or tutorials).
       CRITICAL LINK RULES TO PREVENT 404/BROKEN LINKS:
-      1. For videos, use YouTube Search query links like `https://www.youtube.com/results?search_query=topic_name` instead of guessing specific watch video IDs (which always fail).
-      2. For Web/JS, use MDN Search links like `https://developer.mozilla.org/en-US/search?q=topic_name`.
-      3. For other docs, use verified portal root URLs (e.g. `https://react.dev`, `https://w3schools.com`, `https://geeksforgeeks.org`, `https://docs.python.org/3/`) or search engine queries.
+      1. For videos, use YouTube Search query links like 'https://www.youtube.com/results?search_query=topic_name' instead of guessing specific watch video IDs (which always fail).
+      2. For Web/JS, use MDN Search links like 'https://developer.mozilla.org/en-US/search?q=topic_name'.
+      3. For other docs, use verified portal root URLs (e.g. 'https://react.dev', 'https://w3schools.com', 'https://geeksforgeeks.org', 'https://docs.python.org/3/') or search engine queries.
       4. DO NOT invent specific subpaths, hash values, or random video IDs. Every link must be 100% functional.
     - Estimated hours to master.
     - 1-2 sentences description.
-    - 1 online quiz or practice test (use query searches or trusted root providers like `https://www.w3schools.com/quiztest/` or standard quizzes on the topic).
+    - 1 online quiz or practice test (use query searches or trusted root providers like 'https://www.w3schools.com/quiztest/' or standard quizzes on the topic).
     - 1 practical mini-challenge (coding task or assignment).
     
     Keep dependencies logical. Response MUST be valid JSON matching the schema.
