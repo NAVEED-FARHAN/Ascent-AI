@@ -85,7 +85,7 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="max-w-md mx-auto text-[16px] text-text-secondary font-light leading-[1.7] mb-12 tracking-wide animate-float"
+          className="max-w-2xl mx-auto text-[16px] text-text-secondary font-light leading-[1.7] mb-12 tracking-wide"
         >
           Personalized AI-driven roadmaps that transform curious minds into <span className="italic text-accent-glow font-medium">master architects.</span> Pure knowledge architecture, refined for mastery.
         </motion.p>
@@ -97,9 +97,9 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           
           <motion.button
             onClick={onGoogleSignIn}
-            whileHover={{ y: -2, backgroundColor: "rgba(255,255,255,0.08)" }}
+            whileHover={{ y: -2, backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(124,111,250,0.3)" }}
             whileTap={{ scale: 0.98 }}
-            className="w-full md:w-auto px-8 py-5 rounded-2xl bg-white/[0.04] border border-white/[0.1] text-white/60 font-black text-[11px] tracking-[0.2em] hover:text-white transition-all flex items-center justify-center gap-4 group backdrop-blur-md"
+            className="w-full md:w-auto px-8 py-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-white/70 font-semibold text-[11.5px] tracking-[0.2em] hover:text-white transition-all flex items-center justify-center gap-4 group backdrop-blur-md"
           >
             <div className="p-2 rounded-lg bg-white/5 border border-white/10 group-hover:border-white/20 transition-all">
               <GoogleLogo />
@@ -146,19 +146,26 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
               transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              className="relative overflow-hidden p-8 text-left rounded-3xl bg-white/[0.03] border border-white/[0.08] transition-all duration-500 hover:translate-y-[-8px] hover:bg-white/[0.06] backdrop-blur-xl"
+              className="relative overflow-hidden p-8 text-left rounded-3xl bg-white/[0.02] border border-white/[0.06] transition-all duration-500 hover:translate-y-[-8px] hover:bg-white/[0.04] backdrop-blur-xl group cursor-pointer"
               style={{
-                borderColor: hoveredIndex === i ? `rgba(124,111,250,0.3)` : undefined
+                borderColor: hoveredIndex === i ? `rgba(124,111,250,0.25)` : undefined
               }}
             >
+              {/* Drafting grid alignment corners (Technical Blueprint Vibe) */}
+              <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-white/[0.15] group-hover:border-accent-glow/40 transition-colors duration-300" />
+              <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-white/[0.15] group-hover:border-accent-glow/40 transition-colors duration-300" />
+              <div className="absolute bottom-3 left-3 w-2 h-2 border-b border-l border-white/[0.15] group-hover:border-accent-glow/40 transition-colors duration-300" />
+              <div className="absolute bottom-3 right-3 w-2 h-2 border-b border-r border-white/[0.15] group-hover:border-accent-glow/40 transition-colors duration-300" />
+
               {/* Accent Glow */}
               <div
                 className="absolute top-[-40px] right-[-40px] w-[120px] h-[120px] rounded-full blur-[40px] opacity-0 transition-opacity duration-300 pointer-events-none"
                 style={{
                   background: feature.glow,
-                  opacity: hoveredIndex === i ? 0.7 : 0
+                  opacity: hoveredIndex === i ? 0.6 : 0
                 }}
               />
+              
               {/* Top Border Accent */}
               <div
                 className="absolute top-0 left-6 right-6 h-[1px] opacity-0 transition-opacity duration-300"
@@ -168,12 +175,12 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
                 }}
               />
 
-              <div className={`w-10 h-10 bg-white/[0.05] rounded-xl flex items-center justify-center mb-6 border border-white/[0.08] group-hover:bg-white/[0.09] transition-all`}>
-                <feature.icon className="w-5 h-5 text-accent-glow" />
+              <div className={`w-10 h-10 bg-white/[0.04] rounded-xl flex items-center justify-center mb-6 border border-white/[0.08] group-hover:bg-accent-glow/10 group-hover:border-accent-glow/30 transition-all duration-300`}>
+                <feature.icon className="w-5 h-5 text-accent-glow group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h2 className="text-[22px] font-serif italic font-normal mb-2 text-[#ede9ff] tracking-tight">{feature.title}</h2>
-              <p className="text-[13.5px] text-[#6b6485] leading-[1.7] font-light">{feature.desc}</p>
-              <div className="absolute bottom-5 right-5 text-[11px] font-semibold text-white/[0.08] tracking-widest uppercase">0{i + 1}</div>
+              <h2 className="text-[22px] font-serif italic font-normal mb-2 text-[#ede9ff] tracking-tight group-hover:text-white transition-colors duration-300">{feature.title}</h2>
+              <p className="text-[13.5px] text-[#6b6485] leading-[1.7] font-light group-hover:text-[#a09aa0]/90 transition-colors duration-300">{feature.desc}</p>
+              <div className="absolute bottom-5 right-5 text-[11px] font-semibold text-white/[0.08] tracking-widest uppercase group-hover:text-accent-glow/20 transition-colors duration-300">0{i + 1}</div>
             </motion.div>
           ))}
         </section>
