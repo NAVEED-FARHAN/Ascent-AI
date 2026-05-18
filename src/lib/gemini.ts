@@ -112,10 +112,15 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
     
     Structure: connected nodes (milestones) with detailed subtopics.
     For each subtopic, include:
-    - 2 high-quality free resources (e.g., official docs, one YouTube/W3Schools/GeeksforGeeks). You MUST use your Google Search tool to find REAL, functional, live URLs. Do not make up or guess URLs.
+    - 2 high-quality free resources (official docs or tutorials).
+      CRITICAL LINK RULES TO PREVENT 404/BROKEN LINKS:
+      1. For videos, use YouTube Search query links like `https://www.youtube.com/results?search_query=topic_name` instead of guessing specific watch video IDs (which always fail).
+      2. For Web/JS, use MDN Search links like `https://developer.mozilla.org/en-US/search?q=topic_name`.
+      3. For other docs, use verified portal root URLs (e.g. `https://react.dev`, `https://w3schools.com`, `https://geeksforgeeks.org`, `https://docs.python.org/3/`) or search engine queries.
+      4. DO NOT invent specific subpaths, hash values, or random video IDs. Every link must be 100% functional.
     - Estimated hours to master.
     - 1-2 sentences description.
-    - 1 REAL online quiz or practice test with a verified live link.
+    - 1 online quiz or practice test (use query searches or trusted root providers like `https://www.w3schools.com/quiztest/` or standard quizzes on the topic).
     - 1 practical mini-challenge (coding task or assignment).
     
     Keep dependencies logical. Response MUST be valid JSON matching the schema.
@@ -128,7 +133,7 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
       config: {
         responseMimeType: "application/json",
         responseSchema: roadmapSchema,
-        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. Provide standard, active main domain URLs (like official documentation roots, MDN Web Docs, or YouTube search paths) instead of deep, hallucinated links to avoid 404s."
+        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. You must strictly enforce the 404-prevention link rules, generating only search query query-links (YouTube/MDN) or main homepage/portal domains to guarantee all generated links are fully active."
       }
     });
 
