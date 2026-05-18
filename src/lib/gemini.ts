@@ -112,10 +112,10 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
     
     Structure: connected nodes (milestones) with detailed subtopics.
     For each subtopic, include:
-    - 2 high-quality free resources (e.g., official docs, one YouTube/W3Schools/GeeksforGeeks). Provide REAL, functional links.
+    - 2 high-quality free resources (e.g., official docs, one YouTube/W3Schools/GeeksforGeeks). You MUST use your Google Search tool to find REAL, functional, live URLs. Do not make up or guess URLs.
     - Estimated hours to master.
     - 1-2 sentences description.
-    - 1 REAL online quiz or practice test.
+    - 1 REAL online quiz or practice test with a verified live link.
     - 1 practical mini-challenge (coding task or assignment).
     
     Keep dependencies logical. Response MUST be valid JSON matching the schema.
@@ -128,7 +128,8 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
       config: {
         responseMimeType: "application/json",
         responseSchema: roadmapSchema,
-        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive."
+        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. Always search Google to verify actual existing URLs for resources and quizzes.",
+        tools: [{ googleSearch: {} }]
       }
     });
 
