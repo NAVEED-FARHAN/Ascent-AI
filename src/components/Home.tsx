@@ -73,14 +73,6 @@ export default function Home({
       
       {/* Hero Section */}
       <div className="space-y-8">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }} 
-          animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-bg-secondary border border-border-pill backdrop-blur-md shadow-sm"
-        >
-          <Zap className="w-3 h-3 text-accent-glow fill-accent-glow animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted">The Guided Ascent</span>
-        </motion.div>
 
         <div className="overflow-hidden">
           <motion.h1 
