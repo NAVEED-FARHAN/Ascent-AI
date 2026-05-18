@@ -304,7 +304,6 @@ export default function App() {
                   <h1 className="text-2xl font-black tracking-tighter uppercase italic leading-none">
                     Ascent <span className="text-accent-glow">AI</span>
                   </h1>
-                  <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 mt-1">Master Architect v2.0</span>
                 </div>
               </motion.div>
 
