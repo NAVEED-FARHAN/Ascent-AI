@@ -113,11 +113,11 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
     Structure: connected nodes (milestones) with detailed subtopics.
     For each subtopic, include:
     - 2 high-quality free resources (official docs or tutorials).
-      CRITICAL LINK RULES TO PREVENT 404/BROKEN LINKS:
-      1. For videos, use YouTube Search query links like 'https://www.youtube.com/results?search_query=topic_name' instead of guessing specific watch video IDs (which always fail).
-      2. For Web/JS, use MDN Search links like 'https://developer.mozilla.org/en-US/search?q=topic_name'.
-      3. For other docs, use verified portal root URLs (e.g. 'https://react.dev', 'https://w3schools.com', 'https://geeksforgeeks.org', 'https://docs.python.org/3/') or search engine queries.
-      4. DO NOT invent specific subpaths, hash values, or random video IDs. Every link must be 100% functional.
+      CRITICAL LINK RULES FOR VIDEO & DOC RESOURCES:
+      1. For videos, you MUST pick a specific, highly recommended, globally-popular YouTube tutorial video (such as those from freeCodeCamp, Fireship, CS50, Academind, Traversy Media, or official frameworks).
+      2. The link MUST be a direct watch URL (e.g. 'https://www.youtube.com/watch?v=VIDEO_ID') using a REAL, verified, highly stable video ID that matches standard high-quality learning talks, reddit developer recommendations, and top-tier community tutorials.
+      3. For Web/JS, use direct, stable MDN reference subpages or official docs (e.g. 'https://react.dev/reference/react', 'https://docs.python.org/3/').
+      4. DO NOT invent fake random characters for video IDs. Only output actual, real, globally recognized video IDs that you are 100% confident exist and remain active.
     - Estimated hours to master.
     - 1-2 sentences description.
     - 1 online quiz or practice test (use query searches or trusted root providers like 'https://www.w3schools.com/quiztest/' or standard quizzes on the topic).
@@ -133,7 +133,7 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
       config: {
         responseMimeType: "application/json",
         responseSchema: roadmapSchema,
-        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. You must strictly enforce the 404-prevention link rules, generating only search query query-links (YouTube/MDN) or main homepage/portal domains to guarantee all generated links are fully active."
+        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. You must strictly enforce the link rules, generating only highly recommended, globally-popular YouTube watch URLs and active, official documentation paths."
       }
     });
 
