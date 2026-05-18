@@ -140,7 +140,7 @@ export default function ArchitectBackground({ isPaused = false }: ArchitectBackg
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = \`rgba(124, 111, 250, \${0.15 * (1 - distance / 180)})\`;
+            ctx.strokeStyle = `rgba(124, 111, 250, ${0.15 * (1 - distance / 180)})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -155,7 +155,7 @@ export default function ArchitectBackground({ isPaused = false }: ArchitectBackg
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(mouseX, mouseY);
-          ctx.strokeStyle = \`rgba(124, 111, 250, \${0.25 * (1 - mouseDist / 250)})\`;
+          ctx.strokeStyle = `rgba(124, 111, 250, ${0.25 * (1 - mouseDist / 250)})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -198,7 +198,7 @@ export default function ArchitectBackground({ isPaused = false }: ArchitectBackg
       {/* Premium Noise Texture Overlay */}
       <div 
         className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
-        style={{ backgroundImage: \`url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")\` }}
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E")` }}
       />
       
       {/* Edge Vignette */}
