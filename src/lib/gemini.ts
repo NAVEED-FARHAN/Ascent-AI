@@ -128,8 +128,7 @@ export async function generateRoadmap(goal: string, apiKey: string): Promise<Roa
       config: {
         responseMimeType: "application/json",
         responseSchema: roadmapSchema,
-        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. Always search Google to verify actual existing URLs for resources and quizzes.",
-        tools: [{ googleSearch: {} }]
+        systemInstruction: "You specialize in creating visual, structured learning paths for complex skills. Your paths are logical, beginner-friendly, and comprehensive. Provide standard, active main domain URLs (like official documentation roots, MDN Web Docs, or YouTube search paths) instead of deep, hallucinated links to avoid 404s."
       }
     });
 
