@@ -288,7 +288,7 @@ export default function App() {
                   <img src="/logo.ico" alt="Ascent AI Logo" className="w-8 h-8 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black tracking-tighter uppercase italic leading-none font-sans">
+                  <span className="text-2xl font-black tracking-tighter uppercase italic leading-none" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Ascent <span className="text-accent-glow">AI</span>
                   </span>
                 </div>
