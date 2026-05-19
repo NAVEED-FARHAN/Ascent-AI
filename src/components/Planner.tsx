@@ -65,7 +65,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
   const handleNextMonth = () => setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
 
   return (
-    <div className="max-w-[1600px] w-full mx-auto px-6 md:px-12 lg:px-16 pt-16 pb-40 space-y-0 relative">
+    <div className="max-w-[1240px] w-full mx-auto px-6 md:px-10 pt-16 pb-40 space-y-0 relative">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.02] blur-[150px] -z-10" />
       
       {/* Header Slab */}
