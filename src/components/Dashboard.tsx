@@ -51,7 +51,7 @@ export default function Dashboard({ roadmap, progress }: DashboardProps) {
   const activeDaysCount = heatmapDays.filter(d => d.count > 0).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-10 pt-12 pb-32 space-y-0 relative divide-y divide-white/[0.06]">
+    <div className="max-w-[1600px] w-full mx-auto px-6 md:px-12 lg:px-16 pt-12 pb-32 space-y-0 relative divide-y divide-white/[0.06]">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
       {/* Section 1: Dashboard Header */}

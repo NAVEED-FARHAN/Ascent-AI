@@ -71,7 +71,7 @@ export default function PracticeHub({ roadmap, progress, onCompleteChallenge, on
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-12 pb-32 space-y-12 relative">
+    <div className="max-w-[1600px] w-full mx-auto px-6 md:px-12 lg:px-16 pt-12 pb-32 space-y-12 relative">
       <div className="absolute top-0 left-0 w-full h-[600px] bg-accent-glow/[0.015] blur-[130px] -z-10" />
 
       {/* Slab 1: Premium Laboratory Header */}

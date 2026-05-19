@@ -76,7 +76,7 @@ export default function RoadmapView({
   const getTotalSubtopics = () => roadmap.nodes.reduce((acc, n) => acc + n.subTopics.length, 0);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-24 pb-48 pt-10 relative px-10">
+    <div className="max-w-[1600px] w-full mx-auto space-y-24 pb-48 pt-10 relative px-6 md:px-12 lg:px-16">
       {/* Header Summary */}
       <section className="flex flex-col lg:flex-row justify-between items-center gap-16 relative">
         <div className="flex-1 text-center lg:text-left">
