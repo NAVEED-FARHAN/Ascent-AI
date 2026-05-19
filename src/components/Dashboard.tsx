@@ -1,5 +1,5 @@
 import { Roadmap, UserProgress } from '../types';
-import { CheckCircle2, Zap, Activity, ShieldCheck, Sparkles, BarChart3, Clock, Target, Award } from 'lucide-react';
+import { CheckCircle2, Zap, Activity, ShieldCheck, Sparkles, Terminal, Cpu } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface DashboardProps {
@@ -330,6 +330,53 @@ export default function Dashboard({ roadmap, progress }: DashboardProps) {
             <p className="text-[11px] text-text-muted leading-relaxed">
                High resonance verified in practical sandbox environments. Coding concepts are stabilizing with excellent accuracy. Solved challenges accelerate overall mastery.
             </p>
+         </div>
+      </section>
+
+      {/* Section 5: Diagnostic Stream & System Properties */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 py-12 gap-8 lg:gap-0">
+         {/* Live Diagnostic Logs Terminal */}
+         <div className="lg:col-span-8 lg:pr-10 lg:border-r lg:border-white/[0.06] flex flex-col justify-center space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-widest text-text-primary opacity-80 pb-2 border-b border-white/[0.04] flex items-center gap-1.5">
+               <Terminal className="w-3.5 h-3.5 text-accent-glow" />
+               Diagnostic Log Stream
+            </h3>
+            
+            <div className="bg-[#04040d] border border-white/[0.04] rounded-xl p-4 font-mono text-[9px] leading-relaxed text-text-muted/60 space-y-1.5 h-36 overflow-y-auto">
+               <div className="text-accent-glow/70">[SYS_INIT] Initializing cognitive parameters on client side.</div>
+               <div>[SYNC] Syncing active roadmap ID: {roadmap.id.substring(0, 12)}... with cloud database.</div>
+               <div>[CALC] Calculated streak value of {progress.currentStreak} day(s).</div>
+               <div className="text-accent-success/70">[STATUS] Connection state established via WebSocket to Firestore.</div>
+               <div>[TELEM] Loaded {completedSubTopics} completed node items.</div>
+               <div>[TELEM] Practice scores synced at {progress.practiceScore}% resonance.</div>
+               <div className="text-accent-glow/70">[SYS_READY] Diagnostics stabilized. Monitoring user activities.</div>
+            </div>
+         </div>
+
+         {/* Core System Parameters */}
+         <div className="lg:col-span-4 lg:pl-10 flex flex-col justify-center space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-widest text-text-primary opacity-80 pb-2 border-b border-white/[0.04] flex items-center gap-1.5">
+               <Cpu className="w-3.5 h-3.5 text-accent-glow" />
+               System Parameters
+            </h3>
+            <div className="space-y-2 text-[10px] font-mono text-text-muted">
+              <div className="flex justify-between border-b border-white/[0.03] pb-1">
+                <span>GOAL_TARGET:</span>
+                <span className="text-text-primary truncate max-w-[160px]" title={roadmap.goal}>{roadmap.goal}</span>
+              </div>
+              <div className="flex justify-between border-b border-white/[0.03] pb-1">
+                <span>INTELLIGENCE:</span>
+                <span className="text-text-primary">Gemini Core</span>
+              </div>
+              <div className="flex justify-between border-b border-white/[0.03] pb-1">
+                <span>SYNAPSE_VEL:</span>
+                <span className="text-accent-glow font-bold">1.4x Cycles</span>
+              </div>
+              <div className="flex justify-between">
+                <span>DATABASE_SYNC:</span>
+                <span className="text-accent-success font-bold">ONLINE</span>
+              </div>
+            </div>
          </div>
       </section>
     </div>
