@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Book, ArrowRight, Sparkles, Target, Layout, ShieldCheck } from 'lucide-react';
-import { AnimatedThemeToggler } from './AnimatedThemeToggler';
 import ArchitectBackground from './ArchitectBackground';
 import PremiumButton from './ui/PremiumButton';
 
@@ -61,7 +60,6 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           <span className="text-[15px] font-semibold text-text-primary tracking-tight">Ascent AI</span>
         </div>
         <div className="flex items-center gap-6">
-          <AnimatedThemeToggler variant="circle" />
           <button onClick={onGoogleSignIn} className="text-[13.5px] text-text-muted hover:text-text-primary transition-colors">Sign In</button>
           <button onClick={onGetStarted} className="px-5 py-2 rounded-lg bg-gradient-to-br from-[#7c6ffa] to-[#a855f7] text-white font-semibold text-[13px] tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-[0_0_24px_rgba(124,111,250,0.45)] hover:shadow-[0_0_35px_rgba(124,111,250,0.6)]">INITIATE</button>
         </div>

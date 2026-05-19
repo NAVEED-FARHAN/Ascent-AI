@@ -52,7 +52,7 @@ import {
 } from './lib/firestore';
 import { Roadmap, UserProgress, ModalConfig } from './types';
 
-import { AnimatedThemeToggler } from './components/AnimatedThemeToggler';
+
 
 type View = 'landing' | 'home' | 'roadmap' | 'planner' | 'practice' | 'dashboard';
 
@@ -61,9 +61,7 @@ export default function App() {
   const [view, setView] = useState<View>('landing');
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(() => 
-    typeof document !== 'undefined' ? document.documentElement.classList.contains("dark") : true
-  );
+
   const [progress, setProgress] = useState<UserProgress>({
     completedSubTopicIds: [],
     completedChallengeIds: [],
@@ -95,18 +93,7 @@ export default function App() {
 
   const mainContentRef = useRef<HTMLDivElement>(null);
 
-  // Sync theme state
-  useEffect(() => {
-    const updateTheme = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
+
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -265,7 +252,7 @@ export default function App() {
         <ArchitectBackground isPaused={isLoading || isMenuOpen} />
 
         {/* Global Frosty Glass Detail Overlay - Architectural Moderate */}
-        <div className={`absolute inset-0 transition-all duration-500 ${isDark ? 'backdrop-blur-[2px] bg-transparent' : 'backdrop-blur-[10px] bg-white/80'}`} />
+        <div className="absolute inset-0 transition-all duration-500 backdrop-blur-[2px] bg-transparent" />
       </div>
 
       {isAuthLoading ? (
@@ -322,8 +309,6 @@ export default function App() {
                 )}
                 
                 <div className="flex items-center gap-4">
-                  <AnimatedThemeToggler variant="circle" />
-                  
                   <div className="relative group" onClick={(e) => e.stopPropagation()}>
                     <button 
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
