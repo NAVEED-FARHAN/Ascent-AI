@@ -285,7 +285,7 @@ export default function App() {
                 onClick={() => setView('home')}
               >
                 <div className="relative flex items-center justify-center">
-                  <img src="/logo.ico" alt="Ascent AI Logo" className="w-10 h-10 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
+                  <img src="/logo.ico" alt="Ascent AI Logo" className="w-8 h-8 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
                 </div>
                 <div className="flex flex-col">
                   <h1 className="text-2xl font-black tracking-tighter uppercase italic leading-none">

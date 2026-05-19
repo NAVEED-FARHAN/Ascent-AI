@@ -73,35 +73,22 @@ export default function Home({
       
       {/* Hero Section */}
       <div className="space-y-8">
+        <h1 className="text-6xl md:text-8xl font-serif italic tracking-tighter text-[#f8fafc] leading-[0.9] mb-8">
+          Master anything with <br />
+          <span className="text-accent-glow relative inline-block">
+            Architected Learning
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ delay: 0.5, duration: 1 }}
+              className="absolute -bottom-2 left-0 h-1 bg-accent-glow/30" 
+            />
+          </span>
+        </h1>
 
-        <div className="overflow-hidden">
-          <motion.h1 
-            initial={{ opacity: 0, y: 40 }} 
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl md:text-8xl font-serif italic leading-[1.1] tracking-tight text-text-primary"
-          >
-            Master anything with<br />
-            <span className="text-accent-glow relative inline-block">
-              Architected Learning
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.8, duration: 1 }}
-                className="absolute -bottom-2 left-0 h-[3px] bg-accent-glow/30 rounded-full" 
-              />
-            </span>
-          </motion.h1>
-        </div>
-
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto font-serif leading-relaxed opacity-60 italic"
-        >
+        <p className="max-w-xl mx-auto text-[#94a3b8] text-lg font-normal leading-relaxed mb-12 font-sans">
           Personalized AI-driven roadmaps that transform your intellectual curiosity into structured mastery.
-        </motion.p>
+        </p>
       </div>
 
       {/* Search & Launch Section */}
