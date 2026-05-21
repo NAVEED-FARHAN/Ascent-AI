@@ -33,7 +33,6 @@ export default function LoadingScreen() {
 
       <div className="relative z-10 flex flex-col items-center text-center px-10">
         <div className="space-y-4">
-          <h2 className="text-[9px] font-black uppercase tracking-[0.6em] text-accent-glow/50 mb-2">Neural Synthesis Active</h2>
           <h1 className="text-5xl md:text-6xl font-serif italic text-text-primary tracking-tighter leading-none">
             Materializing <span className="text-accent-glow">Architecture</span>
             <motion.span
