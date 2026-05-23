@@ -349,16 +349,6 @@ export default function Home({
             className="w-full flex flex-col items-center space-y-12 py-10 animate-fade-in"
           >
             <div className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-glow/10 border border-accent-glow/20 animate-pulse"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-accent-glow" />
-                <span className="text-[9px] font-black uppercase tracking-[0.25em] text-accent-glow">PATH CONFIGURATION</span>
-              </motion.div>
-              
               <h2 className="text-4xl md:text-5xl font-serif italic tracking-tighter text-[#f8fafc]">
                 Configure Your Ascent
               </h2>
