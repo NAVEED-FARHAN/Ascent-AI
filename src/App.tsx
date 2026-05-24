@@ -93,6 +93,12 @@ export default function App() {
 
   const mainContentRef = useRef<HTMLDivElement>(null);
 
+  // Reset scroll position when view changes
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo(0, 0);
+    }
+  }, [view]);
 
 
   // Close profile menu when clicking outside
