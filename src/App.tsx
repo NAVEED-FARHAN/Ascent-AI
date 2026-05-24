@@ -93,12 +93,6 @@ export default function App() {
 
   const mainContentRef = useRef<HTMLDivElement>(null);
 
-  // Reset scroll position when view changes
-  useEffect(() => {
-    if (mainContentRef.current) {
-      mainContentRef.current.scrollTo(0, 0);
-    }
-  }, [view]);
 
 
   // Close profile menu when clicking outside
@@ -359,7 +353,7 @@ export default function App() {
           )}
 
           <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" onExitComplete={() => mainContentRef.current?.scrollTo(0, 0)}>
               <motion.div key={view} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
                 {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level) => handleStartGoal(goal, level)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
                 {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
