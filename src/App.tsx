@@ -48,9 +48,10 @@ import {
   syncUserProfile, 
   deleteAllUserRoadmaps,
   getAPIKeys,
-  saveRoadmapToCloud
+  saveRoadmapToCloud,
+  updateRoadmapInCloud
 } from './lib/firestore';
-import { Roadmap, UserProgress, ModalConfig } from './types';
+import { Roadmap, UserProgress, ModalConfig, Resource } from './types';
 
 
 
@@ -168,6 +169,31 @@ export default function App() {
     const newProgress = { ...progress, completedChallengeIds: newChallengeIds, lastActive: new Date().toISOString() };
     setProgress(newProgress);
     await saveProgressToCloud(user.uid, roadmap.id!, newProgress);
+  };
+
+  const handleUpdateSubTopicResources = async (nodeId: string, subTopicId: string, newResources: Resource[]) => {
+    if (!user || !roadmap) return;
+    
+    const updatedRoadmap = {
+      ...roadmap,
+      nodes: roadmap.nodes.map(n => 
+        n.id === nodeId 
+          ? {
+              ...n,
+              subTopics: n.subTopics.map(st => 
+                st.id === subTopicId 
+                  ? { ...st, resources: newResources }
+                  : st
+              )
+            }
+          : n
+      )
+    };
+
+    setRoadmap(updatedRoadmap);
+    if (updatedRoadmap.id) {
+      await updateRoadmapInCloud(user.uid, updatedRoadmap.id, updatedRoadmap);
+    }
   };
 
   const handleSelectRoadmap = (selected: Roadmap) => {
@@ -439,6 +465,7 @@ export default function App() {
                 progress={progress}
                 onClose={() => setSelectedNodeId(null)}
                 onToggleSubTopic={toggleSubTopic}
+                onUpdateSubTopicResources={handleUpdateSubTopicResources}
               />
             )}
           </AnimatePresence>
