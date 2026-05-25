@@ -39,6 +39,14 @@ export const saveRoadmapToCloud = async (userId: string, roadmap: any, completio
   return docRef.id;
 };
 
+export const updateRoadmapInCloud = async (userId: string, roadmapId: string, roadmap: any) => {
+  const docRef = doc(db, 'users', userId, 'roadmaps', roadmapId);
+  await setDoc(docRef, {
+    ...roadmap,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+};
+
 export const getUserRoadmaps = async (userId: string) => {
   const q = query(collection(db, 'users', userId, 'roadmaps'), orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
