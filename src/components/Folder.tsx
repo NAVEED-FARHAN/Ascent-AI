@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { History } from 'lucide-react';
 import './Folder.css';
 
 interface FolderProps {
@@ -139,8 +140,8 @@ const Folder: React.FC<FolderProps> = ({
                 position: 'absolute',
                 bottom: '10%',
                 left: '50%',
-                width: '100px',
-                height: '125px',
+                width: '115px',
+                height: '145px',
                 background: 'rgba(10, 10, 12, 0.95)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '8px',
@@ -176,6 +177,11 @@ const Folder: React.FC<FolderProps> = ({
           })}
           <div className="folder__front"></div>
           <div className="folder__front right"></div>
+          <History 
+            className={`w-5 h-5 text-white/35 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] z-[5] pointer-events-none transition-all duration-300 ${
+              open ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
+            }`} 
+          />
         </div>
       </div>
     </div>
