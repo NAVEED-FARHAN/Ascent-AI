@@ -201,7 +201,7 @@ export default function Home({
                   animate={{ 
                     scale: isFocused ? 1.01 : 1,
                   }}
-                  className={`relative flex items-center bg-white/[0.03] border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/5 hover:border-white/10'}`}
+                  className={`relative flex items-center bg-white/10 border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/10 hover:border-white/20'}`}
                 >
                   {/* Ambient Border Glow (Inactive Only) */}
                   {!isFocused && !goal.trim() && (
@@ -225,7 +225,7 @@ export default function Home({
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="What path shall we architect today?" 
-                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-text-muted/20 font-serif italic tracking-wide"
+                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-text-muted/50 font-serif italic tracking-wide"
                   />
 
                   <motion.button
