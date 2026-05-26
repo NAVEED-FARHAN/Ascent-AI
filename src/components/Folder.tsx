@@ -125,13 +125,13 @@ const Folder: React.FC<FolderProps> = ({
               const pct = isOnly ? 0.5 : i / (totalDisplay - 1);
               
               // Angle fans elegantly from -40deg to +40deg
-              const angle = isOnly ? 0 : -42 + pct * 84;
+              const angle = isOnly ? 0 : -35 + pct * 70;
               
-              // tx spans smoothly from -200% to +100% relative to the parent
-              const tx = isOnly ? -50 : -205 + pct * 310;
+              // tx spans smoothly and compactly relative to the parent
+              const tx = isOnly ? -50 : -150 + pct * 200;
               
-              // ty forms a parabolic arch peaking at -165% in the middle
-              const ty = isOnly ? -120 : -95 - 4 * pct * (1 - pct) * 75;
+              // ty forms a tight parabolic arch peaking in the middle
+              const ty = isOnly ? -110 : -85 - 4 * pct * (1 - pct) * 55;
 
               paperStyle = {
                 transform: `translate(calc(${tx}% + var(--magnet-x, 0px)), calc(${ty}% + var(--magnet-y, 0px))) rotateZ(${angle}deg) scale(1.05)`,
@@ -139,12 +139,12 @@ const Folder: React.FC<FolderProps> = ({
                 position: 'absolute',
                 bottom: '10%',
                 left: '50%',
-                width: '130px',
-                height: '160px',
+                width: '100px',
+                height: '125px',
                 background: 'rgba(10, 10, 12, 0.95)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '12px',
-                boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.8)',
+                borderRadius: '8px',
+                boxShadow: 'inset 0 1px 1.5px rgba(255, 255, 255, 0.15), 0 6px 24px rgba(0, 0, 0, 0.8)',
                 transition: 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.4s, height 0.4s, background 0.3s, border 0.3s, box-shadow 0.3s',
               };
             }
