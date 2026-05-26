@@ -478,21 +478,21 @@ export default function Home({
                   <div
                     key={record.id}
                     onClick={() => onSelectRoadmap(record as any)}
-                    className="relative w-full h-full flex flex-col justify-between p-3 cursor-pointer group/paper select-none"
+                    className="relative w-full h-full flex flex-col justify-between p-2 cursor-pointer group/paper select-none"
                   >
                     {/* Hover light glow overlay */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-transparent via-purple-500/10 to-white/5 opacity-0 group-hover/paper:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-transparent via-purple-500/10 to-white/5 opacity-0 group-hover/paper:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
                     {/* Goal Title */}
                     <div className="flex-1 flex items-center justify-center text-center p-0.5">
-                      <span className="text-[9px] font-black tracking-wider text-purple-200 group-hover/paper:text-white transition-colors duration-200 uppercase leading-relaxed line-clamp-4">
+                      <span className="text-[7.5px] font-black tracking-wider text-purple-200 group-hover/paper:text-white transition-colors duration-200 uppercase leading-normal line-clamp-4">
                         {record.goal}
                       </span>
                     </div>
 
                     {/* Footer (Date & Delete) */}
-                    <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/5">
-                      <span className="text-[7.5px] font-mono font-bold text-white/35 tracking-wider">
+                    <div className="flex items-center justify-between mt-0.5 pt-1 border-t border-white/5">
+                      <span className="text-[6.5px] font-mono font-bold text-white/35 tracking-wider">
                         {dateLabel}
                       </span>
                       
@@ -502,10 +502,10 @@ export default function Home({
                           e.stopPropagation();
                           handleDelete(e, record.id!);
                         }}
-                        className="p-1 rounded bg-rose-950/20 text-rose-400/60 hover:bg-rose-500 hover:text-white border border-rose-500/10 hover:border-rose-400 transition-all duration-200"
+                        className="p-0.5 rounded bg-rose-950/20 text-rose-400/60 hover:bg-rose-500 hover:text-white border border-rose-500/10 hover:border-rose-400 transition-all duration-200"
                         title="Delete Blueprint"
                       >
-                        <Trash2 className="w-2.5 h-2.5" />
+                        <Trash2 className="w-2 h-2" />
                       </button>
                     </div>
                   </div>
@@ -517,16 +517,16 @@ export default function Home({
                   initial={{ opacity: 0, y: 30, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: 0.3, duration: 0.6, type: 'spring' }}
-                  className="relative flex flex-col items-center gap-10 w-full max-w-lg p-8 rounded-[2rem] bg-black/30 border border-white/5 backdrop-blur-xl shadow-[inset_0_4px_30px_rgba(0,0,0,0.4)]"
+                  className="relative flex flex-col items-center gap-6 w-full max-w-sm p-6 rounded-3xl bg-black/30 border border-white/5 backdrop-blur-xl shadow-[inset_0_4px_30px_rgba(0,0,0,0.4)]"
                 >
                   {/* Vault background gradient ray */}
-                  <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-b from-purple-500/5 to-transparent opacity-50 blur pointer-events-none" />
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent opacity-50 blur pointer-events-none" />
 
                   {/* Single Vault Folder */}
-                  <div className="relative py-14 flex justify-center items-center">
+                  <div className="relative py-10 flex justify-center items-center">
                     <Folder
                       color="#5227FF"
-                      size={2.0} // extra prominent
+                      size={1.4} // perfectly sized
                       items={paperItems}
                       open={isVaultOpen}
                       onToggle={() => setIsVaultOpen(prev => !prev)}
@@ -536,11 +536,11 @@ export default function Home({
 
                   {/* Label & Vault Controls */}
                   <div className="text-center space-y-1 z-10">
-                    <h3 className="text-[12px] font-black uppercase tracking-[0.25em] text-purple-400">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-400">
                       Architect's Vault
                     </h3>
-                    <p className="text-[8px] font-mono text-white/40 tracking-widest uppercase">
-                      {isVaultOpen ? "Click any blueprint card to open • Click vault to close" : "Click vault to reveal and fan blueprints"}
+                    <p className="text-[7.5px] font-mono text-white/40 tracking-widest uppercase">
+                      {isVaultOpen ? "Click blueprint to open • Click vault to close" : "Click vault to reveal fanned blueprints"}
                     </p>
                   </div>
                 </motion.div>
