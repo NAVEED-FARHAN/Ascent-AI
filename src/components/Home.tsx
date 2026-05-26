@@ -201,7 +201,7 @@ export default function Home({
                   animate={{ 
                     scale: isFocused ? 1.01 : 1,
                   }}
-                  className={`relative flex items-center bg-white/10 border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/10 hover:border-white/20'}`}
+                  className={`relative flex items-center bg-white/20 border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/30 hover:border-white/40'}`}
                 >
                   {/* Ambient Border Glow (Inactive Only) */}
                   {!isFocused && !goal.trim() && (
@@ -215,7 +215,7 @@ export default function Home({
 
                   {/* Left Icon Decor */}
                   <div className="pl-6 pr-4 flex items-center justify-center">
-                    <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-text-muted/20'}`} />
+                    <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-white/40'}`} />
                   </div>
 
                   <input 
@@ -225,7 +225,7 @@ export default function Home({
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="What path shall we architect today?" 
-                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-text-muted/50 font-serif italic tracking-wide"
+                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-white/60 font-serif italic tracking-wide"
                   />
 
                   <motion.button
@@ -236,7 +236,7 @@ export default function Home({
                     className={`relative h-[64px] px-10 rounded-[1.75rem] font-black text-[10px] uppercase tracking-[0.25em] flex items-center gap-4 transition-all duration-500 overflow-hidden ${
                       isNeuralReady && goal.trim()
                         ? 'bg-accent-glow text-white shadow-[0_10px_30px_rgba(124,111,250,0.3)] opacity-100' 
-                        : 'bg-white/[0.02] text-white/10 border border-white/5 opacity-60'
+                        : 'bg-white/10 text-white/50 border border-white/20 opacity-100'
                     }`}
                   >
                     {/* Blueprint Grid for Inactive Button */}
