@@ -10,6 +10,7 @@ import { Roadmap, RoadmapRecord } from '../types';
 import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
 import { KnowledgeLevel } from '../lib/gemini';
 import StarBorder from './StarBorder';
+import Folder from './Folder';
 
 interface HomeProps {
   user: User | null;
@@ -452,51 +453,66 @@ export default function Home({
             <div className="h-[1px] flex-1 bg-border-primary mx-8" />
           </div>
 
-          <div className="space-y-4">
-            {archivedRoadmaps.slice(0, 6).map((record, i) => (
-              <motion.div
-                key={record.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.08, duration: 0.5 }}
-                onClick={() => onSelectRoadmap(record as any)}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between py-5 px-6 rounded-2xl bg-black/20 border border-white/5 hover:bg-black/60 hover:border-accent-glow/30 transition-all duration-500 cursor-pointer text-left gap-4 backdrop-blur-sm shadow-sm hover:shadow-[0_10px_40px_rgba(124,111,250,0.15)]"
-              >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-accent-glow/15 group-hover:border-accent-glow/30 transition-all shrink-0">
-                    <Target className="w-4 h-4 text-text-muted group-hover:text-accent-glow transition-colors" />
-                  </div>
-                  <h3 className="text-base font-serif italic text-text-primary group-hover:text-accent-glow transition-colors truncate">
-                    {record.goal}
-                  </h3>
-                </div>
-                
-                <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
-                  <div className="text-right">
-                    <p className="text-[7px] font-black uppercase tracking-widest text-white/20 mb-0.5">Architected On</p>
-                    <p className="text-[9px] font-mono text-text-secondary tracking-tighter">
-                      {(() => {
-                        if (!record.createdAt) return 'PHASE_01';
-                        const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
-                        return isNaN(date.getTime()) ? 'PHASE_01' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
-                      })()}
-                    </p>
-                  </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-16 px-4 pt-8 pb-16">
+            {archivedRoadmaps.slice(0, 10).map((record, i) => {
+              const dateLabel = (() => {
+                if (!record.createdAt) return '';
+                const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
+                return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+              })();
 
-                  <div className="flex items-center gap-2">
-                    <button 
+              const paperItems = [
+                <div key="p1" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
+                  <span style={{ fontSize: '7px', fontWeight: 900, letterSpacing: '0.1em', color: '#7c6ffa', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.4 }}>
+                    {record.goal.slice(0, 28)}{record.goal.length > 28 ? '…' : ''}
+                  </span>
+                </div>,
+                <div key="p2" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '6px' }}>
+                  <span style={{ fontSize: '6px', fontWeight: 700, color: '#aaa', letterSpacing: '0.05em' }}>{dateLabel}</span>
+                </div>,
+                null
+              ];
+
+              return (
+                <motion.div
+                  key={record.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.4 + i * 0.07, duration: 0.5, type: 'spring', stiffness: 200 }}
+                  className="flex flex-col items-center gap-4 group"
+                >
+                  {/* Folder with click to open, then click again to navigate */}
+                  <div className="relative" style={{ paddingBottom: '60px' }}>
+                    <Folder
+                      color="#5227FF"
+                      size={1.6}
+                      items={paperItems}
+                      className="folder-architecture"
+                    />
+                    {/* Delete button — appears on hover */}
+                    <button
                       onClick={(e) => handleDelete(e, record.id!)}
-                      className="p-2.5 rounded-xl bg-transparent text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20"
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-500/0 text-rose-500/0 hover:bg-rose-500/90 hover:text-white border border-transparent hover:border-rose-400 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 z-20"
+                      title="Delete"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
-                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 shadow-[inset_0_2px_10px_rgba(255,255,255,0.05)] text-[9px] font-black uppercase tracking-[0.2em] text-text-muted group-hover:text-accent-glow group-hover:border-accent-glow/30 transition-all duration-300">
-                      Protocol <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  {/* Label */}
+                  <button
+                    onClick={() => onSelectRoadmap(record as any)}
+                    className="text-center max-w-[120px] space-y-1 cursor-pointer"
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted group-hover:text-accent-glow transition-colors duration-300 line-clamp-2 leading-relaxed">
+                      {record.goal.length > 30 ? record.goal.slice(0, 30) + '…' : record.goal}
+                    </p>
+                    {dateLabel && (
+                      <p className="text-[8px] font-mono text-white/20">{dateLabel}</p>
+                    )}
+                  </button>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       )}
