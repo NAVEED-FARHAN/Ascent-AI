@@ -326,7 +326,7 @@ export default function Home({
                   }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { setGoal(tag); setShowLevelPicker(true); }}
-                  className="group relative px-6 py-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300 overflow-hidden backdrop-blur-md shadow-lg"
+                  className="group relative px-6 py-3.5 rounded-xl bg-black/40 border border-t-white/10 border-b-black/80 border-x-white/5 hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300 overflow-hidden backdrop-blur-md shadow-[inset_0_1px_10px_rgba(255,255,255,0.02),0_4px_20px_rgba(0,0,0,0.4)]"
                 >
                   <div className="absolute inset-0 bg-accent-glow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative flex items-center gap-4">
@@ -452,7 +452,7 @@ export default function Home({
             <div className="h-[1px] flex-1 bg-border-primary mx-8" />
           </div>
 
-          <div className="space-y-2 border-t border-white/[0.05]">
+          <div className="space-y-4">
             {archivedRoadmaps.slice(0, 6).map((record, i) => (
               <motion.div
                 key={record.id}
@@ -460,7 +460,7 @@ export default function Home({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + i * 0.08, duration: 0.5 }}
                 onClick={() => onSelectRoadmap(record as any)}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between py-4 px-4 rounded-xl hover:bg-white/[0.02] border-b border-white/[0.04] transition-all duration-300 cursor-pointer text-left gap-4"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between py-5 px-6 rounded-2xl bg-black/20 border border-white/5 hover:bg-black/60 hover:border-accent-glow/30 transition-all duration-500 cursor-pointer text-left gap-4 backdrop-blur-sm shadow-sm hover:shadow-[0_10px_40px_rgba(124,111,250,0.15)]"
               >
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-accent-glow/15 group-hover:border-accent-glow/30 transition-all shrink-0">
@@ -486,12 +486,12 @@ export default function Home({
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={(e) => handleDelete(e, record.id!)}
-                      className="p-2 rounded-lg bg-rose-500/5 text-rose-500/30 hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20"
+                      className="p-2.5 rounded-xl bg-transparent text-white/10 hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 text-[8px] font-black uppercase tracking-[0.2em] text-text-muted group-hover:text-accent-glow group-hover:border-accent-glow/20 group-hover:bg-accent-glow/5 transition-all">
-                      Protocol <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 shadow-[inset_0_2px_10px_rgba(255,255,255,0.05)] text-[9px] font-black uppercase tracking-[0.2em] text-text-muted group-hover:text-accent-glow group-hover:border-accent-glow/30 transition-all duration-300">
+                      Protocol <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </div>
