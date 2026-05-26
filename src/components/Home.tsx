@@ -201,7 +201,7 @@ export default function Home({
                   animate={{ 
                     scale: isFocused ? 1.01 : 1,
                   }}
-                  className={`relative flex items-center bg-white/20 border rounded-[2.5rem] p-2 backdrop-blur-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-all duration-500 ${isFocused ? 'border-accent-glow/50 ring-4 ring-accent-glow/5' : 'border-white/30 hover:border-white/40'}`}
+                  className={`relative flex items-center bg-black/40 border border-white/5 border-t-black/50 rounded-[2.5rem] p-2 backdrop-blur-md shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] transition-all duration-500 ${isFocused ? 'ring-2 ring-accent-glow/30' : 'hover:bg-black/30'}`}
                 >
                   {/* Ambient Border Glow (Inactive Only) */}
                   {!isFocused && !goal.trim() && (
@@ -236,7 +236,7 @@ export default function Home({
                     className={`relative h-[64px] px-10 rounded-[1.75rem] font-black text-[10px] uppercase tracking-[0.25em] flex items-center gap-4 transition-all duration-500 overflow-hidden ${
                       isNeuralReady && goal.trim()
                         ? 'bg-accent-glow text-white shadow-[0_10px_30px_rgba(124,111,250,0.3)] opacity-100' 
-                        : 'bg-white/10 text-white/50 border border-white/20 opacity-100'
+                        : 'bg-white/5 text-white/50 border border-white/10 shadow-[0_4px_10px_rgba(0,0,0,0.4)] opacity-100'
                     }`}
                   >
                     {/* Blueprint Grid for Inactive Button */}
