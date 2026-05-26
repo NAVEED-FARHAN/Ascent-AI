@@ -44,8 +44,23 @@ export interface RoadmapNode {
 }
 
 export interface Roadmap {
+  id?: string;
   goal: string;
   nodes: RoadmapNode[];
+}
+
+export interface RoadmapRecord extends Roadmap {
+  createdAt?: any;
+  updatedAt?: any;
+  userId?: string;
+  completion?: number;
+}
+
+export interface ModalConfig {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  type: 'info' | 'error' | 'success';
 }
 
 export interface StudyTask {
