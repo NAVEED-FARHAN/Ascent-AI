@@ -201,7 +201,7 @@ export default function Home({
                   animate={{ 
                     scale: isFocused ? 1.01 : 1,
                   }}
-                  className={`relative flex items-center bg-black/40 border border-white/5 border-t-black/50 rounded-[2.5rem] p-2 backdrop-blur-md shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] transition-all duration-500 ${isFocused ? 'ring-2 ring-accent-glow/30' : 'hover:bg-black/30'}`}
+                  className={`relative flex items-center bg-black/40 border border-white/20 border-t-black/50 rounded-[2.5rem] p-2 backdrop-blur-md shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] transition-all duration-500 ${isFocused ? 'ring-2 ring-accent-glow/30' : 'hover:bg-black/30'}`}
                 >
                   {/* Ambient Border Glow (Inactive Only) */}
                   {!isFocused && !goal.trim() && (
@@ -215,7 +215,7 @@ export default function Home({
 
                   {/* Left Icon Decor */}
                   <div className="pl-6 pr-4 flex items-center justify-center">
-                    <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-white/40'}`} />
+                    <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-white/70'}`} />
                   </div>
 
                   <input 
