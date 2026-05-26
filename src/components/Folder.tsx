@@ -6,6 +6,8 @@ interface FolderProps {
   size?: number;
   items?: React.ReactNode[];
   className?: string;
+  open?: boolean;
+  onToggle?: () => void;
 }
 
 const darkenColor = (hex: string, percent: number): string => {
@@ -26,16 +28,28 @@ const darkenColor = (hex: string, percent: number): string => {
   return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 };
 
-const Folder: React.FC<FolderProps> = ({ color = '#5227FF', size = 1, items = [], className = '' }) => {
+const Folder: React.FC<FolderProps> = ({ 
+  color = '#5227FF', 
+  size = 1, 
+  items = [], 
+  className = '',
+  open: controlledOpen,
+  onToggle
+}) => {
   const maxItems = 10;
   const papers = items.slice(0, maxItems);
   while (papers.length < maxItems) {
     papers.push(null);
   }
 
-  const [open, setOpen] = useState(false);
+  const activePapers = items.filter(Boolean);
+  const displayPapers = activePapers.length > 0 ? activePapers : [];
+
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : localOpen;
+
   const [paperOffsets, setPaperOffsets] = useState<{ x: number; y: number }[]>(
-    Array.from({ length: maxItems }, () => ({ x: 0, y: 0 }))
+    Array.from({ length: 15 }, () => ({ x: 0, y: 0 }))
   );
 
   const folderBackColor = darkenColor(color, 0.08);
@@ -44,9 +58,13 @@ const Folder: React.FC<FolderProps> = ({ color = '#5227FF', size = 1, items = []
   const paper3 = '#ffffff';
 
   const handleClick = () => {
-    setOpen(prev => !prev);
+    if (onToggle) {
+      onToggle();
+    } else {
+      setLocalOpen(prev => !prev);
+    }
     if (open) {
-      setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+      setPaperOffsets(Array.from({ length: 15 }, () => ({ x: 0, y: 0 })));
     }
   };
 
@@ -83,28 +101,79 @@ const Folder: React.FC<FolderProps> = ({ color = '#5227FF', size = 1, items = []
   const folderClassName = `folder ${open ? 'open' : ''}`.trim();
   const scaleStyle = { transform: `scale(${size})`, display: 'inline-block' };
 
+  // Calculate paper stack when closed versus fanned arc when open
+  const totalDisplay = displayPapers.length;
+
   return (
     <div style={scaleStyle} className={className}>
       <div className={folderClassName} style={folderStyle} onClick={handleClick}>
         <div className="folder__back">
-          {papers.map((item, i) => (
-            <div
-              key={i}
-              className={`paper paper-${i + 1}`}
-              onMouseMove={e => handlePaperMouseMove(e, i)}
-              onMouseLeave={e => handlePaperMouseLeave(e, i)}
-              style={
-                open
-                  ? ({
-                      '--magnet-x': `${paperOffsets[i]?.x || 0}px`,
-                      '--magnet-y': `${paperOffsets[i]?.y || 0}px`
-                    } as React.CSSProperties)
-                  : {}
-              }
-            >
-              {item}
-            </div>
-          ))}
+          {/* Closed stack fallback cards if no active papers exist, just for aesthetic */}
+          {!open && totalDisplay === 0 && (
+            <>
+              <div className="paper paper-1" />
+              <div className="paper paper-2" />
+              <div className="paper paper-3" />
+            </>
+          )}
+
+          {/* Render real stacked papers when closed, or fanned out arc when open */}
+          {(!open ? papers.slice(0, Math.max(3, totalDisplay)) : displayPapers).map((item, i) => {
+            let paperStyle: React.CSSProperties = {};
+            if (open && totalDisplay > 0) {
+              const isOnly = totalDisplay === 1;
+              const pct = isOnly ? 0.5 : i / (totalDisplay - 1);
+              
+              // Angle fans elegantly from -40deg to +40deg
+              const angle = isOnly ? 0 : -42 + pct * 84;
+              
+              // tx spans smoothly from -200% to +100% relative to the parent
+              const tx = isOnly ? -50 : -205 + pct * 310;
+              
+              // ty forms a parabolic arch peaking at -165% in the middle
+              const ty = isOnly ? -120 : -95 - 4 * pct * (1 - pct) * 75;
+
+              paperStyle = {
+                transform: `translate(calc(${tx}% + var(--magnet-x, 0px)), calc(${ty}% + var(--magnet-y, 0px))) rotateZ(${angle}deg) scale(1.05)`,
+                zIndex: 10 + i,
+                position: 'absolute',
+                bottom: '10%',
+                left: '50%',
+                width: '130px',
+                height: '160px',
+                background: 'rgba(10, 10, 12, 0.95)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                boxShadow: 'inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.8)',
+                transition: 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.4s, height 0.4s, background 0.3s, border 0.3s, box-shadow 0.3s',
+              };
+            }
+
+            return (
+              <div
+                key={i}
+                className={`paper paper-${(i % 3) + 1}`}
+                onMouseMove={e => handlePaperMouseMove(e, i)}
+                onMouseLeave={e => handlePaperMouseLeave(e, i)}
+                onClick={e => {
+                  if (open) {
+                    e.stopPropagation();
+                  }
+                }}
+                style={
+                  open
+                    ? {
+                        ...paperStyle,
+                        '--magnet-x': `${paperOffsets[i]?.x || 0}px`,
+                        '--magnet-y': `${paperOffsets[i]?.y || 0}px`
+                      } as React.CSSProperties
+                    : {}
+                }
+              >
+                {item}
+              </div>
+            );
+          })}
           <div className="folder__front"></div>
           <div className="folder__front right"></div>
         </div>
