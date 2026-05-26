@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RoadmapNode, UserProgress, Resource } from './types';
+import { RoadmapNode, UserProgress, Resource } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Clock, CheckCircle2, Play, BookOpen, ArrowUpRight, Edit2, Plus, Trash2, Save } from 'lucide-react';
 
