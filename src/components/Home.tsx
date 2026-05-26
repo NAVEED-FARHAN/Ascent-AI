@@ -32,6 +32,7 @@ export default function Home({
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
+  const [isVaultOpen, setIsVaultOpen] = useState(false);
 
   const levelsConfig = [
     {
@@ -453,66 +454,98 @@ export default function Home({
             <div className="h-[1px] flex-1 bg-border-primary mx-8" />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-16 px-4 pt-8 pb-16">
-            {archivedRoadmaps.slice(0, 10).map((record, i) => {
-              const dateLabel = (() => {
-                if (!record.createdAt) return '';
-                const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
-                return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
-              })();
+          <div className="flex flex-col items-center justify-center pt-8 pb-20 px-4 w-full">
+            {(() => {
+              const paperItems = archivedRoadmaps.slice(0, 8).map((record) => {
+                const dateLabel = (() => {
+                  if (!record.createdAt) return '';
+                  const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
+                  return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+                })();
 
-              const paperItems = [
-                <div key="p1" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
-                  <span style={{ fontSize: '7px', fontWeight: 900, letterSpacing: '0.1em', color: '#7c6ffa', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.4 }}>
-                    {record.goal.slice(0, 28)}{record.goal.length > 28 ? '…' : ''}
-                  </span>
-                </div>,
-                <div key="p2" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: '6px' }}>
-                  <span style={{ fontSize: '6px', fontWeight: 700, color: '#aaa', letterSpacing: '0.05em' }}>{dateLabel}</span>
-                </div>,
-                null
-              ];
+                // Render full rich content only when the vault is open!
+                if (!isVaultOpen) {
+                  return (
+                    <div key={record.id} className="w-full h-full flex flex-col justify-center items-center pointer-events-none select-none">
+                      <span className="text-[6px] font-black tracking-wider text-purple-600/80 uppercase text-center line-clamp-1 p-1">
+                        {record.goal.slice(0, 12)}
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={record.id}
+                    onClick={() => onSelectRoadmap(record as any)}
+                    className="relative w-full h-full flex flex-col justify-between p-3 cursor-pointer group/paper select-none"
+                  >
+                    {/* Hover light glow overlay */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-tr from-transparent via-purple-500/10 to-white/5 opacity-0 group-hover/paper:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                    {/* Goal Title */}
+                    <div className="flex-1 flex items-center justify-center text-center p-0.5">
+                      <span className="text-[9px] font-black tracking-wider text-purple-200 group-hover/paper:text-white transition-colors duration-200 uppercase leading-relaxed line-clamp-4">
+                        {record.goal}
+                      </span>
+                    </div>
+
+                    {/* Footer (Date & Delete) */}
+                    <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-white/5">
+                      <span className="text-[7.5px] font-mono font-bold text-white/35 tracking-wider">
+                        {dateLabel}
+                      </span>
+                      
+                      {/* Subtle Delete Trash Icon */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(e, record.id!);
+                        }}
+                        className="p-1 rounded bg-rose-950/20 text-rose-400/60 hover:bg-rose-500 hover:text-white border border-rose-500/10 hover:border-rose-400 transition-all duration-200"
+                        title="Delete Blueprint"
+                      >
+                        <Trash2 className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              });
 
               return (
                 <motion.div
-                  key={record.id}
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 0.4 + i * 0.07, duration: 0.5, type: 'spring', stiffness: 200 }}
-                  className="flex flex-col items-center gap-4 group"
+                  transition={{ delay: 0.3, duration: 0.6, type: 'spring' }}
+                  className="relative flex flex-col items-center gap-10 w-full max-w-lg p-8 rounded-[2rem] bg-black/30 border border-white/5 backdrop-blur-xl shadow-[inset_0_4px_30px_rgba(0,0,0,0.4)]"
                 >
-                  {/* Folder with click to open, then click again to navigate */}
-                  <div className="relative" style={{ paddingBottom: '60px' }}>
+                  {/* Vault background gradient ray */}
+                  <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-b from-purple-500/5 to-transparent opacity-50 blur pointer-events-none" />
+
+                  {/* Single Vault Folder */}
+                  <div className="relative py-14 flex justify-center items-center">
                     <Folder
                       color="#5227FF"
-                      size={1.6}
+                      size={2.0} // extra prominent
                       items={paperItems}
-                      className="folder-architecture"
+                      open={isVaultOpen}
+                      onToggle={() => setIsVaultOpen(prev => !prev)}
+                      className="folder-vault"
                     />
-                    {/* Delete button — appears on hover */}
-                    <button
-                      onClick={(e) => handleDelete(e, record.id!)}
-                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-500/0 text-rose-500/0 hover:bg-rose-500/90 hover:text-white border border-transparent hover:border-rose-400 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 z-20"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
                   </div>
-                  {/* Label */}
-                  <button
-                    onClick={() => onSelectRoadmap(record as any)}
-                    className="text-center max-w-[120px] space-y-1 cursor-pointer"
-                  >
-                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted group-hover:text-accent-glow transition-colors duration-300 line-clamp-2 leading-relaxed">
-                      {record.goal.length > 30 ? record.goal.slice(0, 30) + '…' : record.goal}
+
+                  {/* Label & Vault Controls */}
+                  <div className="text-center space-y-1 z-10">
+                    <h3 className="text-[12px] font-black uppercase tracking-[0.25em] text-purple-400">
+                      Architect's Vault
+                    </h3>
+                    <p className="text-[8px] font-mono text-white/40 tracking-widest uppercase">
+                      {isVaultOpen ? "Click any blueprint card to open • Click vault to close" : "Click vault to reveal and fan blueprints"}
                     </p>
-                    {dateLabel && (
-                      <p className="text-[8px] font-mono text-white/20">{dateLabel}</p>
-                    )}
-                  </button>
+                  </div>
                 </motion.div>
               );
-            })}
+            })()}
           </div>
         </div>
       )}
