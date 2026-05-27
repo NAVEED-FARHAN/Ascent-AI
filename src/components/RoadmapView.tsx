@@ -76,7 +76,23 @@ export default function RoadmapView({
   const getTotalSubtopics = () => roadmap.nodes.reduce((acc, n) => acc + n.subTopics.length, 0);
 
   return (
-    <div className="max-w-[1240px] w-full mx-auto space-y-24 pb-48 pt-10 relative px-6 md:px-10">
+    <>
+      {/* Background layer: image with blur + ambient lighting */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <img
+          src="/roadmap-bg.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover scale-110"
+          style={{ filter: 'brightness(0.25) blur(5px)' }}
+        />
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/80 via-bg-primary/60 to-bg-primary/90" />
+        {/* Ambient lighting orbs */}
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-accent-glow/10 rounded-full" style={{ filter: 'blur(80px)' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-accent-glow/[0.07] rounded-full" style={{ filter: 'blur(80px)' }} />
+      </div>
+
+      <div className="max-w-[1240px] w-full mx-auto space-y-24 pb-48 pt-10 relative px-6 md:px-10 z-10">
       {/* Header Summary */}
       <section className="flex flex-col lg:flex-row justify-between items-center gap-16 relative">
         <div className="flex-1 text-center lg:text-left">
@@ -252,5 +268,6 @@ export default function RoadmapView({
         </div>
       </section>
     </div>
+    </>
   );
 }

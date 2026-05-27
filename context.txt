@@ -1,0 +1,262 @@
+================================================================================
+  ASCENT AI — Project Context
+  Generated: 2026-05-27
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. PROJECT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Name:         Ascent AI
+  Description:  AI-driven learning roadmap generator that creates personalized
+                mastery journeys. Users sign in with Google, define a learning
+                goal, and get a structured roadmap with nodes, sub-topics,
+                resources, quizzes, and challenges.
+  Stack:        React 19 + TypeScript + Vite 6 + Tailwind CSS 4 + Firebase
+  Key Libs:     motion (Framer Motion), lucide-react, firebase, @google/genai
+  Entry:        src/main.tsx → src/App.tsx
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  2. VIEWS / ROUTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Managed by App.tsx via `view` state (no React Router).
+
+  ┌─ landing    Landing.tsx    — Hero, features, stats, "Start Journey" button
+  │                              (triggers Google sign-in directly)
+  ├─ home       Home.tsx       — Search bar, suggestions, active journey,
+  │                              project gallery, level picker, decorative
+  │                              hero image (right side, rounded, dimmed)
+  ├─ roadmap    RoadmapView.tsx — Interactive roadmap tree with detail overlay
+  ├─ planner    Planner.tsx    — Study planner / task calendar
+  ├─ practice   PracticeHub.tsx— Challenges & quiz verification lab
+  └─ dashboard  Dashboard.tsx  — Stats, heatmap, progress, diagnostics
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  3. KEY COMPONENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  App.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  Root component. Handles:
+  - Auth state (Firebase onAuthStateChanged)
+  - View routing (landing → home after sign-in)
+  - Top floating glass bar (only on 'home' view) — logo left, profile right
+  - Dock navigation (all views except 'home')
+  - Global modal for errors/info
+  - RoadmapDetailOverlay (when a node is selected)
+  - Loading state management
+  - Progress/challenge toggle persistence to Firestore
+
+  Landing.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  Public landing page. Props: { onGoogleSignIn }
+  - Cinematic background image with blur(6px), purple tint, dark overlays
+  - Animated stats counters (12k+ Architects, 842k+ Roadmaps, 99.9% Uptime)
+  - 3 feature cards (Intent Mapping, Elite Curation, Sync Verification)
+  - Navbar with "Get Started" button (triggers sign-in)
+  - "Start Journey" PremiumButton CTA (triggers sign-in)
+
+  Home.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  Main dashboard after sign-in. Props: { user, isNeuralReady, roadmap,
+  onSelectRoadmap, onStartGoal, onResetSystem, onClearActiveRoadmap,
+  onShowModal }
+  - Background: fixed /home-bg.jpg with blur(8px), brightness(0.4), purple tint
+  - Decorative hero image (right side, rounded-3xl, opacity-70, -right-48 top-12)
+  - Left-aligned layout (items-start, text-left)
+  - Search bar + Build button (always shows active purple glow)
+  - Suggestion chips (pill buttons with icons)
+  - Active journey card (if roadmap exists)
+  - Project gallery (saved roadmaps from Firestore)
+  - Level picker overlay (Beginner/Intermediate/Advanced)
+
+  Modal.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  Reusable modal dialog. Supports types: warning, error, info, success, danger.
+
+  Dock.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  macOS-style dock navigation (only visible on non-home views).
+  Items: Home, Roadmap, Planner, Laboratory, Stats + Sign out.
+
+  Dashboard.tsx
+  ────────────────────────────────────────────────────────────────────────────
+  Stats page with progress ring, heatmap (90-day consistency grid),
+  resource allocation bars, diagnostic log terminal, and system parameters.
+
+  Planner.tsx — Calendar-based study task planner.
+  PracticeHub.tsx — Challenge/quiz completion interface.
+  RoadmapView.tsx — Tree visualization of roadmap nodes & sub-topics.
+  RoadmapDetailOverlay.tsx — Slide-over detail panel for a roadmap node.
+
+  UI Components (src/components/ui/):
+  ────────────────────────────────────────────────────────────────────────────
+  button.tsx     — Variants-based button (shadcn-style)
+  PremiumButton.tsx — Animated "Start Journey" button with gradient + sparkle
+  separator.tsx  — Simple divider
+  tooltip.tsx    — Hover tooltip (used in Dock)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  4. DATA LAYER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  src/lib/firestore.ts
+  ────────────────────────────────────────────────────────────────────────────
+  Firebase config & Firestore operations:
+  - syncUserProfile()       — Creates/updates user document in 'users/{uid}'
+  - saveRoadmapToCloud()    — Saves roadmap to 'users/{uid}/roadmaps/'
+  - updateRoadmapInCloud()  — Updates an existing roadmap document
+  - getUserRoadmaps()       — Fetches all roadmaps for a user (ordered by date)
+  - deleteRoadmapFromCloud() — Deletes a single roadmap
+  - deleteAllUserRoadmaps() — Batch deletes all user roadmaps
+  - saveProgressToCloud()   — Saves progress to 'users/{uid}/progress/{roadmapId}'
+  - getProgressFromCloud()  — Retrieves progress for a specific roadmap
+  - getAPIKeys()            — Searches 'progress/keys' and 'config/keys' docs
+                              for API key pool. Throws if permission denied.
+
+  src/lib/gemini.ts
+  ────────────────────────────────────────────────────────────────────────────
+  AI integration using @google/genai SDK. Generates structured roadmaps.
+
+  src/lib/keys.ts
+  ────────────────────────────────────────────────────────────────────────────
+  API key management — stores/retrieves keys for Gemini authentication.
+
+  src/lib/utils.ts
+  ────────────────────────────────────────────────────────────────────────────
+  Utility functions (cn() for class merging via tailwind-merge + clsx).
+
+  src/types.ts
+  ────────────────────────────────────────────────────────────────────────────
+  TypeScript interfaces: Resource, Quiz, Challenge, SubTopic, RoadmapNode,
+  Roadmap, RoadmapRecord, ModalConfig, StudyTask, UserProgress.
+
+  Note: UserProgress interface includes fields: completedSubTopicIds,
+  completedChallengeIds, practiceScore, currentStreak, lastStudyDate,
+  dailyActivity. But App.tsx initializes it without lastStudyDate and
+  dailyActivity — may need alignment.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  5. STYLING / THEME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  src/index.css
+  ────────────────────────────────────────────────────────────────────────────
+  Tailwind CSS v4 with @theme custom tokens:
+  - Colors: bg-primary (#0b0b14), bg-secondary (#12121e), bg-surface (#1a1a2e)
+  - Text: text-primary (#f0f0f5), text-secondary (#a0a0b8)
+  - Accents: accent-glow (#7c6ffa), accent-success (#22c55e), accent-danger (#f43f5e)
+  - Borders: border-primary (rgba(255,255,255,0.08)), border-pill (rgba(255,255,255,0.15))
+  - Fonts: Outfit (sans), Playfair Display (serif), JetBrains Mono (mono)
+  - Utilities: glass-panel, glass-panel-premium, neural-glow, blueprint-grid
+  - Animations: float, pulse-subtle
+
+  Design System:
+  - Dark theme only (no light mode toggle)
+  - Heavy use of backdrop-blur, glass morphism, subtle borders
+  - Serif font (Playfair Display) for headings, sans (Outfit) for body
+  - Purple accent (#7c6ffa) as primary brand color
+  - Cinematic background images with blur + dark overlays
+
+  Background Images (public/):
+  - /landing-bg.jpg  — Stairway photo for landing page
+  - /home-bg.jpg     — Pexels photo (blurred background on Home page)
+  - /home-hero.jpg   — Pixabay photo (decorative accent on right side of Home)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  6. NOTABLE RECENT CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Landing: Removed separate "Continue with Google" button
+  - Landing: "Start Your Journey" now triggers Google sign-in directly
+  - Landing: Removed "Sign In" from navbar; replaced with "Get Started" (also
+    triggers sign-in)
+  - Landing: Removed onGetStarted prop (no longer needed)
+  - Landing: Removed GoogleLogo import
+  - Home: Content left-aligned (mx-auto → ml-0 lg:ml-8, items-center → items-start)
+  - Home: Search bar always shows active/purple glow state (removed conditional)
+  - Home: Build button has hover:brightness-110
+  - Home: Background image with blur(8px), brightness(0.4), purple tint overlays
+  - Home: Decorative accent image on right side (rounded-3xl, no mask/filter,
+    opacity-70, -right-48 top-12)
+  - Top bar: Reverted to centered floating glass bar (only on home view)
+  - App.tsx: Removed onGetStarted prop from <Landing>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  7. AUTH FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. User clicks "Start Journey" (Landing) or "Get Started" (navbar)
+  2. signInWithPopup(auth, googleProvider) called
+  3. onAuthStateChanged fires in App.tsx:
+     a. Sets user, enables UI, sets view='home'
+     b. syncUserProfile() — saves user to Firestore (Background)
+     c. getAPIKeys() — tries to read API keys from Firestore (Background)
+        - Searches 'progress/keys' then 'config/keys'
+        - If permission denied, throws error (caught, logged as warning)
+        - If successful, sets keys for Gemini API
+  4. User lands on Home page with floating glass bar + content
+
+ Notes:
+ - 8-second safety timeout on auth loading spinner
+ - Errors from getAPIKeys() are caught and logged but not shown to user
+ - If Firestore rules don't allow reading 'progress/keys' or 'config/keys',
+   the getAPIKeys() call will fail silently with a console warning
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  8. PROJECT FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  src/
+  ├── main.tsx                    Entry point
+  ├── App.tsx                     Root app / router / auth
+  ├── index.css                   Tailwind theme / global styles
+  ├── types.ts                    TypeScript interfaces
+  ├── lib/
+  │   ├── firestore.ts            Firebase config + Firestore CRUD
+  │   ├── gemini.ts               Gemini AI roadmap generation
+  │   ├── keys.ts                 API key management
+  │   └── utils.ts                Utility functions (cn)
+  └── components/
+      ├── Landing.tsx             Public landing page
+      ├── Home.tsx                Main dashboard (post sign-in)
+      ├── RoadmapView.tsx         Roadmap tree view
+      ├── RoadmapDetailOverlay.tsx Node detail slide-over
+      ├── Planner.tsx             Study task planner
+      ├── PracticeHub.tsx         Challenge & quiz interface
+      ├── Dashboard.tsx           Stats & progress dashboard
+      ├── Modal.tsx               Reusable modal dialog
+      ├── Dock.tsx                macOS-style dock navigation
+      ├── LoadingScreen.tsx       Loading overlay
+      ├── LightRays.tsx           Background light ray effect
+      ├── ArchitectBackground.tsx Alternative background
+      ├── SpotlightCard.tsx       Spotlight hover card
+      ├── StarBorder.tsx          Animated star border
+      ├── StarBorder.css          Star border styles
+      ├── MagicRings.tsx          Animated rings
+      ├── MagicRings.css          Rings styles
+      ├── Balatro.tsx             Card game component
+      ├── Balatro.css             Card game styles
+      ├── Folder.tsx              Vault folder component
+      ├── Folder.css              Folder styles
+      ├── Onboarding.tsx          Onboarding flow
+      └── ui/
+          ├── button.tsx          Shadcn-style button
+          ├── PremiumButton.tsx   Animated CTA button
+          ├── separator.tsx       Divider
+          └── tooltip.tsx         Hover tooltip
+
+  Root files:
+  ├── package.json
+  ├── tsconfig.json
+  ├── vite.config.ts
+  ├── index.html
+  ├── metadata.json
+  ├── README.md
+  ├── RELEASE_NOTES.md
+  └── .env.example
+
+════════════════════════════════════════════════════════════════════════════════
+  END OF CONTEXT
+════════════════════════════════════════════════════════════════════════════════

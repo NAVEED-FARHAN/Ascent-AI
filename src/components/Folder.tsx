@@ -30,7 +30,7 @@ const darkenColor = (hex: string, percent: number): string => {
 };
 
 const Folder: React.FC<FolderProps> = ({ 
-  color = '#5227FF', 
+  color = '#7c6ffa', 
   size = 1, 
   items = [], 
   className = '',
@@ -141,11 +141,10 @@ const Folder: React.FC<FolderProps> = ({
                 bottom: '10%',
                 left: '50%',
                 width: '115px',
-                height: '145px',
-                background: 'rgba(10, 10, 12, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                height: '145px',                    background: 'var(--bg-surface)',
+                border: '1px solid var(--border-pill)',
                 borderRadius: '8px',
-                boxShadow: 'inset 0 1px 1.5px rgba(255, 255, 255, 0.15), 0 6px 24px rgba(0, 0, 0, 0.8)',
+                boxShadow: 'inset 0 1px 1.5px rgba(255,255,255,0.08), 0 6px 24px rgba(0,0,0,0.8)',
                 transition: 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), width 0.4s, height 0.4s, background 0.3s, border 0.3s, box-shadow 0.3s',
               };
             }

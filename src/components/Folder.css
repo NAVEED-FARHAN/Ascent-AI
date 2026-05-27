@@ -1,9 +1,9 @@
 :root {
-  --folder-color: #5227FF;
-  --folder-back-color: #4018e8;
-  --paper-1: #e6e6e6;
-  --paper-2: #f2f2f2;
-  --paper-3: #ffffff;
+  --folder-color: #7c6ffa;
+  --folder-back-color: #5c4ff0;
+  --paper-1: rgba(255,255,255,0.04);
+  --paper-2: rgba(255,255,255,0.06);
+  --paper-3: rgba(255,255,255,0.08);
 }
 
 .folder {

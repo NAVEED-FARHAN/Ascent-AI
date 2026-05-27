@@ -83,8 +83,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const Icon = currentStep.icon;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-bg-primary font-sans">
-      <div className="mesh-background opacity-30" />
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-bg-primary">
       
       {/* Top Brand Marker */}
       <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
@@ -120,7 +119,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
             {/* Typography */}
             <div className="mb-14">
-               <h2 className="text-[10px] font-black uppercase tracking-[0.8em] text-accent-glow/60 mb-5">
+               <h2 className="text-[10px] font-semibold uppercase tracking-[0.8em] text-accent-glow/60 mb-5">
                  {showManual ? "Manual Override" : currentStep.subtitle}
                </h2>
                <h1 className="text-6xl md:text-9xl font-serif italic text-text-primary tracking-tighter leading-[0.85] mb-10">
@@ -140,7 +139,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step < 2 && (
                 <button
                   onClick={handleNext}
-                  className="px-16 py-7 rounded-full bg-text-primary text-bg-primary font-black text-sm uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/10"
+                  className="px-16 py-7 rounded-full bg-text-primary text-bg-primary font-semibold text-sm uppercase tracking-[0.3em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/10"
                 >
                   Continue
                 </button>
@@ -149,7 +148,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step === 2 && (
                 <button
                   onClick={handleMagicRedirect}
-                  className="w-full py-8 rounded-full bg-accent-glow text-white font-black text-sm uppercase tracking-[0.4em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/20 flex items-center justify-center gap-4 group"
+                  className="w-full py-8 rounded-full bg-accent-glow text-white font-semibold text-sm uppercase tracking-[0.4em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-accent-glow/20 flex items-center justify-center gap-4 group"
                 >
                   <ExternalLink className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                   Generate Key
@@ -161,7 +160,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   onClick={handleFinalize}
                   disabled={isSubmitting || isDetecting}
                   className={`
-                    w-full py-8 rounded-full font-black text-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 shadow-2xl
+                    w-full py-8 rounded-full font-semibold text-sm uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4 shadow-2xl
                     ${isSubmitting ? 'bg-accent-success text-white shadow-accent-success/20' : 'bg-text-primary text-bg-primary shadow-accent-glow/10'}
                     hover:scale-105 active:scale-95 disabled:opacity-50
                   `}
@@ -179,12 +178,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     placeholder="Enter Key Manually..."
-                    className="w-full bg-bg-secondary/40 border border-border-pill rounded-full py-6 px-10 text-text-primary placeholder:text-text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono text-center tracking-widest shadow-2xl"
+                    className="w-full bg-bg-secondary/40 border border-border-pill rounded-full py-6 px-10 text-text-primary placeholder:text-text-placeholder focus:outline-none focus:ring-2 focus:ring-accent-glow/50 focus:border-accent-glow transition-all font-mono text-center tracking-widest shadow-2xl"
                   />
                   <button
                     onClick={() => onComplete(apiKey.trim())}
                     disabled={apiKey.length < 20}
-                    className="w-full py-6 rounded-full bg-accent-glow text-white font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-30 shadow-xl shadow-accent-glow/20"
+                    className="w-full py-6 rounded-full bg-accent-glow text-white font-semibold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-30 shadow-xl shadow-accent-glow/20"
                   >
                     Confirm & Launch
                   </button>
@@ -195,7 +194,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step > 0 && step < 3 && (
                 <button
                   onClick={handleBack}
-                  className="mt-10 text-[10px] font-black uppercase tracking-[0.5em] text-text-muted/40 hover:text-text-primary transition-colors"
+                  className="mt-10 text-[10px] font-semibold uppercase tracking-[0.5em] text-text-muted/40 hover:text-text-primary transition-colors"
                 >
                   Go Back
                 </button>
@@ -210,11 +209,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         <div className="flex flex-col gap-5">
           <div className="flex justify-between items-end px-1">
             <div className="flex flex-col">
-              <span className="text-[8px] font-black text-accent-glow uppercase tracking-[0.4em] mb-1.5">Protocol Stage</span>
-              <span className="text-[10px] font-black text-text-primary uppercase tracking-widest">{currentStep.subtitle}</span>
+              <span className="text-[8px] font-semibold text-accent-glow uppercase tracking-[0.4em] mb-1.5">Protocol Stage</span>
+              <span className="text-[10px] font-semibold text-text-primary uppercase tracking-widest">{currentStep.subtitle}</span>
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-black text-text-muted/40 uppercase tracking-[0.4em]">
+              <div className="text-[10px] font-semibold text-text-muted/40 uppercase tracking-[0.4em]">
                 {step + 1} / {steps.length}
               </div>
             </div>

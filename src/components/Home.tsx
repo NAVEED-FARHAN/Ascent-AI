@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Search, ArrowRight, Sparkles, 
-  Target, Loader2, Zap, History, Trash2,
-  ArrowLeft, Flame, ClipboardList
+  Search, ArrowRight, 
+  Target, Loader2, Zap, Trash2,
+  ArrowLeft, Flame, ClipboardList, 
+  BookOpen, ChevronRight, Compass,
+  LogOut
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { Roadmap, RoadmapRecord } from '../types';
 import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
 import { KnowledgeLevel } from '../lib/gemini';
-import StarBorder from './StarBorder';
-import Folder from './Folder';
 
 interface HomeProps {
   user: User | null;
@@ -21,110 +21,66 @@ interface HomeProps {
   onClearActiveRoadmap: () => void;
   onShowModal: (config: any) => void;
   isNeuralReady: boolean;
+  onLogout: () => void;
+  onSetView: (view: any) => void;
 }
 
+const levelsConfig = [
+  {
+    id: 'test' as const,
+    label: 'Take a Test',
+    tagline: 'Discover your level',
+    description: 'Quick diagnostic to pinpoint where you stand.',
+    comingSoon: true,
+    icon: ClipboardList,
+    accent: 'text-sky-400',
+    border: 'border-sky-500/20'
+  },
+  {
+    id: 'fresher' as const,
+    label: 'Fresher',
+    tagline: 'Just starting out',
+    description: 'Absolute zero. Fundamentals, analogies, and patient guidance.',
+    icon: Zap,
+    accent: 'text-amber-400',
+    border: 'border-amber-500/20'
+  },
+  {
+    id: 'beginner' as const,
+    label: 'Beginner',
+    tagline: 'Know the basics',
+    description: 'Core foundation. Balanced theory, depth, and practice.',
+    icon: Target,
+    accent: 'text-accent-glow',
+    border: 'border-accent-glow/20'
+  },
+  {
+    id: 'intermediate' as const,
+    label: 'Intermediate',
+    tagline: 'Building real things',
+    description: 'System architect. Production patterns and scale.',
+    icon: Flame,
+    accent: 'text-rose-400',
+    border: 'border-rose-500/20'
+  }
+];
+
 export default function Home({ 
-  user, roadmap, onSelectRoadmap, onStartGoal, onClearActiveRoadmap, onShowModal, isNeuralReady 
+  user, roadmap, onSelectRoadmap, onStartGoal, onClearActiveRoadmap, onShowModal, isNeuralReady, onLogout, onSetView 
 }: HomeProps) {
   const [goal, setGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
-  const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const paperItems = archivedRoadmaps.slice(0, 8).map((record) => {
-    const dateLabel = (() => {
-      if (!record.createdAt) return '';
-      const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
-      return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
-    })();
-
-    // Render full rich content only when the vault is open!
-    if (!isVaultOpen) {
-      return (
-        <div key={record.id} className="w-full h-full flex flex-col justify-center items-center pointer-events-none select-none">
-          <span className="text-[6px] font-black tracking-wider text-purple-600/80 uppercase text-center line-clamp-1 p-1">
-            {record.goal.slice(0, 12)}
-          </span>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        key={record.id}
-        onClick={() => onSelectRoadmap(record as any)}
-        className="relative w-full h-full flex flex-col justify-between p-2 cursor-pointer group/paper select-none"
-      >
-        {/* Hover light glow overlay */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-transparent via-purple-500/10 to-white/5 opacity-0 group-hover/paper:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-        {/* Goal Title */}
-        <div className="flex-1 flex items-center justify-center text-center p-0.5">
-          <span className="text-[7.5px] font-black tracking-wider text-purple-200 group-hover/paper:text-white transition-colors duration-200 uppercase leading-normal line-clamp-4">
-            {record.goal}
-          </span>
-        </div>
-
-        {/* Footer (Date & Delete) */}
-        <div className="flex items-center justify-between mt-0.5 pt-1 border-t border-white/5">
-          <span className="text-[6.5px] font-mono font-bold text-white/35 tracking-wider">
-            {dateLabel}
-          </span>
-          
-          {/* Subtle Delete Trash Icon */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(e, record.id!);
-            }}
-            className="p-0.5 rounded bg-rose-950/20 text-rose-400/60 hover:bg-rose-500 hover:text-white border border-rose-500/10 hover:border-rose-400 transition-all duration-200"
-            title="Delete Blueprint"
-          >
-            <Trash2 className="w-2 h-2" />
-          </button>
-        </div>
-      </div>
-    );
-  });
-
-  const levelsConfig = [
-    {
-      id: 'test' as const,
-      label: 'Take a Test',
-      tagline: 'Discover your level',
-      description: 'Discover your level of understanding with a quick diagnostic test (under development).',
-      comingSoon: true,
-      icon: ClipboardList,
-      colorClass: 'text-sky-400 bg-sky-500/10 border-sky-500/20'
-    },
-    {
-      id: 'fresher' as const,
-      label: 'Fresher',
-      tagline: 'Just starting out',
-      description: 'Absolute zero knowledge. Curated fundamentals, intuitive analogies, and simple basics.',
-      icon: Zap,
-      colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-    },
-    {
-      id: 'beginner' as const,
-      label: 'Beginner',
-      tagline: 'Know the basics',
-      description: 'Core foundation. Balanced mix of key theory, conceptual details, and hands-on guidance.',
-      icon: Target,
-      colorClass: 'text-accent-glow bg-accent-glow/10 border-accent-glow/20'
-    },
-    {
-      id: 'intermediate' as const,
-      label: 'Intermediate',
-      tagline: 'Building real things',
-      description: 'System architect. Skip the basics. Focus directly on production patterns and scale.',
-      icon: Flame,
-      colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20'
-    }
-  ];
+  // Close profile menu on outside click
+  useEffect(() => {
+    const handleClick = () => setIsProfileOpen(false);
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, []);
 
   const loadHistory = async () => {
     if (!user) return;
@@ -161,9 +117,9 @@ export default function Home({
   };
 
   const suggestions = [
-    "Master Sustainable Architecture",
-    "Learn Quantum Computing Basics",
-    "Design a High-Conversion Landing Page"
+    { icon: BookOpen, text: "Master Sustainable Architecture" },
+    { icon: Compass, text: "Learn Quantum Computing Basics" },
+    { icon: Target, text: "Design a High-Conversion Landing Page" }
   ];
 
   const handleSelectLevelAndStart = (level: KnowledgeLevel) => {
@@ -172,345 +128,510 @@ export default function Home({
     onStartGoal(goal, level);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        staggerChildren: 0.04,
-        staggerDirection: -1,
-        when: "afterChildren"
-      }
-    }
+  const formatDate = (dateVal: any) => {
+    if (!dateVal) return '';
+    const date = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+    return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
-    show: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 14,
-        mass: 1
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-      transition: {
-        duration: 0.2
-      }
-    }
+  const getCompletionPercent = (record: RoadmapRecord) => {
+    if (!record.nodes?.length) return 0;
+    const completed = record.nodes.filter(n => n.isCompleted).length;
+    return Math.round((completed / record.nodes.length) * 100);
+  };
+
+  const stagger = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
+    exit: { opacity: 0, transition: { staggerChildren: 0.03, staggerDirection: -1, when: "afterChildren" } }
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
   };
 
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center max-w-5xl mx-auto py-10 relative">
-      <AnimatePresence mode="wait">
-        {!showLevelPicker ? (
+    <div className="min-h-screen flex flex-col items-center relative">
+      {/* ═══ FULL-BLEED BACKGROUND ═══ */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <img 
+          src="/home-bg.jpg" 
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ filter: 'saturate(1.1) brightness(0.35)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/70 via-bg-primary/40 to-bg-primary/80" />
+        <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-accent-glow/[0.06] to-transparent" />
+
+      </div>
+
+      {/* ═══ TOP BAR: Logo + Profile ═══ */}
+      <div className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 sm:px-8 py-4">
+        {/* Left: Logo */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="flex items-center gap-3 group cursor-pointer"
+          onClick={() => onSetView('landing')}
+        >
+          <div className="relative flex items-center justify-center">
+            <img src="/logo.ico" alt="Ascent AI" className="w-8 h-8 group-hover:scale-110 transition-transform duration-300 object-contain" />
+            <div className="absolute inset-0 bg-accent-glow/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+          <span className="hidden sm:inline text-sm font-serif italic font-medium text-text-primary tracking-tight">
+            Ascent <span className="text-accent-glow">AI</span>
+          </span>
+        </motion.div>
+
+        {/* Right: Profile */}
+        {user && (
           <motion.div
-            key="search-interface"
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4 }}
-            className="w-full flex flex-col items-center space-y-16"
+            transition={{ duration: 0.5, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="relative"
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Hero Section */}
-            <div className="space-y-8">
-              <h1 className="text-6xl md:text-8xl font-serif italic tracking-tighter text-[#f8fafc] leading-[0.9] mb-8">
-                Master anything with <br />
-                <span className="text-accent-glow relative inline-block">
-                  Architected Learning
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{ delay: 0.5, duration: 1 }}
-                    className="absolute -bottom-2 left-0 h-1 bg-accent-glow/30" 
-                  />
-                </span>
-              </h1>
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center gap-2.5 p-1 pr-3 rounded-full bg-white/[0.04] border border-white/10 hover:border-accent-glow/25 transition-all group"
+            >
+              <div className="w-8 h-8 rounded-full border border-accent-glow/25 overflow-hidden">
+                <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-xs font-medium text-text-primary/70 group-hover:text-text-primary transition-colors max-w-[60px] truncate hidden sm:inline">
+                {user.displayName?.split(' ')[0]}
+              </span>
+            </button>
 
-              <p className="max-w-xl mx-auto text-[#94a3b8] text-lg font-normal leading-relaxed mb-12 font-sans">
-                Personalized AI-driven roadmaps that transform your intellectual curiosity into structured mastery.
-              </p>
-            </div>
-
-            {/* Search & Launch Section */}
-            <div className="w-full flex flex-col items-center gap-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="relative w-full max-w-3xl flex items-center gap-3"
-              >
-                <motion.form 
-                  onSubmit={(e) => { e.preventDefault(); goal.trim() && setShowLevelPicker(true); }}
-                  animate={{ 
-                    scale: isFocused ? 1.01 : 1,
-                  }}
-                  className={`relative flex items-center flex-1 bg-black/40 border border-white/10 rounded-[2.5rem] p-2 backdrop-blur-md shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] transition-all duration-500 ${isFocused ? 'ring-2 ring-accent-glow/30' : 'hover:bg-black/30'}`}
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-full right-0 mt-3 w-56 py-2 rounded-2xl bg-bg-surface/95 border border-white/10 shadow-2xl backdrop-blur-2xl z-[200] overflow-hidden"
                 >
-                  {/* Ambient Border Glow (Inactive Only) */}
-                  {!isFocused && !goal.trim() && (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: [0.1, 0.3, 0.1] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute -inset-[1px] rounded-[2.5rem] border border-accent-glow/30 pointer-events-none"
-                    />
-                  )}
+                  <div className="px-5 py-3 border-b border-white/5">
+                    <p className="text-[9px] font-medium text-text-muted/40 uppercase tracking-wider mb-1">Account</p>
+                    <h3 className="text-sm font-semibold truncate text-text-primary">{user.displayName}</h3>
+                    <p className="text-[11px] text-accent-glow/70 font-medium truncate mt-0.5">{user.email}</p>
+                  </div>
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-3 px-5 py-2.5 text-xs font-medium text-text-muted/50 hover:text-red-400 hover:bg-red-500/5 transition-all"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    Sign out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </div>
 
-                  {/* Left Icon Decor */}
-                  <div className="pl-6 pr-4 flex items-center justify-center">
-                    <Search className={`w-5 h-5 transition-colors duration-500 ${isFocused || goal.trim() ? 'text-accent-glow' : 'text-white/70'}`} />
+      <div className="w-full max-w-[90rem] px-6 sm:px-8 pt-20 sm:pt-24 pb-8 sm:pb-12 flex flex-col items-center gap-8">
+        <AnimatePresence mode="wait">
+          {!showLevelPicker ? (
+            <motion.div
+              key="home-main"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full"
+            >
+              {/* ═══ CENTERED GLASS CARD ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-full rounded-xl border border-accent-glow/[0.12] backdrop-blur-md overflow-hidden"
+                style={{ backgroundColor: 'rgba(124, 111, 250, 0.06)' }}
+              >
+                {/* ─── Two-Column Main Content ─── */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 sm:gap-16 px-10 sm:px-14 py-14 sm:py-16">
+                  {/* Left Column — Decorative Image */}
+                  <div className="lg:col-span-2 hidden lg:block">
+                    <div className="relative h-full min-h-[480px] rounded-xl overflow-hidden">
+                      <img
+                        src="/home-hero.jpg"
+                        alt=""
+                        className="w-full h-full object-cover rounded-xl"
+                      />
+                      {/* Decorative corner accents */}
+                      <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-white/10 rounded-sm" />
+                      <div className="absolute top-3 right-3 w-5 h-5 border-t border-r border-white/10 rounded-sm" />
+                      <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-white/10 rounded-sm" />
+                      <div className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-white/10 rounded-sm" />
+                    </div>
                   </div>
 
-                  <input 
-                    type="text" 
-                    value={goal} 
-                    onChange={(e) => setGoal(e.target.value)}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    placeholder="What path shall we architect today?" 
-                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-white/60 font-serif italic tracking-wide"
-                  />
+                  {/* Right Column — Content */}
+                  <div className="lg:col-span-3 flex flex-col justify-center space-y-8 sm:space-y-10">
+                    {/* Heading */}
+                    <div className="space-y-1">
+                      <motion.h1 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1, duration: 0.5 }}
+                        className="text-3xl sm:text-4xl lg:text-5xl 2xl:text-6xl font-serif italic text-text-primary leading-tight"
+                      >
+                        What would you like to
+                        <br />
+                        <span className="text-accent-glow">master today?</span>
+                      </motion.h1>
 
-                  <motion.button
-                    type="submit"
-                    disabled={!isNeuralReady || !goal.trim()}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`relative h-[64px] px-10 rounded-[1.75rem] font-black text-[10px] uppercase tracking-[0.25em] flex items-center gap-4 transition-all duration-500 overflow-hidden ${
-                      isNeuralReady && goal.trim()
-                        ? 'bg-accent-glow text-white shadow-[0_10px_30px_rgba(124,111,250,0.3)] opacity-100' 
-                        : 'bg-white/5 text-white/50 border border-white/10 shadow-[0_4px_10px_rgba(0,0,0,0.4)] opacity-100'
-                    }`}
-                  >
-                    {/* Blueprint Grid for Inactive Button */}
-                    {!goal.trim() && (
-                      <div className="absolute inset-0 blueprint-grid opacity-[0.1]" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    
-                    {isNeuralReady ? (
-                      <>
-                        <span className="relative z-10">Initiate Ascent</span>
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <ArrowRight className="w-4 h-4" />
+                      {/* Section title + divider */}
+                      <div className="pt-3 pb-1 space-y-1.5">
+                        <h3 className="text-sm font-medium text-accent-glow/70 tracking-wide">
+                          Your Quest
+                        </h3>
+                        <div className="h-px bg-gradient-to-r from-accent-glow/30 via-accent-glow/10 to-transparent" />
+                      </div>
+                    </div>
+
+                    {/* Subtitle */}
+                    <motion.p 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.5 }}
+                      className="text-sm sm:text-base text-text-muted/60 font-light leading-relaxed max-w-lg"
+                    >
+                      AI-powered roadmaps — personalized to your level and goals. Tell us what you want to build and we'll architect your path.
+                    </motion.p>
+
+                    {/* ═══ SEARCH BAR ═══ */}
+                    <motion.form 
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.25, duration: 0.5 }}
+                      onSubmit={(e) => { e.preventDefault(); goal.trim() && setShowLevelPicker(true); }}
+                      className="relative group"
+                    >
+                      <div className="
+                        relative flex items-center gap-2 p-2 rounded-2xl border backdrop-blur-2xl
+                        transition-all duration-400
+                        bg-white/[0.08] border-white/20
+                        shadow-lg shadow-black/20
+                        hover:bg-accent-glow/[0.06] hover:border-accent-glow/25 hover:shadow-accent-glow/8
+                      ">
+                        {/* Search icon */}
+                        <div className="flex items-center justify-center pl-5 pr-2">
+                          <Search className="w-5 h-5 text-text-secondary/50 group-hover:text-accent-glow transition-colors duration-400" />
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        <span>Syncing</span>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </>
-                    )}
-                  </motion.button>
 
-                  {/* Neural Pulse Overlay */}
-                  <AnimatePresence>
-                    {isFocused && (
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 -z-10 rounded-[2rem] bg-accent-glow/[0.02] animate-pulse"
-                      />
-                    )}
-                  </AnimatePresence>
-                </motion.form>
-                
-                {/* Subtle Tip */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isFocused ? 1 : 0 }}
-                  className="absolute -bottom-8 left-10 text-[9px] font-black uppercase tracking-[0.2em] text-accent-glow/40 pointer-events-none"
-                >
-                  Press Enter to Architect
-                </motion.div>
+                        <input 
+                          type="text" 
+                          value={goal} 
+                          onChange={(e) => setGoal(e.target.value)}
+                          placeholder="e.g. Master React, Learn Piano, Build a SaaS..." 
+                          className="flex-1 bg-transparent border-none py-[18px] text-base sm:text-lg text-text-primary outline-none placeholder:text-text-muted/20 font-light tracking-wide"
+                        />
 
-                {/* Vault Folder — inline right side of search bar */}
-                {!isLoading && archivedRoadmaps.length > 0 && (
-                  <div className="relative flex-shrink-0" style={{ height: '80px' }}>
-                    <Folder
-                      color="#5227FF"
-                      size={0.85}
-                      items={paperItems}
-                      open={isVaultOpen}
-                      onToggle={() => setIsVaultOpen(prev => !prev)}
-                    />
+                        <motion.button
+                          type="submit"
+                          disabled={!isNeuralReady || !goal.trim()}
+                          whileHover={isNeuralReady && goal.trim() ? { scale: 1.02 } : {}}
+                          whileTap={isNeuralReady && goal.trim() ? { scale: 0.97 } : {}}
+                          className={`
+                            mr-1.5 px-5 py-[13px] rounded-xl text-sm font-medium flex items-center gap-2
+                            transition-all duration-300
+                            ${isNeuralReady && goal.trim()
+                              ? 'bg-accent-glow text-white shadow-md shadow-accent-glow/20 hover:bg-white hover:text-accent-glow hover:shadow-lg hover:shadow-accent-glow/25' 
+                              : 'bg-white/[0.06] text-text-muted/35 border border-white/10'
+                            }
+                          `}
+                        >
+                          {isNeuralReady ? (
+                            <>
+                              <span>Build</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          ) : (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Syncing</span>
+                            </>
+                          )}
+                        </motion.button>
+                      </div>
+                    </motion.form>
+
+                    {/* Active Journey (inside card) */}
+                    <AnimatePresence>
+                      {roadmap && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          <button
+                            onClick={() => onSelectRoadmap(roadmap)}
+                            className="group relative w-full overflow-hidden rounded-xl border border-accent-glow/15 bg-white/[0.03] backdrop-blur-xl p-4 text-left transition-all duration-400 hover:border-accent-glow/30 hover:bg-white/[0.05]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 rounded-full bg-accent-glow shadow-[0_0_10px_rgba(124,111,250,0.5)] animate-pulse shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-medium uppercase tracking-wider text-accent-glow/50 mb-0.5">
+                                  Active Journey
+                                </p>
+                                <p className="text-sm font-serif italic text-text-primary truncate group-hover:text-accent-glow transition-colors duration-200">
+                                  {roadmap.goal}
+                                </p>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-text-muted/30 group-hover:text-accent-glow group-hover:translate-x-1 transition-all duration-200 shrink-0" />
+                            </div>
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* ═══ SUGGESTION CHIPS ═══ */}
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                    >
+                      <div className="flex flex-wrap gap-2.5">
+                        {suggestions.map((s, i) => (
+                          <motion.button
+                            key={s.text}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.35 + i * 0.06, duration: 0.4 }}
+                            whileHover={{ y: -2 }}
+                            whileTap={{ scale: 0.96 }}
+                            onClick={() => { setGoal(s.text); setShowLevelPicker(true); }}
+                            className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all duration-300
+                              bg-accent-glow/12 border-accent-glow/25
+                              hover:bg-white/[0.12] hover:border-white/30
+                              text-xs text-accent-glow/80 hover:text-white"
+                          >
+                            <s.icon className="w-3.5 h-3.5 text-accent-glow/50 group-hover:text-white/70 transition-colors duration-300" />
+                            <span>{s.text}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+
+              </motion.div>
+
+              {/* ═══ PROJECTS GALLERY (glass cards below main card) ═══ */}
+              <motion.div 
+                id="projects-section"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="w-full pt-12 pb-8"
+              >
+                {/* Section Header */}
+                <div className="relative mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-accent-glow/15 to-transparent" />
+                    <span className="text-[10px] font-medium uppercase tracking-widest text-text-muted/30 whitespace-nowrap">
+                      {archivedRoadmaps.length > 0 ? 'Recent Projects' : 'Your Projects'}
+                    </span>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent via-accent-glow/15 to-transparent" />
+                  </div>
+                </div>
+
+                {isLoading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="w-5 h-5 text-accent-glow/40 animate-spin" />
+                  </div>
+                ) : archivedRoadmaps.length === 0 ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full rounded-xl border border-accent-glow/[0.08] backdrop-blur-xl p-10 text-center"
+                    style={{ backgroundColor: 'rgba(124, 111, 250, 0.04)' }}
+                  >
+                    <div className="w-14 h-14 mx-auto rounded-2xl border border-accent-glow/[0.12] bg-accent-glow/[0.04] flex items-center justify-center mb-4 backdrop-blur-md">
+                      <BookOpen className="w-6 h-6 text-accent-glow/30" />
+                    </div>
+                    <p className="text-sm text-text-muted/30 font-light">
+                      Your projects will appear here
+                    </p>
+                  </motion.div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {archivedRoadmaps.map((record, i) => {
+                      const dateLabel = formatDate(record.createdAt);
+                      const completion = getCompletionPercent(record);
+                      return (
+                        <motion.div
+                          key={record.id}
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.05, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          whileHover={{ y: -3, scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => onSelectRoadmap(record as any)}
+                          className="group relative cursor-pointer rounded-xl border border-accent-glow/[0.10] backdrop-blur-2xl p-5 transition-all duration-400 hover:border-accent-glow/25 hover:shadow-lg hover:shadow-accent-glow/10"
+                          style={{ backgroundColor: 'rgba(124, 111, 250, 0.05)' }}
+                        >
+                          {/* Top accent line */}
+                          <div className="absolute top-0 left-4 right-4 h-px bg-gradient-to-r from-accent-glow/0 via-accent-glow/30 to-accent-glow/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                          {/* Top row: title + delete */}
+                          <div className="flex items-start justify-between gap-3 mb-4">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm font-serif italic text-text-primary group-hover:text-accent-glow transition-colors duration-200 line-clamp-1">
+                                {record.goal}
+                              </h3>
+                              <p className="text-[10px] text-text-muted/30 font-mono mt-0.5">
+                                {dateLabel}
+                              </p>
+                            </div>
+                            <button
+                              onClick={(e) => handleDelete(e, record.id!)}
+                              className="p-1.5 rounded-lg text-rose-400/20 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-200 opacity-0 group-hover:opacity-100 shrink-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Completion status */}
+                          <div className="flex items-center gap-3 mb-5">
+                            <div className="flex-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                              <div 
+                                className="h-full rounded-full bg-accent-glow/60 transition-all duration-700"
+                                style={{ width: `${Math.max(completion, 2)}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] font-mono text-accent-glow/60 font-medium">
+                              {completion}%
+                            </span>
+                          </div>
+
+                          {/* Bottom row: spacer + arrow button */}
+                          <div className="flex items-center justify-end pt-2">
+                            <div className="w-8 h-8 rounded-lg bg-accent-glow/[0.08] border border-accent-glow/15 flex items-center justify-center group-hover:bg-accent-glow/15 group-hover:border-accent-glow/30 group-hover:scale-105 transition-all duration-300">
+                              <ChevronRight className="w-4 h-4 text-accent-glow/50 group-hover:text-accent-glow group-hover:translate-x-0.5 transition-all duration-300" />
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 )}
               </motion.div>
-
-              {/* Continue Active Journey Badge */}
-              <AnimatePresence mode="wait">
-                {roadmap && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }} 
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="flex justify-center"
-                  >
-                    <button 
-                      onClick={() => onSelectRoadmap(roadmap)}
-                      className="group flex items-center gap-4 px-6 py-2.5 rounded-full bg-accent-glow/5 border border-accent-glow/20 hover:border-accent-glow/40 transition-all shadow-[0_0_20px_rgba(124,111,250,0.1)] backdrop-blur-md"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-accent-glow animate-pulse shadow-[0_0_8px_rgba(124,111,250,0.8)]" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow/70">Continue Active Journey</span>
-                      <span className="text-[11px] font-serif italic text-text-primary group-hover:text-accent-glow transition-colors">{roadmap.goal}</span>
-                      <ArrowRight className="w-3 h-3 text-accent-glow group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Suggestion Tags */}
-            <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
-              <div className="w-full flex items-center gap-6 mb-6">
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-accent-glow/20 to-transparent" />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-glow/40">Neural Prompt Protocols</span>
-                <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-accent-glow/20 to-transparent" />
-              </div>
-              {suggestions.map((tag, i) => (
-                <motion.button
-                  key={tag}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    y: -2,
-                    backgroundColor: "rgba(124,111,250,0.08)"
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => { setGoal(tag); setShowLevelPicker(true); }}
-                  className="group relative px-6 py-3.5 rounded-xl bg-black/40 border border-t-white/10 border-b-black/80 border-x-white/5 hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300 overflow-hidden backdrop-blur-md shadow-[inset_0_1px_10px_rgba(255,255,255,0.02),0_4px_20px_rgba(0,0,0,0.4)]"
-                >
-                  <div className="absolute inset-0 bg-accent-glow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative flex items-center gap-4">
-                    <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-accent-glow/20 group-hover:border-accent-glow/40 transition-all duration-500">
-                      <Sparkles className="w-3.5 h-3.5 text-accent-glow/40 group-hover:text-accent-glow transition-colors" />
-                    </div>
-                    {tag}
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="level-picker-interface"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4 }}
-            className="w-full flex flex-col items-center space-y-12 py-10 animate-fade-in"
-          >
-            <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl font-serif italic tracking-tighter text-[#f8fafc]">
-                Configure Your Ascent
-              </h2>
-              
-              <div className="max-w-2xl mx-auto mt-4 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md shadow-2xl">
-                <span className="text-[8px] font-black uppercase tracking-[0.3em] text-text-muted/40 block mb-1">TARGET BLUEPRINT</span>
-                <p className="text-lg font-serif italic text-text-primary text-accent-glow/95">
-                  "{goal}"
-                </p>
-              </div>
-            </div>
-
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-              exit="exit"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl px-4"
-            >
-              {levelsConfig.map((lvl) => {
-                const Icon = lvl.icon;
-                const isSoon = lvl.comingSoon;
-                
-                return (
-                  <motion.button
-                    key={lvl.id}
-                    variants={cardVariants}
-                    disabled={isSoon}
-                    whileHover={!isSoon ? { 
-                      scale: 1.04, 
-                      y: -6,
-                      boxShadow: "0 20px 40px rgba(124, 111, 250, 0.12)",
-                    } : {}}
-                    whileTap={!isSoon ? { scale: 0.98 } : {}}
-                    onClick={() => !isSoon && handleSelectLevelAndStart(lvl.id as KnowledgeLevel)}
-                    className={`group relative flex flex-col text-left p-6 rounded-3xl border backdrop-blur-md transition-all duration-300 overflow-hidden min-h-[220px] justify-between
-                      ${isSoon 
-                        ? 'bg-white/[0.01] border-white/[0.04] cursor-not-allowed opacity-50' 
-                        : 'bg-white/[0.02] border-white/[0.06] hover:border-accent-glow/50 hover:bg-accent-glow/[0.02] cursor-pointer'
-                      }`}
-                  >
-                    {!isSoon && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-accent-glow/0 via-accent-glow/0 to-accent-glow/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    )}
-
-                    <div className="space-y-4 flex flex-col h-full justify-between w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <div className={`p-3 rounded-2xl ${lvl.colorClass} border flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        
-                        {isSoon ? (
-                          <div className="px-2 py-0.5 rounded-full bg-accent-glow/10 border border-accent-glow/20">
-                            <span className="text-[6px] font-black uppercase tracking-widest text-accent-glow/60">Soon</span>
-                          </div>
-                        ) : (
-                          <ArrowRight className="w-4 h-4 text-text-muted/20 group-hover:text-accent-glow group-hover:translate-x-1 transition-all duration-300" />
-                        )}
-                      </div>
-
-                      <div className="space-y-1">
-                        <h3 className="text-lg font-serif italic text-text-primary group-hover:text-accent-glow transition-colors duration-300">
-                          {lvl.label}
-                        </h3>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-text-muted/60">
-                          {lvl.tagline}
-                        </p>
-                      </div>
-
-                      <p className="text-xs text-text-muted/40 leading-relaxed font-sans group-hover:text-text-muted/60 transition-colors duration-300">
-                        {lvl.description}
-                      </p>
-                    </div>
-                  </motion.button>
-                );
-              })}
             </motion.div>
-
-            <motion.button
+          ) : (
+            /* ═══ LEVEL PICKER (inside glass card aesthetic) ═══ */
+            <motion.div
+              key="level-picker"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              onClick={() => setShowLevelPicker(false)}
-              className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-white/20 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35 }}
+              className="w-full"
             >
-              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-              Adjust Blueprint Target
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Glass card wrapper for level picker */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="w-full rounded-xl border border-accent-glow/[0.12] backdrop-blur-2xl p-6 sm:p-8 lg:p-10"
+                style={{ backgroundColor: 'rgba(124, 111, 250, 0.06)' }}
+              >
+                {/* Header */}
+                <div className="text-left space-y-5 max-w-lg mb-8">
+                  {/* Back button */}<motion.button
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    onClick={() => setShowLevelPicker(false)}
+                    className="flex items-center gap-1.5 text-xs text-text-muted/40 hover:text-text-primary transition-colors group"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                    Change goal
+                  </motion.button>
+
+                  <h2 className="text-3xl sm:text-4xl font-serif italic text-text-primary leading-tight">
+                    Choose your<span className="text-accent-glow"> starting point</span>
+                  </h2>
+                  
+                  <div className="px-5 py-3 rounded-xl bg-white/[0.02] border border-accent-glow/15 backdrop-blur-md inline-block">
+                    <p className="text-[10px] text-text-muted/40 uppercase tracking-wider mb-1">Blueprint</p>
+                    <p className="text-base sm:text-lg font-serif italic text-accent-glow">&quot;{goal}&quot;</p>
+                  </div>
+                </div>
+
+                {/* Cards */}
+                <motion.div
+                  variants={stagger}
+                  initial="hidden"
+                  animate="show"
+                  exit="exit"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
+                >
+                  {levelsConfig.map((lvl) => {
+                    const Icon = lvl.icon;
+                    const isSoon = lvl.comingSoon;
+                    
+                    return (
+                      <motion.button
+                        key={lvl.id}
+                        variants={fadeUp}
+                        disabled={isSoon}
+                        whileHover={!isSoon ? { y: -3, scale: 1.01 } : {}}
+                        whileTap={!isSoon ? { scale: 0.97 } : {}}
+                        onClick={() => !isSoon && handleSelectLevelAndStart(lvl.id as KnowledgeLevel)}
+                        className={`group relative flex flex-col text-left p-5 sm:p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 min-h-[200px] justify-between ${
+                          isSoon 
+                            ? 'bg-white/[0.01] border-white/[0.04] cursor-not-allowed opacity-40' 
+                            : 'bg-white/[0.02] border-white/[0.06] hover:border-accent-glow/25 hover:bg-white/[0.04] hover:shadow-sm'
+                        }`}
+                      >
+                        <div className="space-y-5">
+                          <div className="flex items-start justify-between">
+                            <div className={`p-3 rounded-xl bg-white/[0.03] border ${lvl.border} flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
+                              <Icon className={`w-5 h-5 ${lvl.accent}`} />
+                            </div>
+                            {isSoon ? (
+                              <span className="text-[8px] font-medium uppercase tracking-wider text-accent-glow/40 bg-accent-glow/10 px-2 py-0.5 rounded-full">Soon</span>
+                            ) : (
+                              <ArrowRight className="w-4 h-4 text-text-muted/15 group-hover:text-accent-glow group-hover:translate-x-0.5 transition-all duration-300" />
+                            )}
+                          </div>
+
+                          <div>
+                            <h3 className={`text-lg font-serif italic mb-0.5 transition-colors duration-300 ${
+                              isSoon ? 'text-text-muted/50' : 'text-text-primary group-hover:text-accent-glow'
+                            }`}>
+                              {lvl.label}
+                            </h3>
+                            <p className={`text-[10px] font-medium uppercase tracking-wider ${
+                              isSoon ? 'text-text-muted/20' : 'text-text-muted/40'
+                            }`}>
+                              {lvl.tagline}
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className={`text-xs leading-relaxed mt-5 transition-colors duration-300 ${
+                          isSoon ? 'text-text-muted/20' : 'text-text-muted/40 group-hover:text-text-muted/60'
+                        }`}>
+                          {lvl.description}
+                        </p>
+                      </motion.button>
+                    );
+                  })}
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

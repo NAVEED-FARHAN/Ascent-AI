@@ -31,7 +31,7 @@ export default function PremiumButton({ onClick, children, className = "" }: Pre
       onMouseLeave={() => setIsHovered(false)}
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
-      className={`group relative px-10 py-5 rounded-2xl bg-[#070715]/80 border border-white/[0.06] overflow-hidden transition-all duration-500 hover:border-accent-glow/30 shadow-2xl backdrop-blur-md ${className}`}
+      className={`group relative px-10 py-5 rounded-2xl bg-bg-secondary/80 border border-border-primary overflow-hidden transition-all duration-500 hover:border-accent-glow/30 shadow-2xl backdrop-blur-md ${className}`}
     >
       {/* Real-time Cursor Spotlight Background Glow */}
       <div 
@@ -78,13 +78,13 @@ export default function PremiumButton({ onClick, children, className = "" }: Pre
       {/* Internal Content */}
       <div className="relative flex items-center justify-center gap-5 z-10">
         <div className="flex flex-col items-start text-left leading-none">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#7c6ffa] mb-1.5">Initiate Mission</span>
-          <span className="text-[15px] font-black uppercase tracking-[0.08em] text-white flex items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-accent-glow mb-1.5">Initiate Mission</span>
+          <span className="text-[15px] font-semibold uppercase tracking-[0.08em] text-white flex items-center gap-2">
             {children}
           </span>
         </div>
         
-        <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:bg-accent-glow group-hover:border-accent-glow transition-all duration-300 shadow-lg group-hover:shadow-accent-glow/30">
+        <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-border-primary flex items-center justify-center group-hover:bg-accent-glow group-hover:border-accent-glow transition-all duration-300 shadow-lg group-hover:shadow-accent-glow/30">
           <motion.div
             animate={isHovered ? {
               x: [0, 24, -24, 0],

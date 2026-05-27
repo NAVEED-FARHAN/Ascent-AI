@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Theme-aware semantic colors */
@@ -21,70 +21,65 @@
   --color-border-pill: var(--border-pill);
 
   /* Constant accents */
-  --color-accent-glow: #5d5dff;
+  --color-accent-glow: #7c6ffa;
   --color-accent-success: #22c55e;
   --color-accent-danger: #f43f5e;
+
+  /* shadcn/ui-compatible theme colors for LiquidButton etc. */
+  --color-primary: hsl(240 15% 95%);
+  --color-primary-foreground: hsl(260 80% 10%);
+  --color-secondary: hsl(240 20% 14%);
+  --color-secondary-foreground: hsl(240 15% 85%);
+  --color-accent: hsl(260 100% 71%);
+  --color-destructive: hsl(348 90% 60%);
+  --color-ring: hsl(260 100% 71%);
 }
 
 @layer base {
   :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f4f4f5; /* Zinc 100 */
-    --bg-surface: #fafafa;
-    --bg-track: rgba(0, 0, 0, 0.08); /* Problem 2 Fix */
+    --bg-primary: #0b0b14;
+    --bg-secondary: #12121e;
+    --bg-surface: #1a1a2e;
+    --bg-track: rgba(255, 255, 255, 0.08);
     
-    --text-primary: #09090b; /* Zinc 950 */
-    --text-secondary: #3f3f46; /* Zinc 700 */
-    --text-muted: #6b7280; /* Zinc 500 - Problem 5 Fix */
-    --text-placeholder: #71717a; /* Zinc 500 - Problem 3 Fix */
+    --text-primary: #f0f0f5;
+    --text-secondary: #a0a0b8;
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --text-placeholder: rgba(255, 255, 255, 0.25);
     
-    --border-primary: rgba(0, 0, 0, 0.12);
-    --border-pill: rgba(0, 0, 0, 0.22); /* Problem 4 Fix */
-  }
+    --border-primary: rgba(255, 255, 255, 0.08);
+    --border-pill: rgba(255, 255, 255, 0.15);
 
-  .dark {
-    --bg-primary: #0a0a0c;
-    --bg-secondary: #121216;
-    --bg-surface: #18181b;
-    --bg-track: rgba(255, 255, 255, 0.12);
-    
-    --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --text-muted: rgba(255, 255, 255, 0.5);
-    --text-placeholder: rgba(255, 255, 255, 0.4);
-    
-    --border-primary: rgba(255, 255, 255, 0.1);
-    --border-pill: rgba(255, 255, 255, 0.2);
+    /* shadcn/ui-compatible CSS variables for LiquidButton and other components */
+    --accent: 260 100% 71%;
+    --primary: 240 15% 95%;
+    --primary-foreground: 260 80% 10%;
+    --secondary: 240 20% 14%;
+    --secondary-foreground: 240 15% 85%;
+    --destructive: 348 90% 60%;
+    --ring: 260 100% 71%;
   }
 
   html, body {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
     font-family: "Outfit", ui-sans-serif, system-ui, sans-serif !important;
-    @apply antialiased selection:bg-accent-glow selection:text-white;
+    @apply antialiased selection:bg-accent-glow/40 selection:text-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Crimson Pro", serif !important;
-    color: var(--text-primary) !important;
-  }
-
-  .font-serif {
     font-family: "Playfair Display", serif !important;
-  }
-
-  .font-sans {
-    font-family: "Inter", sans-serif !important;
+    color: var(--text-primary) !important;
   }
 }
 
-/* Custom utilities for the premium aesthetic */
+/* Glass morphism utilities */
 .glass-panel {
-  @apply bg-bg-secondary/40 border border-border-primary backdrop-blur-xl shadow-xl rounded-2xl transition-all duration-300;
+  @apply bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl shadow-xl rounded-2xl transition-all duration-300;
 }
 
 .glass-panel-premium {
-  @apply bg-white/[0.03] border border-white/[0.08] backdrop-blur-[24px] shadow-2xl rounded-[2rem] transition-all duration-500;
+  @apply bg-white/[0.02] border border-white/[0.06] backdrop-blur-[24px] shadow-2xl rounded-[2rem] transition-all duration-500;
 }
 
 .text-gradient {
@@ -97,9 +92,9 @@
 
 .blueprint-grid {
   background-image: 
-    linear-gradient(rgba(124, 111, 250, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 111, 250, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(124, 111, 250, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 111, 250, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .animate-float {
@@ -120,16 +115,7 @@
   50% { opacity: 0.7; transform: scale(1.05); }
 }
 
-.animate-border-beam {
-  animation: border-beam 8s linear infinite;
-}
-
-@keyframes border-beam {
-  0%, 100% { offset-distance: 0%; }
-  100% { offset-distance: 100%; }
-}
-
-/* Scrollbar Theme Awareness */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -142,19 +128,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
-}
-
-/* View Transition Styles */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-::view-transition-new(root) {
-  clip-path: var(--magicui-theme-toggle-clip-start);
-}
-
-html[data-magicui-theme-vt="active"]::view-transition-group(root) {
-  animation-duration: var(--magicui-theme-toggle-vt-duration);
 }

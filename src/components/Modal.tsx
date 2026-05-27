@@ -69,14 +69,14 @@ export default function Modal({
                   <>
                     <button
                       onClick={onClose}
-                      className="flex-1 py-4 rounded-lg bg-bg-secondary border border-border-pill text-text-muted font-bold text-[10px] uppercase tracking-widest hover:bg-bg-secondary/80 hover:text-text-primary transition-all"
+                      className="flex-1 py-4 rounded-lg bg-bg-secondary border border-border-pill text-text-muted font-medium text-[10px] uppercase tracking-widest hover:bg-bg-secondary/80 hover:text-text-primary transition-all"
                     >
                       {cancelText}
                     </button>
                     <button
                       onClick={() => { onConfirm(); onClose(); }}
-                      className={`flex-[2] py-4 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-lg
-                        ${type === 'danger' || type === 'error' ? 'bg-red-500 text-white shadow-red-500/20' : 'bg-accent-glow text-white shadow-accent-glow/20'}
+                      className={`flex-[2] py-4 rounded-lg font-semibold text-[10px] uppercase tracking-widest transition-all shadow-lg
+                        ${type === 'danger' || type === 'error' ? 'bg-accent-danger text-white shadow-accent-danger/20' : 'bg-accent-glow text-white shadow-accent-glow/20'}
                         hover:scale-[1.02] active:scale-[0.98]
                       `}
                     >
@@ -86,7 +86,7 @@ export default function Modal({
                 ) : (
                   <button
                     onClick={onClose}
-                    className="w-full py-4 rounded-xl bg-accent-glow text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 hover:scale-[1.02] transition-all"
+                    className="w-full py-4 rounded-xl bg-accent-glow text-white font-semibold text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 hover:scale-[1.02] transition-all"
                   >
                     Acknowledged
                   </button>

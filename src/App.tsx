@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { auth, googleProvider, db } from './lib/firestore';
 import { signInWithPopup, onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
@@ -9,8 +8,7 @@ import {
   Map, 
   Calendar, 
   FlaskConical, 
-  BarChart3, 
-  Loader2,
+  BarChart3,
   X,
   Activity
 } from 'lucide-react';
@@ -61,7 +59,6 @@ export default function App() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [view, setView] = useState<View>('landing');
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const [progress, setProgress] = useState<UserProgress>({
     completedSubTopicIds: [],
@@ -93,15 +90,6 @@ export default function App() {
   });
 
   const mainContentRef = useRef<HTMLDivElement>(null);
-
-
-
-  // Close profile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setIsProfileMenuOpen(false);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     // Safety net: never stuck on spinner more than 8 seconds
@@ -325,100 +313,22 @@ export default function App() {
             <div className="absolute inset-0 bg-accent-glow/20 blur-xl animate-pulse" />
           </div>
         </div>
-      ) : !user ? (
+      ) : (!user || view === 'landing') ? (
         <div className="flex-1 relative z-50 overflow-y-auto scrollbar-hide">
-          <Landing 
-            onGetStarted={() => showModal({
-              title: "Authentication Required",
-              message: "Please sign in with Google to architect your intellectual destiny.",
-              type: 'info'
-            })} 
-            onGoogleSignIn={() => signInWithPopup(auth, googleProvider)} 
+          <Landing
+            onGoogleSignIn={() => signInWithPopup(auth, googleProvider)}
+            isLoggedIn={!!user}
+            onNavigateHome={() => setView('home')}
           />
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {view === 'home' && (
-            <header className="relative z-[100] px-8 py-8 flex items-center justify-between">
-              {/* Left: System Branding */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-5 group cursor-pointer"
-                onClick={() => setView('home')}
-              >
-                <div className="relative flex items-center justify-center">
-                  <img src="/logo.ico" alt="Ascent AI Logo" className="w-8 h-8 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
-                </div>
-                <div className="flex flex-col">
-                  <h1 className="text-2xl font-medium tracking-tighter uppercase italic leading-none" style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.01em' }}>
-                    Ascent <span className="text-accent-glow">AI</span>
-                  </h1>
-                </div>
-              </motion.div>
 
-
-              {/* Right: User Matrix */}
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-6"
-              >
-                {isLoading && (
-                  <div className="flex items-center gap-3 px-4 py-2 bg-accent-glow/10 rounded-full border border-accent-glow/20 animate-pulse">
-                    <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow italic">Syncing...</span>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-4">
-                  <div className="relative group" onClick={(e) => e.stopPropagation()}>
-                    <button 
-                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="flex items-center gap-3 p-1.5 pr-4 rounded-full bg-white/5 border border-white/10 hover:border-accent-glow/40 transition-all"
-                    >
-                      <div className="w-9 h-9 rounded-full border-2 border-accent-glow/30 overflow-hidden shadow-lg">
-                        <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex flex-col items-start text-left">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Access Key</span>
-                        <span className="text-[10px] font-black text-white truncate max-w-[80px]">{user.displayName?.split(' ')[0]}</span>
-                      </div>
-                    </button>
-
-                    <AnimatePresence>
-                      {isProfileMenuOpen && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full right-0 mt-4 w-56 py-3 rounded-2xl bg-[#0a0a1a]/90 border border-white/10 shadow-2xl backdrop-blur-2xl z-[200]"
-                        >
-                          <div className="px-5 py-3 border-b border-white/5 mb-2">
-                            <p className="text-[8px] text-white/20 uppercase tracking-[0.2em] font-black mb-1">Authenticated Entity</p>
-                            <h3 className="text-xs font-bold truncate text-white">{user.displayName}</h3>
-                            <p className="text-[9px] text-accent-glow font-medium truncate mt-0.5">{user.email}</p>
-                          </div>
-                          <button 
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-4 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
-                          >
-                            <LogOut className="w-4 h-4" />
-                            Terminate Session
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </motion.div>
-            </header>
-          )}
 
           <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
             <AnimatePresence mode="wait" onExitComplete={() => mainContentRef.current?.scrollTo(0, 0)}>
               <motion.div key={view} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-                {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level) => handleStartGoal(goal, level)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
+                {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level) => handleStartGoal(goal, level)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} onLogout={handleLogout} onSetView={setView} />}
                 {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
                 {view === 'planner' && roadmap && <Planner roadmap={roadmap} progress={progress} />}
                 {view === 'dashboard' && <Dashboard roadmap={roadmap} progress={progress} />}
@@ -433,8 +343,10 @@ export default function App() {
                   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-10">
                     <FlaskConical className="w-16 h-16 text-accent-glow/20" />
                     <h3 className="text-2xl font-serif italic text-text-secondary/60">No Active Mission Found</h3>
-                    <p className="text-sm text-text-secondary/40 max-w-md uppercase tracking-widest leading-loose">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
-                    <button onClick={() => setView('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
+                    <p className="text-sm text-text-secondary/40 max-w-md">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
+                    <button onClick={() => setView('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-medium text-sm tracking-wide shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">
+                      Initialize Mission
+                    </button>
                   </div>
                 ) : null}
               </motion.div>
@@ -444,9 +356,9 @@ export default function App() {
           {view !== 'home' && (
             <div className="fixed bottom-10 left-0 right-0 z-[500] flex flex-col items-center">
               <TooltipProvider>
-                <Dock direction="middle" className="bg-[#04040d]/40 border-white/10 text-white">
+                <Dock direction="middle" className="bg-bg-surface/50 border-white/10 text-white">
                   {navItems.map((item) => (
-                    <DockIcon key={item.id} className={cn(view === item.id && "bg-accent-glow/20 border border-accent-glow/40")}>
+                    <DockIcon key={item.id} className={cn(view === item.id && "bg-accent-glow/15 border border-accent-glow/30")}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
@@ -455,14 +367,14 @@ export default function App() {
                             className={cn(
                               buttonVariants({ variant: "ghost", size: "icon" }),
                               "size-12 rounded-full transition-all",
-                              view === item.id ? "text-white" : "text-white/40 hover:text-white"
+                              view === item.id ? "text-white" : "text-text-muted/50 hover:text-white"
                             )}
                           >
                             <item.icon className="size-5" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="font-black uppercase tracking-widest">{item.label}</p>
+                          <p className="text-xs font-medium">{item.label}</p>
                         </TooltipContent>
                       </Tooltip>
                     </DockIcon>
@@ -478,14 +390,14 @@ export default function App() {
                           onClick={handleLogout}
                           className={cn(
                             buttonVariants({ variant: "ghost", size: "icon" }),
-                            "size-12 rounded-full text-white/40 hover:text-rose-500 hover:bg-rose-500/10 transition-all"
+                            "size-12 rounded-full text-text-muted/50 hover:text-accent-danger hover:bg-accent-danger/5 transition-all"
                           )}
                         >
                           <LogOut className="size-5" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="font-black uppercase tracking-widest text-rose-500">Terminate Session</p>
+                        <p className="text-xs font-medium text-accent-danger">Terminate Session</p>
                       </TooltipContent>
                     </Tooltip>
                   </DockIcon>

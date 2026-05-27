@@ -1,5 +1,5 @@
 
-import { Landmark, Calendar as CalendarIcon, Clock, AlertCircle, CheckCircle2, Search, ArrowRight, Activity, Zap, Layers, Sparkles, Target, Compass, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Landmark, Calendar as CalendarIcon, Clock, AlertCircle, CheckCircle2, Search, ArrowRight, Activity, Zap, Layers, Sparkles, Target, Compass, ChevronLeft, ChevronRight, ExternalLink, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useMemo } from 'react';
 import { Roadmap, UserProgress, SubTopic } from '../types';
@@ -74,7 +74,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
           <motion.h2 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-[11px] font-black uppercase tracking-[0.5em] text-accent-glow"
+            className="text-[11px] font-semibold uppercase tracking-[0.5em] text-accent-glow"
           >
             Tactical Deployment Protocol
           </motion.h2>
@@ -107,7 +107,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
           {/* Day Headers */}
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <div key={day} className="p-6 text-center border-b border-r border-border-primary bg-bg-secondary/40">
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-text-muted/40">{day}</span>
+               <span className="text-[10px] font-semibold uppercase tracking-[0.4em] text-text-muted/40">{day}</span>
             </div>
           ))}
 
@@ -169,16 +169,15 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl z-[70] p-12 bg-bg-secondary/95 backdrop-blur-3xl rounded-[2rem] border border-border-pill shadow-4xl"
             >
-               <div className="space-y-12">
-                  <div className="flex justify-between items-start">
-                     <div>
-                        <h3 className="text-[11px] font-black text-accent-glow uppercase tracking-[0.4em] mb-4">Daily Manifest</h3>
+               <div className="space-y-12">                     <div className="flex justify-between items-start">
+                        <div>
+                           <h3 className="text-[11px] font-semibold text-accent-glow uppercase tracking-[0.4em] mb-4">Daily Manifest</h3>
                         <h2 className="text-5xl font-serif italic text-text-primary tracking-tighter">
                            {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </h2>
                      </div>
                      <button onClick={() => setSelectedDay(null)} className="p-4 bg-bg-secondary/40 rounded-2xl hover:bg-bg-secondary transition-all text-text-muted">
-                        <X className="w-6 h-6" />
+                        <X className="w-5 h-5" />
                      </button>
                   </div>
 
@@ -187,10 +186,10 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                         <div key={i} className="p-8 rounded-3xl bg-bg-secondary/40 border border-border-primary space-y-6 group/item hover:border-accent-glow/30 transition-all">
                            <div className="flex justify-between items-start">
                               <div className="space-y-2">
-                                 <p className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest">{t.nodeTitle}</p>
+                                 <p className="text-[10px] font-semibold text-text-muted/40 uppercase tracking-widest">{t.nodeTitle}</p>
                                  <h4 className="text-3xl font-serif italic text-text-primary group-hover/item:text-accent-glow transition-colors">{t.subTopic.title}</h4>
                               </div>
-                              <div className="px-4 py-2 rounded-xl bg-accent-glow/10 border border-accent-glow/20 text-xs font-black text-accent-glow uppercase tracking-tighter">
+                              <div className="px-4 py-2 rounded-xl bg-accent-glow/10 border border-accent-glow/20 text-xs font-semibold text-accent-glow uppercase tracking-tighter">
                                  {t.subTopic.estimatedHours}h Dev
                               </div>
                            </div>
@@ -213,14 +212,12 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                            </div>
                         </div>
                      ))}
-                  </div>
-
-                  <div className="pt-8 border-t border-border-primary flex justify-between items-center">
+                  </div>                     <div className="pt-8 border-t border-border-primary flex justify-between items-center">
                      <div className="flex items-center gap-4">
-                        <Clock className="w-5 h-5 text-accent-glow opacity-40" />
-                        <span className="text-sm font-bold text-text-muted underline decoration-accent-glow/20 underline-offset-8 italic">Synchronize temporal delta</span>
+                        <Clock className="w-5 h-5 text-accent-glow/60" />
+                        <span className="text-sm font-medium text-text-secondary italic">Synchronize temporal delta</span>
                      </div>
-                     <button className="flex items-center gap-3 px-8 py-4 bg-accent-glow text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-2xl active:scale-95 transition-all">
+                     <button className="flex items-center gap-3 px-8 py-4 bg-accent-glow text-white rounded-2xl font-semibold text-[10px] uppercase tracking-widest hover:shadow-2xl active:scale-95 transition-all">
                         Launch Sequence <ArrowRight className="w-4 h-4" />
                      </button>
                   </div>
@@ -230,26 +227,6 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-function X(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }
 
