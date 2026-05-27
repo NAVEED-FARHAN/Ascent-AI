@@ -157,6 +157,13 @@ export default function App() {
     const newProgress = { ...progress, completedSubTopicIds: newSubTopicIds, lastActive: new Date().toISOString() };
     setProgress(newProgress);
     await saveProgressToCloud(user.uid, roadmap.id!, newProgress);
+
+    // Calculate new completion percentage
+    const allSubtopicIds = roadmap.nodes.flatMap(n => n.subTopics.map(st => st.id));
+    const total = allSubtopicIds.length;
+    const completed = newSubTopicIds.filter(id => allSubtopicIds.includes(id)).length;
+    const completion = Math.round((completed / (total || 1)) * 100);
+    await updateRoadmapInCloud(user.uid, roadmap.id!, { completion });
   };
 
   const toggleChallenge = async (challengeId: string) => {
@@ -196,9 +203,36 @@ export default function App() {
     }
   };
 
-  const handleSelectRoadmap = (selected: Roadmap) => {
+  const handleSelectRoadmap = async (selected: Roadmap) => {
     setRoadmap(selected);
     setView('roadmap');
+    if (user && selected.id) {
+      try {
+        const savedProgress = await getProgressFromCloud(user.uid, selected.id);
+        if (savedProgress) {
+          setProgress({
+            completedSubTopicIds: savedProgress.completedSubTopicIds || [],
+            completedChallengeIds: savedProgress.completedChallengeIds || [],
+            currentStreak: savedProgress.currentStreak || 0,
+            totalPoints: savedProgress.totalPoints || 0,
+            dailyActivity: savedProgress.dailyActivity || {},
+            practiceScore: savedProgress.practiceScore || 0,
+            lastStudyDate: savedProgress.lastStudyDate || savedProgress.lastActive
+          } as any);
+        } else {
+          setProgress({
+            completedSubTopicIds: [],
+            completedChallengeIds: [],
+            currentStreak: 0,
+            totalPoints: 0,
+            dailyActivity: {},
+            practiceScore: 0
+          } as any);
+        }
+      } catch (err) {
+        console.error("Failed to load progress from cloud:", err);
+      }
+    }
   };
 
   const handleStartGoal = async (goal: string, level: KnowledgeLevel = 'beginner') => {
