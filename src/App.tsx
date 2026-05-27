@@ -36,7 +36,7 @@ import {
 import { buttonVariants } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 import LoadingScreen from './components/LoadingScreen';
-import ArchitectBackground from './components/ArchitectBackground';
+import { LightRays } from './components/LightRays';
 
 // Libs
 
@@ -274,11 +274,14 @@ export default function App() {
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
         style={{ viewTransitionName: 'none' } as any}
       >
-        {/* Cinematic Neural Architect Background */}
-        <ArchitectBackground isPaused={isLoading || isMenuOpen} />
-
-        {/* Global Frosty Glass Detail Overlay - Architectural Moderate */}
-        <div className="absolute inset-0 transition-all duration-500 backdrop-blur-[2px] bg-transparent" />
+        {/* Light Rays Background */}
+        <LightRays
+          count={8}
+          color="rgba(124, 111, 250, 0.25)"
+          blur={40}
+          speed={16}
+          length="100vh"
+        />
       </div>
 
       {isAuthLoading ? (
