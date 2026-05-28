@@ -79,3 +79,14 @@ export interface UserProgress {
   lastStudyDate?: string;
   dailyActivity: Record<string, number>; // date string -> count
 }
+
+export interface GoalQuestion {
+  id: string;
+  question: string;
+  options: string[];
+}
+
+export interface GoalEvaluation {
+  isSpecific: boolean;
+  questions?: GoalQuestion[];
+}
