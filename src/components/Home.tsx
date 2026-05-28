@@ -6,9 +6,10 @@ import {
   ArrowLeft, Flame, ClipboardList
 } from 'lucide-react';
 import { User } from 'firebase/auth';
-import { Roadmap, RoadmapRecord } from '../types';
+import { Roadmap, RoadmapRecord, GoalEvaluation } from '../types';
 import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
-import { KnowledgeLevel } from '../lib/gemini';
+import { KnowledgeLevel, evaluateGoal } from '../lib/gemini';
+import { getKeyForUser } from '../lib/keys';
 import StarBorder from './StarBorder';
 import Folder from './Folder';
 
@@ -16,7 +17,7 @@ interface HomeProps {
   user: User | null;
   roadmap: Roadmap | null;
   onSelectRoadmap: (roadmap: Roadmap) => void;
-  onStartGoal: (goal: string, level: KnowledgeLevel) => void;
+  onStartGoal: (goal: string, level: KnowledgeLevel, clarifyingAnswers?: Record<string, string>) => void;
   onResetSystem: () => Promise<void>;
   onClearActiveRoadmap: () => void;
   onShowModal: (config: any) => void;
@@ -33,6 +34,11 @@ export default function Home({
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
   const [isVaultOpen, setIsVaultOpen] = useState(false);
+
+  const [evaluation, setEvaluation] = useState<GoalEvaluation | null>(null);
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const paperItems = archivedRoadmaps.slice(0, 8).map((record) => {
     const dateLabel = (() => {
@@ -169,7 +175,31 @@ export default function Home({
   const handleSelectLevelAndStart = (level: KnowledgeLevel) => {
     setSelectedLevel(level);
     setShowLevelPicker(false);
-    onStartGoal(goal, level);
+    onStartGoal(goal, level, answers);
+  };
+
+  const handleInitiateAscent = async (targetGoal: string) => {
+    if (!targetGoal.trim() || !user) return;
+    setIsAnalyzing(true);
+    try {
+      const apiKey = getKeyForUser(user.uid);
+      const evalResult = await evaluateGoal(targetGoal, apiKey);
+      if (evalResult.isSpecific || !evalResult.questions || evalResult.questions.length === 0) {
+        setShowLevelPicker(true);
+        setShowQuestions(false);
+      } else {
+        setEvaluation(evalResult);
+        setAnswers({});
+        setShowQuestions(true);
+        setShowLevelPicker(false);
+      }
+    } catch (err) {
+      console.error("Evaluation failed, falling back to direct picker:", err);
+      setShowLevelPicker(true);
+      setShowQuestions(false);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const containerVariants = {
@@ -255,7 +285,7 @@ export default function Home({
                 className="relative w-full max-w-3xl flex items-center gap-3"
               >
                 <motion.form 
-                  onSubmit={(e) => { e.preventDefault(); goal.trim() && setShowLevelPicker(true); }}
+                  onSubmit={(e) => { e.preventDefault(); goal.trim() && handleInitiateAscent(goal); }}
                   animate={{ 
                     scale: isFocused ? 1.01 : 1,
                   }}
@@ -292,7 +322,7 @@ export default function Home({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className={`relative h-[64px] px-10 rounded-[1.75rem] font-black text-[10px] uppercase tracking-[0.25em] flex items-center gap-4 transition-all duration-500 overflow-hidden ${
-                      isNeuralReady && goal.trim()
+                      isNeuralReady && goal.trim() && !isAnalyzing
                         ? 'bg-accent-glow text-white shadow-[0_10px_30px_rgba(124,111,250,0.3)] opacity-100' 
                         : 'bg-white/5 text-white/50 border border-white/10 shadow-[0_4px_10px_rgba(0,0,0,0.4)] opacity-100'
                     }`}
@@ -303,7 +333,12 @@ export default function Home({
                     )}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
-                    {isNeuralReady ? (
+                    {isAnalyzing ? (
+                      <>
+                        <span>Analyzing Goal</span>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </>
+                    ) : isNeuralReady ? (
                       <>
                         <span className="relative z-10">Initiate Ascent</span>
                         <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -396,7 +431,7 @@ export default function Home({
                     backgroundColor: "rgba(124,111,250,0.08)"
                   }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => { setGoal(tag); setShowLevelPicker(true); }}
+                  onClick={() => { setGoal(tag); handleInitiateAscent(tag); }}
                   className="group relative px-6 py-3.5 rounded-xl bg-black/40 border border-t-white/10 border-b-black/80 border-x-white/5 hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300 overflow-hidden backdrop-blur-md shadow-[inset_0_1px_10px_rgba(255,255,255,0.02),0_4px_20px_rgba(0,0,0,0.4)]"
                 >
                   <div className="absolute inset-0 bg-accent-glow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -408,6 +443,109 @@ export default function Home({
                   </div>
                 </motion.button>
               ))}
+            </div>
+          </motion.div>
+        ) : showQuestions ? (
+          <motion.div
+            key="questions-interface"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.4 }}
+            className="w-full flex flex-col items-center space-y-8 py-10 max-w-2xl mx-auto"
+          >
+            <div className="space-y-3">
+              <h2 className="text-3xl md:text-4xl font-serif italic tracking-tighter text-[#f8fafc]">
+                Refining Your Learning Path
+              </h2>
+              <p className="text-sm text-text-muted/80 max-w-md mx-auto">
+                Help us customize your career roadmap by answering a few quick questions.
+              </p>
+              
+              <div className="max-w-md mx-auto mt-4 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md">
+                <span className="text-[8px] font-black uppercase tracking-[0.3em] text-text-muted/40 block mb-1">TARGET GOAL</span>
+                <p className="text-sm font-serif italic text-accent-glow/95">
+                  "{goal}"
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full space-y-6 text-left">
+              {evaluation?.questions?.map((q, idx) => (
+                <div key={q.id} className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md space-y-4 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+                  <h3 className="text-sm font-serif italic text-text-primary">
+                    <span className="text-accent-glow mr-2 font-mono font-bold">{idx + 1}.</span> {q.question}
+                  </h3>
+                  
+                  {/* Option pills */}
+                  <div className="flex flex-wrap gap-2.5">
+                    {q.options.map((opt) => {
+                      const isSelected = answers[q.id] === opt;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300 border ${
+                            isSelected 
+                              ? 'bg-accent-glow text-white border-accent-glow shadow-[0_0_15px_rgba(124,111,250,0.4)]'
+                              : 'bg-black/30 text-text-muted hover:text-white border-white/5 hover:border-white/20'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom input option */}
+                  <div className="pt-2">
+                    <input
+                      type="text"
+                      placeholder="Or specify your own details..."
+                      value={answers[q.id] && !q.options.includes(answers[q.id]) ? answers[q.id] : ''}
+                      onChange={(e) => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                      className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-text-primary outline-none focus:border-accent-glow/50 transition-colors placeholder:text-text-muted/40 font-sans"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-4 w-full max-w-sm pt-4">
+              <button
+                onClick={() => {
+                  setShowLevelPicker(true);
+                  setShowQuestions(false);
+                }}
+                className="group w-full py-4 rounded-2xl bg-accent-glow text-white font-black text-[10px] uppercase tracking-[0.25em] hover:bg-accent-glow/90 shadow-[0_10px_30px_rgba(124,111,250,0.2)] transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                Continue to Level Selection
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              <button
+                onClick={() => {
+                  setAnswers({}); // clear answers to skip
+                  setShowLevelPicker(true);
+                  setShowQuestions(false);
+                }}
+                className="w-full py-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-white/20 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300"
+              >
+                Skip Questions & Get General Path
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowQuestions(false);
+                  setGoal('');
+                }}
+                className="group flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted/65 hover:text-white transition-colors duration-200"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                Cancel Setup
+              </button>
             </div>
           </motion.div>
         ) : (
@@ -502,7 +640,7 @@ export default function Home({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              onClick={() => setShowLevelPicker(false)}
+              onClick={() => { setShowLevelPicker(false); setShowQuestions(false); }}
               className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-white/20 text-[10px] font-black uppercase tracking-[0.25em] text-text-muted hover:text-white transition-all duration-300"
             >
               <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
