@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { Roadmap } from "../types";
+import { Roadmap, GoalEvaluation } from "../types";
 
 // Initialization removed from module level for BYOK
 // const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -80,6 +80,26 @@ const roadmapSchema = {
   required: ['goal', 'nodes']
 };
 
+const evaluationSchema = {
+  type: Type.OBJECT,
+  properties: {
+    isSpecific: { type: Type.BOOLEAN },
+    questions: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          id: { type: Type.STRING },
+          question: { type: Type.STRING },
+          options: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ['id', 'question', 'options']
+      }
+    }
+  },
+  required: ['isSpecific']
+};
+
 function translateGeminiError(err: any): string {
   const message = err?.message || String(err);
 
@@ -150,24 +170,53 @@ const levelInstructions: Record<KnowledgeLevel, { label: string; promptContext: 
   }
 };
 
-export async function generateRoadmap(goal: string, apiKey: string, level: KnowledgeLevel = 'beginner'): Promise<Roadmap> {
+export async function generateRoadmap(
+  goal: string, 
+  apiKey: string, 
+  level: KnowledgeLevel = 'beginner',
+  clarifyingAnswers?: Record<string, string>
+): Promise<Roadmap> {
   const ai = new GoogleGenAI({ apiKey });
   const levelData = levelInstructions[level];
+
+  let answersContext = '';
+  if (clarifyingAnswers && Object.keys(clarifyingAnswers).length > 0) {
+    answersContext = `\nADDITIONAL USER CONTEXT FROM CLARIFYING QUESTIONS:\n` + 
+      Object.entries(clarifyingAnswers)
+        .map(([qId, val]) => `- Parameter: ${qId}\n  Answer: ${val}`)
+        .join('\n') + '\n';
+  }
+
   const prompt = `
-    You are an expert learning consultant. Generate a structured learning roadmap for: "${goal}".
+    You are an expert career mentor and learning consultant. Generate a deep, visual, structured learning roadmap for: "${goal}".
+    ${answersContext}
 
     ${levelData.promptContext}
     
+    INSTRUCTIONAL PROTOCOLS & CAREER MENTORSHIP RULES:
+    1. Think Like a Career Mentor:
+       - Do not just output basic/obvious lists. Evaluate what skills, libraries, and tools are actually in demand in today's tech/industry landscapes.
+       - Distinguish between outdated/deprecated technologies and modern, trending standards (e.g., recommend Vite instead of CRA, modern React hooks instead of class components, modern data analysis tools, etc.).
+       - Structure the nodes in a progressive, logical timeline (Beginner -> Advanced).
+       - In each milestone or subtopic description, briefly explain WHY this step matters in the bigger picture of their career or project goal.
+    
+    2. Written Materials & Documentation Rules:
+       - For written tutorials and references, you must ONLY recommend resources from these three trusted sources:
+         a. W3Schools (w3schools.com)
+         b. GeeksforGeeks (geeksforgeeks.org)
+         c. Official documentation (e.g., developer.mozilla.org, react.dev, docs.python.org, nextjs.org/docs, tailwindcss.com/docs, etc.)
+       - Choose highly relevant subpages and direct links.
+    
+    3. YouTube Video Recommendation Rules:
+       - For video resources, you MUST recommend highly popular, widely loved YouTube tutorial videos.
+       - Prioritize videos from trusted educational channels (e.g., freeCodeCamp.org, Traversy Media, Net Ninja, Fireship, Tech With Tim, Programming with Mosh, NetworkChuck, etc.).
+       - Use real, valid YouTube watch URLs (e.g., 'https://www.youtube.com/watch?v=VIDEO_ID') and do NOT generate fake IDs or placeholder strings.
+
     Structure: connected nodes (milestones) with detailed subtopics.
     For each subtopic, include:
-    - 2 high-quality free resources (official docs or tutorials).
-      CRITICAL LINK RULES FOR VIDEO & DOC RESOURCES:
-      1. For videos, you MUST pick a specific, highly recommended, globally-popular YouTube tutorial video (such as those from freeCodeCamp, Fireship, CS50, Academind, Traversy Media, or official frameworks).
-      2. The link MUST be a direct watch URL (e.g. 'https://www.youtube.com/watch?v=VIDEO_ID') using a REAL, verified, highly stable video ID that matches standard high-quality learning talks, reddit developer recommendations, and top-tier community tutorials.
-      3. For Web/JS, use direct, stable MDN reference subpages or official docs (e.g. 'https://react.dev/reference/react', 'https://docs.python.org/3/').
-      4. DO NOT invent fake random characters for video IDs. Only output actual, real, globally recognized video IDs that you are 100% confident exist and remain active.
+    - 2 high-quality free resources (1 video, 1 documentation/written article).
     - Estimated hours to master (calibrated to the knowledge level above).
-    - 1-2 sentences description.
+    - 1-2 sentences description explaining the concept and why it is important.
     - 1 online quiz or practice test (use query searches or trusted root providers like 'https://www.w3schools.com/quiztest/' or standard quizzes on the topic).
     - 1 practical mini-challenge (calibrated to the knowledge level above).
     
@@ -219,4 +268,40 @@ export async function generateRoadmap(goal: string, apiKey: string, level: Knowl
 
   console.error("Error generating roadmap after retries:", lastError);
   throw new Error(translateGeminiError(lastError));
+}
+
+export async function evaluateGoal(goal: string, apiKey: string): Promise<GoalEvaluation> {
+  const ai = new GoogleGenAI({ apiKey });
+  const prompt = `
+    Analyze the learning goal or career destination input by the user: "${goal}".
+    
+    Determine if this goal is already clear and specific (e.g., "learn Python", "learn Excel", "React state management", "Docker basics") 
+    or if it is vague, broad, or has multiple potential directions (e.g., "learn UI", "get into tech", "learn design", "become a developer", "data analyst").
+    
+    If the goal is specific, return isSpecific: true.
+    If the goal is vague or broad, return isSpecific: false and generate 1 to 3 short, friendly, and easy-to-answer clarifying questions.
+    Each question must have 3 to 4 multiple-choice options to make answering quick and painless.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: evaluationSchema,
+        systemInstruction: "You are a friendly career mentor. Categorize the user's goal. If vague, create 1-3 highly relevant, friendly clarifying questions with multiple-choice options."
+      }
+    });
+
+    if (!response.text) {
+      throw new Error("No response from AI");
+    }
+
+    return JSON.parse(response.text) as GoalEvaluation;
+  } catch (err) {
+    console.error("Error evaluating goal:", err);
+    // Fallback: assume specific to not block the user
+    return { isSpecific: true };
+  }
 }
