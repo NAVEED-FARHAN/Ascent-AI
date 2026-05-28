@@ -235,12 +235,12 @@ export default function App() {
     }
   };
 
-  const handleStartGoal = async (goal: string, level: KnowledgeLevel = 'beginner') => {
+  const handleStartGoal = async (goal: string, level: KnowledgeLevel = 'beginner', clarifyingAnswers?: Record<string, string>) => {
     if (!user) return;
     setIsLoading(true);
     try {
       const apiKey = getKeyForUser(user.uid);
-      const newRoadmap = await generateRoadmap(goal, apiKey, level);
+      const newRoadmap = await generateRoadmap(goal, apiKey, level, clarifyingAnswers);
       const roadmapId = await saveRoadmapToCloud(user.uid, newRoadmap, 0);
       
       const roadmapWithId = { ...newRoadmap, id: roadmapId };
@@ -418,7 +418,7 @@ export default function App() {
           <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
             <AnimatePresence mode="wait" onExitComplete={() => mainContentRef.current?.scrollTo(0, 0)}>
               <motion.div key={view} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-                {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level) => handleStartGoal(goal, level)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
+                {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level, answers) => handleStartGoal(goal, level, answers)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
                 {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
                 {view === 'planner' && roadmap && <Planner roadmap={roadmap} progress={progress} />}
                 {view === 'dashboard' && <Dashboard roadmap={roadmap} progress={progress} />}
