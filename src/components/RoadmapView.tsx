@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Roadmap, UserProgress, RoadmapNode } from '../types';
 import {
   CheckCircle2,
@@ -217,6 +217,19 @@ export default function RoadmapView({
 
   const [showPreview, setShowPreview] = useState(false);
   const [hoveredLockedId, setHoveredLockedId] = useState<string | null>(null);
+  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterLocked = (id: string) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => {
+      setHoveredLockedId(id);
+    }, 2000);
+  };
+
+  const handleMouseLeaveLocked = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    setHoveredLockedId(null);
+  };
 
   const filteredNodes = roadmap.nodes.filter(node =>
     node.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -420,8 +433,8 @@ export default function RoadmapView({
                       // ── LOCKED: tooltip + View button ──
                       <div
                         className={`w-full text-left ${isEven ? 'lg:text-right' : 'lg:text-left'}`}
-                        onMouseEnter={() => setHoveredLockedId(node.id)}
-                        onMouseLeave={() => setHoveredLockedId(null)}
+                        onMouseEnter={() => handleMouseEnterLocked(node.id)}
+                        onMouseLeave={handleMouseLeaveLocked}
                       >
                         <div className={`inline-flex items-center gap-3 mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-text-muted/50`}>
                           <Lock className="w-3 h-3" />
