@@ -97,7 +97,7 @@ function RoadmapPreviewModal({
           </div>
 
           {/* Nodes list */}
-          <div className="p-6 md:p-8 space-y-4">
+          <div className="divide-y divide-white/[0.06]">
             {roadmap.nodes.map((node, idx) => {
               const nodeCompleted = isNodeCompleted(node);
               const nodeHours = node.subTopics.reduce((a, st) => a + (st.estimatedHours || 0), 0);
@@ -109,18 +109,10 @@ function RoadmapPreviewModal({
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.04 }}
-                  className="rounded-2xl border overflow-hidden"
-                  style={{
-                    background: nodeCompleted
-                      ? 'rgba(124,111,250,0.04)'
-                      : 'rgba(255,255,255,0.015)',
-                    borderColor: nodeCompleted
-                      ? 'rgba(124,111,250,0.2)'
-                      : 'rgba(255,255,255,0.06)'
-                  }}
+                  className="px-6 md:px-8 py-6"
                 >
                   {/* Phase header */}
-                  <div className="flex items-center gap-4 px-6 py-4 border-b border-white/[0.05]">
+                  <div className="flex items-center gap-4 mb-4">
                     <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-[11px] font-black border transition-all ${
                       nodeCompleted
                         ? 'bg-accent-glow/20 border-accent-glow text-accent-glow shadow-[0_0_16px_rgba(124,111,250,0.3)]'
@@ -217,18 +209,30 @@ export default function RoadmapView({
 
   const [showPreview, setShowPreview] = useState(false);
   const [hoveredLockedId, setHoveredLockedId] = useState<string | null>(null);
-  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverEnterTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverLeaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnterLocked = (id: string) => {
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    hoverTimerRef.current = setTimeout(() => {
+    if (hoverLeaveTimerRef.current) clearTimeout(hoverLeaveTimerRef.current);
+    if (hoveredLockedId === id) return;
+    if (hoverEnterTimerRef.current) clearTimeout(hoverEnterTimerRef.current);
+    hoverEnterTimerRef.current = setTimeout(() => {
       setHoveredLockedId(id);
-    }, 2000);
+    }, 1000);
   };
 
   const handleMouseLeaveLocked = () => {
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    setHoveredLockedId(null);
+    if (hoverEnterTimerRef.current) clearTimeout(hoverEnterTimerRef.current);
+    if (hoverLeaveTimerRef.current) clearTimeout(hoverLeaveTimerRef.current);
+    hoverLeaveTimerRef.current = setTimeout(() => {
+      setHoveredLockedId(null);
+    }, 3000);
+  };
+
+  const handleClickLocked = (id: string) => {
+    if (hoverEnterTimerRef.current) clearTimeout(hoverEnterTimerRef.current);
+    if (hoverLeaveTimerRef.current) clearTimeout(hoverLeaveTimerRef.current);
+    setHoveredLockedId(id);
   };
 
   const filteredNodes = roadmap.nodes.filter(node =>
@@ -425,16 +429,34 @@ export default function RoadmapView({
                         <h3 className="text-4xl md:text-5xl font-serif italic mb-6 transition-all duration-500 text-text-primary group-hover:text-accent-glow">
                           {node.title}
                         </h3>
-                        <p className={`text-text-secondary font-medium leading-relaxed max-w-sm text-lg ${isEven ? 'lg:ml-auto' : ''}`}>
-                          {node.description}
-                        </p>
+                        <ul className={`space-y-3 max-w-sm ${isEven ? 'lg:ml-auto text-right' : 'text-left'}`}>
+                          {node.subTopics.slice(0, 4).map((st) => {
+                            const stDone = progress.completedSubTopicIds.includes(st.id);
+                            return (
+                              <li key={st.id} className={`flex items-start gap-3 text-sm ${isEven ? 'flex-row-reverse' : ''}`}>
+                                <div className={`w-4 h-4 mt-0.5 rounded-full border flex-shrink-0 flex items-center justify-center transition-all ${stDone ? 'bg-accent-glow border-accent-glow text-white' : 'border-border-primary bg-bg-secondary'}`}>
+                                  {stDone && <CheckSquare className="w-2.5 h-2.5" />}
+                                </div>
+                                <span className={stDone ? 'text-text-muted/50 line-through' : 'text-text-secondary'}>
+                                  {st.title}
+                                </span>
+                              </li>
+                            );
+                          })}
+                          {node.subTopics.length > 4 && (
+                            <li className={`text-xs font-black uppercase tracking-widest text-text-muted/40 ${isEven ? 'mr-7' : 'ml-7'}`}>
+                              + {node.subTopics.length - 4} more topics
+                            </li>
+                          )}
+                        </ul>
                       </motion.button>
                     ) : (
                       // ── LOCKED: tooltip + View button ──
                       <div
-                        className={`w-full text-left ${isEven ? 'lg:text-right' : 'lg:text-left'}`}
+                        className={`w-full text-left ${isEven ? 'lg:text-right' : 'lg:text-left'} cursor-pointer`}
                         onMouseEnter={() => handleMouseEnterLocked(node.id)}
                         onMouseLeave={handleMouseLeaveLocked}
+                        onClick={() => handleClickLocked(node.id)}
                       >
                         <div className={`inline-flex items-center gap-3 mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-text-muted/50`}>
                           <Lock className="w-3 h-3" />
@@ -479,9 +501,16 @@ export default function RoadmapView({
 
                         {/* Fallback static description when not hovered */}
                         {!isHovered && (
-                          <p className="text-text-muted/20 font-medium leading-relaxed max-w-sm text-lg">
-                            {node.description}
-                          </p>
+                          <ul className={`space-y-3 max-w-sm ${isEven ? 'lg:ml-auto text-right' : 'text-left'} opacity-30 pointer-events-none`}>
+                            {node.subTopics.slice(0, 4).map((st) => (
+                              <li key={st.id} className={`flex items-start gap-3 text-sm ${isEven ? 'flex-row-reverse' : ''}`}>
+                                <div className="w-4 h-4 mt-0.5 rounded-full border border-border-primary bg-bg-secondary flex-shrink-0" />
+                                <span className="text-text-muted/80 blur-[2px] select-none">
+                                  {st.title}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
                         )}
                       </div>
                     )}
