@@ -13,7 +13,8 @@ import {
   Clock,
   BookOpen,
   CheckSquare,
-  Map
+  Map,
+  Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -264,6 +265,12 @@ export default function RoadmapView({
     return prevNodeDone;
   };
 
+  const getNextNodeId = () => {
+    const nextNode = roadmap.nodes.find(node => isNodeUnlocked(node) && !isNodeCompleted(node));
+    if (nextNode) return nextNode.id;
+    return roadmap.nodes[roadmap.nodes.length - 1]?.id || null;
+  };
+
   const calculateProgress = () => {
     const allSubtopicIds = roadmap.nodes.flatMap(n => n.subTopics.map(st => st.id));
     const total = allSubtopicIds.length;
@@ -301,14 +308,6 @@ export default function RoadmapView({
               <div className="px-4 py-1.5 rounded-full bg-accent-glow/10 border border-border-pill text-accent-glow text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
                 Operational Phase: {Math.ceil(calculateProgress() / 33) || 1}
               </div>
-              {/* View Full Plan button in header */}
-              <button
-                onClick={() => setShowPreview(true)}
-                className="group flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-accent-glow/40 text-[10px] font-black uppercase tracking-[0.2em] text-text-muted hover:text-accent-glow transition-all duration-300"
-              >
-                <Eye className="w-3 h-3" />
-                View Full Plan
-              </button>
             </motion.div>
 
             <motion.h1
@@ -347,35 +346,41 @@ export default function RoadmapView({
 
           <div className="w-full lg:w-96 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
             <div className="absolute inset-0 bg-accent-glow/5 blur-[80px] -z-10" />
-            <motion.div
+            
+            <motion.button
+              onClick={() => setShowPreview(true)}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
-              className="glass-panel rounded-xl p-8 flex flex-col justify-between h-48 group hover:border-accent-glow/30 transition-all"
+              className="glass-panel rounded-xl p-6 sm:p-8 flex flex-col justify-between h-48 group hover:border-accent-glow/30 hover:-translate-y-1 transition-all text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-accent-glow/10 flex items-center justify-center text-accent-glow group-hover:scale-110 transition-transform">
-                <Trophy className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow group-hover:scale-110 transition-transform">
+                <Map className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-1">Decrypted Modules</p>
-                <p className="text-4xl font-serif italic text-text-primary leading-none">{getCompletedCount()}<span className="text-lg text-text-muted/20 mx-2">/</span>{getTotalSubtopics()}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2">Architect's View</p>
+                <p className="text-2xl font-serif italic text-text-primary leading-tight group-hover:text-accent-glow transition-colors">Preview<br/>Blueprint</p>
               </div>
-            </motion.div>
+            </motion.button>
 
-            <motion.div
+            <motion.button
+              onClick={() => {
+                const nextId = getNextNodeId();
+                if (nextId) setSelectedNodeId(nextId);
+              }}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 }}
-              className="bg-accent-glow rounded-xl p-8 flex flex-col justify-between h-48 shadow-2xl shadow-accent-glow/30 group hover:translate-y-[-5px] transition-all"
+              className="bg-accent-glow rounded-xl p-6 sm:p-8 flex flex-col justify-between h-48 shadow-2xl shadow-accent-glow/30 group hover:-translate-y-1 transition-all text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-bg-secondary/20 border border-border-pill/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                <Activity className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                <Play className="w-5 h-5 ml-0.5 fill-current" />
               </div>
               <div className="overflow-hidden">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-1">Synthesizer Load</p>
-                <p className="text-3xl font-serif italic text-white truncate">Advanced</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-2">Active Stream</p>
+                <p className="text-2xl font-serif italic text-white leading-tight">Resume<br/>Ascent</p>
               </div>
-            </motion.div>
+            </motion.button>
           </div>
         </section>
 
