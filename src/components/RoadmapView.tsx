@@ -300,16 +300,6 @@ export default function RoadmapView({
         {/* Header Summary */}
         <section className="flex flex-col lg:flex-row justify-between items-center gap-16 relative">
           <div className="flex-1 text-center lg:text-left">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center justify-center lg:justify-start gap-3 mb-8"
-            >
-              <div className="px-4 py-1.5 rounded-full bg-accent-glow/10 border border-border-pill text-accent-glow text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
-                Operational Phase: {Math.ceil(calculateProgress() / 33) || 1}
-              </div>
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -344,7 +334,7 @@ export default function RoadmapView({
             </div>
           </div>
 
-          <div className="w-full lg:w-96 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
+          <div className="flex items-center gap-4 lg:gap-6 relative justify-center lg:justify-end">
             <div className="absolute inset-0 bg-accent-glow/5 blur-[80px] -z-10" />
             
             <motion.button
@@ -352,14 +342,14 @@ export default function RoadmapView({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
-              className="glass-panel rounded-xl p-6 sm:p-8 flex flex-col justify-between h-48 group hover:border-accent-glow/30 hover:-translate-y-1 transition-all text-left"
+              className="glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] group hover:border-accent-glow/30 hover:-translate-y-1 transition-all text-left flex-shrink-0"
             >
-              <div className="w-12 h-12 rounded-xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow group-hover:scale-110 transition-transform">
                 <Map className="w-5 h-5" />
               </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-2">Architect's View</p>
-                <p className="text-2xl font-serif italic text-text-primary leading-tight group-hover:text-accent-glow transition-colors">Preview<br/>Blueprint</p>
+              <div className="flex flex-col gap-1">
+                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-text-muted truncate">Architect View</p>
+                <p className="text-xl sm:text-2xl font-serif italic text-text-primary leading-tight group-hover:text-accent-glow transition-colors">Preview<br/>Blueprint</p>
               </div>
             </motion.button>
 
@@ -371,14 +361,14 @@ export default function RoadmapView({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 }}
-              className="bg-accent-glow rounded-xl p-6 sm:p-8 flex flex-col justify-between h-48 shadow-2xl shadow-accent-glow/30 group hover:-translate-y-1 transition-all text-left"
+              className="bg-accent-glow rounded-3xl p-6 sm:p-7 flex flex-col justify-between w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] shadow-2xl shadow-accent-glow/30 group hover:-translate-y-1 transition-all text-left flex-shrink-0"
             >
-              <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 border border-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                 <Play className="w-5 h-5 ml-0.5 fill-current" />
               </div>
-              <div className="overflow-hidden">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-2">Active Stream</p>
-                <p className="text-2xl font-serif italic text-white leading-tight">Resume<br/>Ascent</p>
+              <div className="flex flex-col gap-1">
+                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/70 truncate">Active Stream</p>
+                <p className="text-xl sm:text-2xl font-serif italic text-white leading-tight">Resume<br/>Ascent</p>
               </div>
             </motion.button>
           </div>
