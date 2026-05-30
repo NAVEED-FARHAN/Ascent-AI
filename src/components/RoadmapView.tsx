@@ -334,44 +334,60 @@ export default function RoadmapView({
             </div>
           </div>
 
-          <div className="flex items-center gap-4 lg:gap-6 relative justify-center lg:justify-end">
-            <div className="absolute inset-0 bg-accent-glow/5 blur-[80px] -z-10" />
-            
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col gap-4 w-full lg:w-auto lg:min-w-[260px]"
+          >
+            {/* Preview Blueprint */}
             <motion.button
               onClick={() => setShowPreview(true)}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] group hover:border-accent-glow/30 hover:-translate-y-1 transition-all text-left flex-shrink-0"
+              whileHover={{ scale: 1.02, x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative flex items-center gap-5 w-full px-6 py-5 rounded-2xl border border-white/[0.08] overflow-hidden text-left transition-all duration-300 hover:border-accent-glow/40"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow group-hover:scale-110 transition-transform">
+              {/* subtle hover glow */}
+              <div className="absolute inset-0 bg-accent-glow/0 group-hover:bg-accent-glow/[0.05] transition-all duration-500" />
+              <div className="relative w-12 h-12 rounded-xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center text-accent-glow flex-shrink-0 group-hover:bg-accent-glow/20 transition-all">
                 <Map className="w-5 h-5" />
               </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-text-muted truncate">Architect View</p>
-                <p className="text-xl sm:text-2xl font-serif italic text-text-primary leading-tight group-hover:text-accent-glow transition-colors">Preview<br/>Blueprint</p>
+              <div className="relative flex-1 min-w-0">
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-text-muted mb-0.5">Architect View</p>
+                <p className="text-base font-bold text-text-primary group-hover:text-accent-glow transition-colors leading-snug">Preview Blueprint</p>
+                <p className="text-[10px] text-text-muted/50 mt-0.5">See the full learning plan</p>
               </div>
+              <ArrowRight className="relative w-4 h-4 text-text-muted/30 group-hover:text-accent-glow group-hover:translate-x-1 transition-all flex-shrink-0" />
             </motion.button>
 
+            {/* Resume Ascent */}
             <motion.button
               onClick={() => {
                 const nextId = getNextNodeId();
                 if (nextId) setSelectedNodeId(nextId);
               }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
-              className="bg-accent-glow rounded-3xl p-6 sm:p-7 flex flex-col justify-between w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] shadow-2xl shadow-accent-glow/30 group hover:-translate-y-1 transition-all text-left flex-shrink-0"
+              whileHover={{ scale: 1.02, x: 4 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative flex items-center gap-5 w-full px-6 py-5 rounded-2xl overflow-hidden text-left transition-all duration-300"
+              style={{
+                background: 'linear-gradient(135deg, rgba(99,102,241,0.9) 0%, rgba(124,111,250,1) 100%)',
+                boxShadow: '0 8px 32px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)'
+              }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-white/20 border border-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.06] transition-all duration-300" />
+              <div className="relative w-12 h-12 rounded-xl bg-white/20 border border-white/20 flex items-center justify-center text-white flex-shrink-0 group-hover:bg-white/30 transition-all">
                 <Play className="w-5 h-5 ml-0.5 fill-current" />
               </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-white/70 truncate">Active Stream</p>
-                <p className="text-xl sm:text-2xl font-serif italic text-white leading-tight">Resume<br/>Ascent</p>
+              <div className="relative flex-1 min-w-0">
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white/60 mb-0.5">Active Stream</p>
+                <p className="text-base font-bold text-white leading-snug">Resume Ascent</p>
+                <p className="text-[10px] text-white/50 mt-0.5">Continue where you left off</p>
               </div>
+              <ArrowRight className="relative w-4 h-4 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0" />
             </motion.button>
-          </div>
+          </motion.div>
         </section>
 
         {/* Roadmap Timeline */}
