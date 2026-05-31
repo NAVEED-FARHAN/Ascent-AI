@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, ArrowRight, Sparkles, 
   Target, Loader2, Zap, History, Trash2,
-  ArrowLeft, Flame, ClipboardList
+  ArrowLeft, Flame, ClipboardList, ChevronDown
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { Roadmap, RoadmapRecord, GoalEvaluation } from '../types';
@@ -11,7 +11,6 @@ import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
 import { KnowledgeLevel, evaluateGoal } from '../lib/gemini';
 import { getKeyForUser } from '../lib/keys';
 import StarBorder from './StarBorder';
-import Folder from './Folder';
 
 interface HomeProps {
   user: User | null;
@@ -33,68 +32,24 @@ export default function Home({
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
-  const [isVaultOpen, setIsVaultOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const historyRef = useRef<HTMLDivElement>(null);
 
   const [evaluation, setEvaluation] = useState<GoalEvaluation | null>(null);
   const [showQuestions, setShowQuestions] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const paperItems = archivedRoadmaps.slice(0, 8).map((record) => {
-    const dateLabel = (() => {
-      if (!record.createdAt) return '';
-      const date = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
-      return isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
-    })();
-
-    // Render full rich content only when the vault is open!
-    if (!isVaultOpen) {
-      return (
-        <div key={record.id} className="w-full h-full flex flex-col justify-center items-center pointer-events-none select-none">
-          <span className="text-[6px] font-black tracking-wider text-purple-600/80 uppercase text-center line-clamp-1 p-1">
-            {record.goal.slice(0, 12)}
-          </span>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        key={record.id}
-        onClick={() => onSelectRoadmap(record as any)}
-        className="relative w-full h-full flex flex-col justify-between p-2 cursor-pointer group/paper select-none"
-      >
-        {/* Hover light glow overlay */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-transparent via-purple-500/10 to-white/5 opacity-0 group-hover/paper:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-        {/* Goal Title */}
-        <div className="flex-1 flex items-center justify-center text-center p-0.5">
-          <span className="text-[7.5px] font-black tracking-wider text-purple-200 group-hover/paper:text-white transition-colors duration-200 uppercase leading-normal line-clamp-4">
-            {record.goal}
-          </span>
-        </div>
-
-        {/* Footer (Date & Delete) */}
-        <div className="flex items-center justify-between mt-0.5 pt-1 border-t border-white/5">
-          <span className="text-[6.5px] font-mono font-bold text-white/35 tracking-wider">
-            {dateLabel}
-          </span>
-          
-          {/* Subtle Delete Trash Icon */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(e, record.id!);
-            }}
-            className="p-0.5 rounded bg-rose-950/20 text-rose-400/60 hover:bg-rose-500 hover:text-white border border-rose-500/10 hover:border-rose-400 transition-all duration-200"
-            title="Delete Blueprint"
-          >
-            <Trash2 className="w-2 h-2" />
-          </button>
-        </div>
-      </div>
-    );
-  });
+  // Close history dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (historyRef.current && !historyRef.current.contains(e.target as Node)) {
+        setIsHistoryOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const levelsConfig = [
     {
@@ -375,16 +330,77 @@ export default function Home({
                   Press Enter to Architect
                 </motion.div>
 
-                {/* Vault Folder — inline right side of search bar */}
-                {!isLoading && archivedRoadmaps.length > 0 && (
-                  <div className="relative flex-shrink-0" style={{ height: '80px' }}>
-                    <Folder
-                      color="#5227FF"
-                      size={0.85}
-                      items={paperItems}
-                      open={isVaultOpen}
-                      onToggle={() => setIsVaultOpen(prev => !prev)}
-                    />
+                {/* History Button + Dropdown */}
+                {archivedRoadmaps.length > 0 && (
+                  <div ref={historyRef} className="relative flex-shrink-0">
+                    <button
+                      onClick={() => setIsHistoryOpen(prev => !prev)}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all duration-200 text-[10px] font-black uppercase tracking-widest ${
+                        isHistoryOpen
+                          ? 'bg-accent-glow/10 border-accent-glow/40 text-accent-glow'
+                          : 'bg-white/[0.03] border-white/[0.08] text-text-muted hover:border-white/20 hover:text-text-primary'
+                      }`}
+                    >
+                      <History className="w-4 h-4" />
+                      <span>History</span>
+                      <motion.div animate={{ rotate: isHistoryOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronDown className="w-3 h-3" />
+                      </motion.div>
+                    </button>
+
+                    <AnimatePresence>
+                      {isHistoryOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                          transition={{ duration: 0.18 }}
+                          className="absolute right-0 top-[calc(100%+8px)] w-80 z-50 rounded-2xl border border-white/[0.08] overflow-hidden shadow-2xl shadow-black/60"
+                          style={{ background: 'rgba(8,8,16,0.97)', backdropFilter: 'blur(24px)' }}
+                        >
+                          <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-text-muted/60">Recent Blueprints</span>
+                            <span className="text-[9px] font-black text-text-muted/40">{archivedRoadmaps.length} total</span>
+                          </div>
+                          <div className="max-h-72 overflow-y-auto">
+                            {archivedRoadmaps.slice(0, 8).map((record, i) => {
+                              const dateLabel = (() => {
+                                if (!record.createdAt) return '';
+                                const d = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
+                                return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                              })();
+                              return (
+                                <motion.div
+                                  key={record.id}
+                                  initial={{ opacity: 0, x: -8 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: i * 0.04 }}
+                                  className="group flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.03] last:border-0 cursor-pointer"
+                                  onClick={() => { onSelectRoadmap(record as any); setIsHistoryOpen(false); }}
+                                >
+                                  <div className="w-7 h-7 rounded-lg bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[9px] font-black text-accent-glow">{i + 1}</span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold text-text-primary truncate group-hover:text-accent-glow transition-colors">{record.goal}</p>
+                                    {dateLabel && <p className="text-[9px] text-text-muted/40 mt-0.5">{dateLabel}</p>}
+                                  </div>
+                                  <div className="flex items-center gap-1.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleDelete(e, record.id!); }}
+                                      className="p-1.5 rounded-lg hover:bg-rose-500/20 text-text-muted/40 hover:text-rose-400 transition-all"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                    <ArrowRight className="w-3 h-3 text-accent-glow/50" />
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
               </motion.div>
