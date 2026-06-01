@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, ArrowRight, Sparkles, 
   Target, Loader2, Zap, History, Trash2,
-  ArrowLeft, Flame, ClipboardList
+  ArrowLeft, Flame, ClipboardList, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { Roadmap, RoadmapRecord, GoalEvaluation } from '../types';
@@ -138,6 +138,14 @@ export default function Home({
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   const [evaluation, setEvaluation] = useState<GoalEvaluation | null>(null);
   const [showQuestions, setShowQuestions] = useState(false);
@@ -499,17 +507,36 @@ export default function Home({
                   <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-white/[0.07] to-transparent" />
                 </div>
 
-                {/* Cards row */}
-                <div className="relative w-full overflow-hidden" 
-                  style={{ 
-                    maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)', 
-                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' 
-                  }}
-                >
-                  <div className="flex gap-4 overflow-x-auto pb-4 pt-1 px-6 scroll-smooth"
-                    style={{ scrollbarWidth: 'none' }}
+                {/* Cards row with scroll buttons */}
+                <div className="relative group/scroll w-full">
+                  {/* Left Scroll Button */}
+                  <button 
+                    onClick={() => handleScroll('left')}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
                   >
-                    {archivedRoadmaps.slice(0, 8).map((record, i) => {
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Right Scroll Button */}
+                  <button 
+                    onClick={() => handleScroll('right')}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+
+                  <div className="relative w-full overflow-hidden" 
+                    style={{ 
+                      maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)', 
+                      WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' 
+                    }}
+                  >
+                    <div 
+                      ref={scrollRef}
+                      className="flex gap-4 overflow-x-auto pb-4 pt-1 px-6 scroll-smooth"
+                      style={{ scrollbarWidth: 'none' }}
+                    >
+                      {archivedRoadmaps.slice(0, 8).map((record, i) => {
                     const pct = getCompletion(record);
                     const iconUrl = getTopicIcon(record.goal);
                     const initials = record.goal.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -592,6 +619,7 @@ export default function Home({
                   })}
                   {/* Spacer to allow scrolling past the right fade mask */}
                   <div className="w-12 flex-shrink-0" />
+                </div>
                 </div>
                 </div>
               </motion.div>
