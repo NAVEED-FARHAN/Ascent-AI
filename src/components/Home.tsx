@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, ArrowRight, Sparkles, 
   Target, Loader2, Zap, History, Trash2,
-  ArrowLeft, Flame, ClipboardList, ChevronDown
+  ArrowLeft, Flame, ClipboardList
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { Roadmap, RoadmapRecord, GoalEvaluation } from '../types';
@@ -11,6 +11,102 @@ import { getUserRoadmaps, deleteRoadmapFromCloud } from '../lib/firestore';
 import { KnowledgeLevel, evaluateGoal } from '../lib/gemini';
 import { getKeyForUser } from '../lib/keys';
 import StarBorder from './StarBorder';
+
+// ── Topic icon mapping using Devicon CDN ──────────────────────────────────────
+const TOPIC_ICON_MAP: Record<string, string> = {
+  python: 'python/python-original',
+  javascript: 'javascript/javascript-original',
+  typescript: 'typescript/typescript-original',
+  react: 'react/react-original',
+  nextjs: 'nextjs/nextjs-original',
+  'next.js': 'nextjs/nextjs-original',
+  nodejs: 'nodejs/nodejs-original',
+  'node.js': 'nodejs/nodejs-original',
+  node: 'nodejs/nodejs-original',
+  vue: 'vuejs/vuejs-original',
+  angular: 'angularjs/angularjs-original',
+  java: 'java/java-original',
+  kotlin: 'kotlin/kotlin-original',
+  swift: 'swift/swift-original',
+  flutter: 'flutter/flutter-original',
+  dart: 'dart/dart-original',
+  rust: 'rust/rust-plain',
+  go: 'go/go-original',
+  golang: 'go/go-original',
+  c: 'c/c-original',
+  'c++': 'cplusplus/cplusplus-original',
+  cpp: 'cplusplus/cplusplus-original',
+  'c#': 'csharp/csharp-original',
+  csharp: 'csharp/csharp-original',
+  php: 'php/php-original',
+  ruby: 'ruby/ruby-original',
+  rails: 'rails/rails-original-wordmark',
+  docker: 'docker/docker-original',
+  kubernetes: 'kubernetes/kubernetes-plain',
+  aws: 'amazonwebservices/amazonwebservices-original',
+  firebase: 'firebase/firebase-plain',
+  mongodb: 'mongodb/mongodb-original',
+  postgresql: 'postgresql/postgresql-original',
+  postgres: 'postgresql/postgresql-original',
+  mysql: 'mysql/mysql-original',
+  graphql: 'graphql/graphql-plain',
+  tailwind: 'tailwindcss/tailwindcss-plain',
+  css: 'css3/css3-original',
+  html: 'html5/html5-original',
+  figma: 'figma/figma-original',
+  tensorflow: 'tensorflow/tensorflow-original',
+  pytorch: 'pytorch/pytorch-original',
+  linux: 'linux/linux-original',
+  git: 'git/git-original',
+  django: 'django/django-plain',
+  fastapi: 'fastapi/fastapi-original',
+  flask: 'flask/flask-original',
+  spring: 'spring/spring-original',
+  android: 'android/android-original',
+  unity: 'unity/unity-original',
+  blender: 'blender/blender-original',
+};
+
+const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons';
+
+function getTopicIcon(goal: string): string | null {
+  const lower = goal.toLowerCase();
+  for (const [keyword, path] of Object.entries(TOPIC_ICON_MAP)) {
+    if (lower.includes(keyword)) return `${DEVICON_BASE}/${path}.svg`;
+  }
+  return null;
+}
+
+function getCompletion(record: RoadmapRecord): number {
+  const allSubs = (record.nodes || []).flatMap(n => n.subTopics || []);
+  const total = allSubs.length;
+  if (total === 0) return 0;
+  const done = allSubs.filter(st => st.isCompleted).length;
+  return Math.round((done / total) * 100);
+}
+
+function CompletionRing({ pct }: { pct: number }) {
+  const r = 18;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44" className="flex-shrink-0">
+      <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+      <circle
+        cx="22" cy="22" r={r} fill="none"
+        stroke={pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)'}
+        strokeWidth="3"
+        strokeDasharray={`${dash} ${circ}`}
+        strokeLinecap="round"
+        transform="rotate(-90 22 22)"
+        style={{ transition: 'stroke-dasharray 1s ease' }}
+      />
+      <text x="22" y="26" textAnchor="middle" fill="white" fontSize="9" fontWeight="800" fontFamily="monospace">
+        {pct}%
+      </text>
+    </svg>
+  );
+}
 
 interface HomeProps {
   user: User | null;
@@ -32,24 +128,11 @@ export default function Home({
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<KnowledgeLevel>('beginner');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const historyRef = useRef<HTMLDivElement>(null);
 
   const [evaluation, setEvaluation] = useState<GoalEvaluation | null>(null);
   const [showQuestions, setShowQuestions] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  // Close history dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (historyRef.current && !historyRef.current.contains(e.target as Node)) {
-        setIsHistoryOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const levelsConfig = [
     {
@@ -388,7 +471,7 @@ export default function Home({
               ))}
             </div>
 
-            {/* Recent Blueprints — below suggestions */}
+            {/* Recent Blueprints — scrollable cards */}
             {archivedRoadmaps.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -396,48 +479,97 @@ export default function Home({
                 transition={{ delay: 0.7 }}
                 className="w-full max-w-3xl mx-auto"
               >
-                <div className="w-full flex items-center gap-6 mb-5">
-                  <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+                {/* Section header */}
+                <div className="w-full flex items-center gap-5 mb-5">
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
                   <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.35em] text-text-muted/40">
                     <History className="w-3 h-3" />
                     Recent Blueprints
                   </div>
-                  <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-white/[0.06] to-transparent" />
+                  <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-white/[0.07] to-transparent" />
                 </div>
 
-                <div ref={historyRef} className="rounded-2xl border border-white/[0.06] overflow-hidden" style={{ background: 'rgba(255,255,255,0.015)' }}>
-                  {archivedRoadmaps.slice(0, 5).map((record, i) => {
+                {/* Cards row */}
+                <div className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  {archivedRoadmaps.slice(0, 8).map((record, i) => {
+                    const pct = getCompletion(record);
+                    const iconUrl = getTopicIcon(record.goal);
+                    const initials = record.goal.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
                     const dateLabel = (() => {
                       if (!record.createdAt) return '';
                       const d = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
                       return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
                     })();
+
                     return (
                       <motion.div
                         key={record.id}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.75 + i * 0.05 }}
-                        className="group flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.03] transition-colors border-b border-white/[0.04] last:border-0 cursor-pointer"
+                        initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ delay: 0.75 + i * 0.06, type: 'spring', stiffness: 200, damping: 20 }}
+                        whileHover={{ y: -4, scale: 1.02 }}
+                        className="group relative flex-shrink-0 w-[160px] rounded-2xl border border-white/[0.07] overflow-hidden cursor-pointer"
+                        style={{ background: 'rgba(255,255,255,0.03)' }}
                         onClick={() => onSelectRoadmap(record as any)}
                       >
-                        <div className="w-6 h-6 rounded-lg bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center flex-shrink-0">
-                          <span className="text-[8px] font-black text-accent-glow">{i + 1}</span>
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                          <p className="text-sm font-medium text-text-secondary truncate group-hover:text-text-primary transition-colors">{record.goal}</p>
-                        </div>
-                        {dateLabel && (
-                          <span className="text-[9px] text-text-muted/30 flex-shrink-0 font-mono">{dateLabel}</span>
-                        )}
-                        <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {/* Hover glow */}
+                        <div className="absolute inset-0 bg-accent-glow/0 group-hover:bg-accent-glow/[0.04] transition-all duration-400 pointer-events-none" />
+
+                        {/* Icon / Logo area */}
+                        <div className="relative h-[90px] flex items-center justify-center"
+                          style={{ background: 'rgba(255,255,255,0.02)' }}
+                        >
+                          {iconUrl ? (
+                            <img
+                              src={iconUrl}
+                              alt={record.goal}
+                              className="w-12 h-12 object-contain drop-shadow-lg"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black text-white"
+                              style={{
+                                background: `hsl(${(i * 67 + 220) % 360}, 60%, 45%)`,
+                                boxShadow: `0 4px 20px hsl(${(i * 67 + 220) % 360}, 60%, 45%, 0.4)`
+                              }}
+                            >
+                              {initials}
+                            </div>
+                          )}
+
+                          {/* Delete button */}
                           <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(e, record.id!); }}
-                            className="p-1.5 rounded-lg hover:bg-rose-500/20 text-text-muted/30 hover:text-rose-400 transition-all"
+                            className="absolute top-2 right-2 p-1 rounded-lg bg-black/60 text-text-muted/40 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
-                          <ArrowRight className="w-3.5 h-3.5 text-accent-glow/40 group-hover:text-accent-glow group-hover:translate-x-0.5 transition-all" />
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-3">
+                          <p className="text-[11px] font-semibold text-text-secondary group-hover:text-text-primary transition-colors leading-snug line-clamp-2 mb-3">
+                            {record.goal}
+                          </p>
+
+                          {/* Progress row */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 mr-2">
+                              {dateLabel && <p className="text-[8px] text-text-muted/30 font-mono mb-1.5">{dateLabel}</p>}
+                              <div className="w-full h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${pct}%` }}
+                                  transition={{ delay: 1 + i * 0.06, duration: 0.8, ease: 'easeOut' }}
+                                  className="h-full rounded-full"
+                                  style={{ background: pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)' }}
+                                />
+                              </div>
+                            </div>
+                            <CompletionRing pct={pct} />
+                          </div>
                         </div>
                       </motion.div>
                     );
