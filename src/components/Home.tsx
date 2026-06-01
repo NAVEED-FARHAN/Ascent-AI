@@ -502,11 +502,11 @@ export default function Home({
                 {/* Cards row */}
                 <div className="relative w-full overflow-hidden" 
                   style={{ 
-                    maskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)', 
-                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)' 
+                    maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)', 
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' 
                   }}
                 >
-                  <div className="flex gap-4 overflow-x-auto pb-4 pt-1 px-4 scroll-smooth"
+                  <div className="flex gap-4 overflow-x-auto pb-4 pt-1 px-6 scroll-smooth"
                     style={{ scrollbarWidth: 'none' }}
                   >
                     {archivedRoadmaps.slice(0, 8).map((record, i) => {
@@ -591,7 +591,7 @@ export default function Home({
                     );
                   })}
                   {/* Spacer to allow scrolling past the right fade mask */}
-                  <div className="w-8 flex-shrink-0" />
+                  <div className="w-12 flex-shrink-0" />
                 </div>
                 </div>
               </motion.div>
