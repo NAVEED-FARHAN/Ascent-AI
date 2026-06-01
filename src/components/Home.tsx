@@ -71,8 +71,18 @@ const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons';
 
 function getTopicIcon(goal: string): string | null {
   const lower = goal.toLowerCase();
-  for (const [keyword, path] of Object.entries(TOPIC_ICON_MAP)) {
-    if (lower.includes(keyword)) return `${DEVICON_BASE}/${path}.svg`;
+  
+  // Sort keywords by length descending so longer matches (like "c++" or "mysql") happen before "c"
+  const keywords = Object.keys(TOPIC_ICON_MAP).sort((a, b) => b.length - a.length);
+
+  for (const keyword of keywords) {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Match the keyword exactly at word boundaries or string edges
+    const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
+    
+    if (regex.test(lower)) {
+      return `${DEVICON_BASE}/${TOPIC_ICON_MAP[keyword]}.svg`;
+    }
   }
   return null;
 }
@@ -490,10 +500,16 @@ export default function Home({
                 </div>
 
                 {/* Cards row */}
-                <div className="flex gap-4 overflow-x-auto pb-3 scroll-smooth"
-                  style={{ scrollbarWidth: 'none' }}
+                <div className="relative w-full overflow-hidden" 
+                  style={{ 
+                    maskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)', 
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 4%, black 96%, transparent)' 
+                  }}
                 >
-                  {archivedRoadmaps.slice(0, 8).map((record, i) => {
+                  <div className="flex gap-4 overflow-x-auto pb-4 pt-1 px-4 scroll-smooth"
+                    style={{ scrollbarWidth: 'none' }}
+                  >
+                    {archivedRoadmaps.slice(0, 8).map((record, i) => {
                     const pct = getCompletion(record);
                     const iconUrl = getTopicIcon(record.goal);
                     const initials = record.goal.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -574,6 +590,7 @@ export default function Home({
                       </motion.div>
                     );
                   })}
+                </div>
                 </div>
               </motion.div>
             )}
