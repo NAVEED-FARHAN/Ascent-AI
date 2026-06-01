@@ -590,6 +590,8 @@ export default function Home({
                       </motion.div>
                     );
                   })}
+                  {/* Spacer to allow scrolling past the right fade mask */}
+                  <div className="w-8 flex-shrink-0" />
                 </div>
                 </div>
               </motion.div>
