@@ -14,7 +14,8 @@ import {
   BookOpen,
   CheckSquare,
   Map,
-  Play
+  Play,
+  ChevronDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -28,6 +29,14 @@ function RoadmapPreviewModal({
   progress: UserProgress;
   onClose: () => void;
 }) {
+  const [expandedNodeIds, setExpandedNodeIds] = useState<Record<string, boolean>>(() =>
+    roadmap.nodes.reduce((acc, n) => ({ ...acc, [n.id]: true }), {})
+  );
+
+  const toggleExpand = (nodeId: string) => {
+    setExpandedNodeIds(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
+  };
+
   const isNodeCompleted = (node: RoadmapNode) =>
     node.subTopics.length > 0 && node.subTopics.every(st => progress.completedSubTopicIds.includes(st.id));
 
@@ -63,46 +72,56 @@ function RoadmapPreviewModal({
           <div className="sticky top-0 z-10 flex items-center justify-between px-8 py-6 border-b border-white/[0.06]"
             style={{ background: 'rgba(8,8,18,0.97)', backdropFilter: 'blur(20px)' }}
           >
+            {/* Summary chips pushed to left */}
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-accent-glow/10 border border-accent-glow/20 flex items-center justify-center">
-                <Map className="w-5 h-5 text-accent-glow" />
+              <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Phases</p>
+                <p className="text-lg font-serif italic text-text-primary">{roadmap.nodes.length}</p>
               </div>
-              <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-accent-glow/60 mb-0.5">Full Blueprint</p>
-                <h2 className="text-lg font-serif italic text-text-primary leading-tight">{roadmap.goal}</h2>
+              <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Modules</p>
+                <p className="text-lg font-serif italic text-text-primary">{completedSubTopics}/{totalSubTopics}</p>
               </div>
-            </div>
-
-            {/* Summary chips */}
-            <div className="hidden sm:flex items-center gap-3 mr-4">
-              <div className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-center">
-                <p className="text-[8px] font-black uppercase tracking-widest text-text-muted/60">Phases</p>
-                <p className="text-sm font-serif italic text-text-primary">{roadmap.nodes.length}</p>
-              </div>
-              <div className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-center">
-                <p className="text-[8px] font-black uppercase tracking-widest text-text-muted/60">Modules</p>
-                <p className="text-sm font-serif italic text-text-primary">{completedSubTopics}/{totalSubTopics}</p>
-              </div>
-              <div className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-center">
-                <p className="text-[8px] font-black uppercase tracking-widest text-text-muted/60">Est. Hours</p>
-                <p className="text-sm font-serif italic text-text-primary">{totalHours}h</p>
+              <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Est. Hours</p>
+                <p className="text-lg font-serif italic text-text-primary">{totalHours}h</p>
               </div>
             </div>
 
-            <button
-              onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-text-muted hover:text-white hover:bg-white/[0.08] transition-all"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center p-0.5 rounded-xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md shadow-lg">
+                <button
+                  onClick={() => setExpandedNodeIds(roadmap.nodes.reduce((acc, n) => ({ ...acc, [n.id]: true }), {}))}
+                  className="px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-[#a89ff5] hover:text-white hover:bg-white/[0.04] active:scale-95 transition-all"
+                >
+                  Expand All
+                </button>
+                <div className="w-[1px] h-3.5 bg-white/[0.08]" />
+                <button
+                  onClick={() => setExpandedNodeIds(roadmap.nodes.reduce((acc, n) => ({ ...acc, [n.id]: false }), {}))}
+                  className="px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest text-[#a89ff5] hover:text-white hover:bg-white/[0.04] active:scale-95 transition-all"
+                >
+                  Collapse All
+                </button>
+              </div>
+
+              <button
+                onClick={onClose}
+                className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-text-muted hover:text-white hover:bg-white/[0.08] active:scale-95 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Nodes list */}
-          <div className="divide-y divide-white/[0.06]">
+          <div className="divide-y divide-white/[0.15]">
             {roadmap.nodes.map((node, idx) => {
               const nodeCompleted = isNodeCompleted(node);
               const nodeHours = node.subTopics.reduce((a, st) => a + (st.estimatedHours || 0), 0);
               const completedInNode = node.subTopics.filter(st => progress.completedSubTopicIds.includes(st.id)).length;
+
+              const isExpanded = expandedNodeIds[node.id];
 
               return (
                 <motion.div
@@ -110,60 +129,65 @@ function RoadmapPreviewModal({
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.04 }}
-                  className="px-6 md:px-8 py-6"
-                >
-                  {/* Phase header */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-[11px] font-black border transition-all ${
-                      nodeCompleted
-                        ? 'bg-accent-glow/20 border-accent-glow text-accent-glow shadow-[0_0_16px_rgba(124,111,250,0.3)]'
-                        : 'bg-white/[0.04] border-white/[0.08] text-text-muted'
-                    }`}>
+                  className="px-6 md:px-8 py-6 transition-all duration-300 bg-transparent"            >
+                  {/* Phase header with spacing */}
+                  <div
+                    className={`flex items-center gap-4 cursor-pointer hover:opacity-90 select-none ${isExpanded ? 'mb-8' : 'mb-0'}`}
+                    onClick={() => toggleExpand(node.id)}
+                  >
+                    <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-[11px] font-black border transition-all ${nodeCompleted
+                      ? 'bg-accent-glow/20 border-accent-glow text-accent-glow shadow-[0_0_16px_rgba(124,111,250,0.3)]'
+                      : 'bg-white/[0.04] border-white/[0.08] text-text-muted'
+                      }`}>
                       {nodeCompleted ? <CheckSquare className="w-4 h-4" /> : <span>{idx + 1}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-[8px] font-black uppercase tracking-[0.25em] ${nodeCompleted ? 'text-accent-glow' : 'text-text-muted/50'}`}>
+                        <span className={`text-base font-black uppercase tracking-[0.25em] ${nodeCompleted ? 'text-accent-glow' : 'text-text-muted/50'}`}>
                           Phase {idx + 1} · {nodeCompleted ? 'Completed' : `${completedInNode}/${node.subTopics.length} done`}
                         </span>
                       </div>
-                      <h3 className="text-base font-serif italic text-text-primary truncate">{node.title}</h3>
+                      <h3 className="text-3xl font-serif italic text-text-primary truncate">{node.title}</h3>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0 text-text-muted/60">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-black">{nodeHours}h</span>
+                    <div className="flex items-center gap-3 flex-shrink-0 text-text-muted/60">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black">{nodeHours}h</span>
+                      </div>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
 
                   {/* Subtopics */}
-                  <div className="divide-y divide-white/[0.04]">
-                    {node.subTopics.map((st) => {
-                      const stDone = progress.completedSubTopicIds.includes(st.id);
-                      return (
-                        <div key={st.id} className="flex items-start gap-3 px-6 py-3">
-                          <div className={`w-4 h-4 mt-0.5 flex-shrink-0 rounded-md border flex items-center justify-center transition-all ${
-                            stDone
+                  {isExpanded && (
+                    <div className="divide-y divide-white/[0.04]">
+                      {node.subTopics.map((st) => {
+                        const stDone = progress.completedSubTopicIds.includes(st.id);
+                        return (
+                          <div key={st.id} className="flex items-start gap-3 px-6 py-3">
+                            <div className={`w-6 h-6 mt-1 flex-shrink-0 rounded-md border flex items-center justify-center transition-all ${stDone
                               ? 'bg-accent-glow border-accent-glow'
                               : 'border-white/[0.12] bg-white/[0.02]'
-                          }`}>
-                            {stDone && <CheckSquare className="w-2.5 h-2.5 text-white" />}
+                              }`}>
+                              {stDone && <CheckSquare className="w-4 h-4 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xl font-medium leading-snug ${stDone ? 'text-text-muted/60 line-through' : 'text-text-secondary'}`}>
+                                {st.title}
+                              </p>
+                              {st.description && (
+                                <p className="text-base text-text-muted/40 mt-1 leading-relaxed line-clamp-2">{st.description}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-shrink-0 mt-1">
+                              <BookOpen className="w-5 h-5 text-text-muted/30" />
+                              <span className="text-base text-text-muted/40 font-mono">{st.estimatedHours || 0}h</span>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium leading-snug ${stDone ? 'text-text-muted/60 line-through' : 'text-text-secondary'}`}>
-                              {st.title}
-                            </p>
-                            {st.description && (
-                              <p className="text-[11px] text-text-muted/40 mt-0.5 leading-relaxed line-clamp-2">{st.description}</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
-                            <BookOpen className="w-3 h-3 text-text-muted/30" />
-                            <span className="text-[10px] text-text-muted/40 font-mono">{st.estimatedHours || 0}h</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </motion.div>
               );
             })}
@@ -355,9 +379,8 @@ export default function RoadmapView({
                 <Map className="w-5 h-5" />
               </div>
               <div className="relative flex-1 min-w-0">
-                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-text-muted mb-0.5">Architect View</p>
-                <p className="text-base font-bold text-text-primary group-hover:text-accent-glow transition-colors leading-snug">Preview Blueprint</p>
-                <p className="text-[10px] text-text-muted/50 mt-0.5">See the full learning plan</p>
+                <p className="text-xl font-bold text-text-primary group-hover:text-accent-glow transition-colors leading-snug">View All</p>
+                <p className="text-[10px] text-text-muted/50 mt-0.5">Architect view</p>
               </div>
               <ArrowRight className="relative w-4 h-4 text-text-muted/30 group-hover:text-accent-glow group-hover:translate-x-1 transition-all flex-shrink-0" />
             </motion.button>
@@ -413,10 +436,10 @@ export default function RoadmapView({
                   <motion.div
                     whileHover={{ scale: 1.1 }}
                     className={`absolute left-[34px] lg:left-1/2 -translate-x-1/2 top-0 w-20 h-20 rounded-xl border-2 flex items-center justify-center transition-all duration-700 z-20 ${completed
-                        ? 'bg-accent-glow/20 border-accent-glow text-accent-glow shadow-[0_0_40px_rgba(99,102,241,0.4)]'
-                        : unlocked
-                          ? 'bg-bg-primary border-accent-glow text-accent-glow shadow-[0_0_40px_rgba(99,102,241,0.2)]'
-                          : 'bg-bg-secondary border-border-primary text-text-muted/20'
+                      ? 'bg-accent-glow/20 border-accent-glow text-accent-glow shadow-[0_0_40px_rgba(99,102,241,0.4)]'
+                      : unlocked
+                        ? 'bg-bg-primary border-accent-glow text-accent-glow shadow-[0_0_40px_rgba(99,102,241,0.2)]'
+                        : 'bg-bg-secondary border-border-primary text-text-muted/20'
                       }`}
                   >
                     <div className="absolute inset-0 rounded-2xl bg-current opacity-5" />
