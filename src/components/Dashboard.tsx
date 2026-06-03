@@ -1,383 +1,382 @@
-import { Roadmap, UserProgress } from '../types';
-import { CheckCircle2, Zap, Activity, ShieldCheck, Sparkles, Terminal, Cpu } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Roadmap, UserProgress, RoadmapRecord } from '../types';
+import { User as FirebaseUser } from 'firebase/auth';
+import { CheckCircle2, Zap, Activity, ShieldCheck, Sparkles, Terminal, Cpu, History, Trash2, ChevronLeft, ChevronRight, User as UserIcon, FlaskConical, Target } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { getUserRoadmaps } from '../lib/firestore';
 
-interface DashboardProps {
-  roadmap: Roadmap;
-  progress: UserProgress;
+const TOPIC_ICON_MAP: Record<string, string> = {
+  python: 'python/python-original',
+  javascript: 'javascript/javascript-original',
+  typescript: 'typescript/typescript-original',
+  react: 'react/react-original',
+  nextjs: 'nextjs/nextjs-original',
+  'next.js': 'nextjs/nextjs-original',
+  nodejs: 'nodejs/nodejs-original',
+  'node.js': 'nodejs/nodejs-original',
+  node: 'nodejs/nodejs-original',
+  vue: 'vuejs/vuejs-original',
+  angular: 'angularjs/angularjs-original',
+  java: 'java/java-original',
+  kotlin: 'kotlin/kotlin-original',
+  swift: 'swift/swift-original',
+  flutter: 'flutter/flutter-original',
+  dart: 'dart/dart-original',
+  rust: 'rust/rust-plain',
+  go: 'go/go-original',
+  golang: 'go/go-original',
+  c: 'c/c-original',
+  'c++': 'cplusplus/cplusplus-original',
+  cpp: 'cplusplus/cplusplus-original',
+  'c#': 'csharp/csharp-original',
+  csharp: 'csharp/csharp-original',
+  php: 'php/php-original',
+  ruby: 'ruby/ruby-original',
+  rails: 'rails/rails-original-wordmark',
+  docker: 'docker/docker-original',
+  kubernetes: 'kubernetes/kubernetes-plain',
+  aws: 'amazonwebservices/amazonwebservices-original',
+  firebase: 'firebase/firebase-plain',
+  mongodb: 'mongodb/mongodb-original',
+  postgresql: 'postgresql/postgresql-original',
+  postgres: 'postgresql/postgresql-original',
+  mysql: 'mysql/mysql-original',
+  graphql: 'graphql/graphql-plain',
+  tailwind: 'tailwindcss/tailwindcss-plain',
+  css: 'css3/css3-original',
+  html: 'html5/html5-original',
+  figma: 'figma/figma-original',
+  tensorflow: 'tensorflow/tensorflow-original',
+  pytorch: 'pytorch/pytorch-original',
+  linux: 'linux/linux-original',
+  git: 'git/git-original',
+  django: 'django/django-plain',
+  fastapi: 'fastapi/fastapi-original',
+  flask: 'flask/flask-original',
+  spring: 'spring/spring-original',
+  android: 'android/android-original',
+  unity: 'unity/unity-original',
+  blender: 'blender/blender-original',
+};
+
+const DEVICON_BASE = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons';
+
+function getTopicIcon(goal: string): string | null {
+  const lower = goal.toLowerCase();
+  const keywords = Object.keys(TOPIC_ICON_MAP).sort((a, b) => b.length - a.length);
+  for (const keyword of keywords) {
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
+    if (regex.test(lower)) {
+      return `${DEVICON_BASE}/${TOPIC_ICON_MAP[keyword]}.svg`;
+    }
+  }
+  return null;
 }
 
-export default function Dashboard({ roadmap, progress }: DashboardProps) {
-  if (!roadmap) return null;
-  
-  const totalSubTopics = roadmap.nodes.reduce((acc, n) => acc + n.subTopics.length, 0);
-  const completedSubTopics = progress.completedSubTopicIds.length;
-  const progressPercent = Math.round((completedSubTopics / (totalSubTopics || 1)) * 100);
+function CompletionRing({ pct, size = 44 }: { pct: number, size?: number }) {
+  const r = size * 0.4;
+  const circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0">
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size * 0.07} />
+      <circle
+        cx={size/2} cy={size/2} r={r} fill="none"
+        stroke={pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)'}
+        strokeWidth={size * 0.07}
+        strokeDasharray={`${dash} ${circ}`}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${size/2} ${size/2})`}
+        style={{ transition: 'stroke-dasharray 1s ease' }}
+      />
+      <text x={size/2} y={size/2 + (size * 0.1)} textAnchor="middle" fill="white" fontSize={size * 0.22} fontWeight="800" fontFamily="monospace">
+        {pct}%
+      </text>
+    </svg>
+  );
+}
 
-  const calculateHoursSpent = () => {
-    let hours = 0;
+interface DashboardProps {
+  user: FirebaseUser | null;
+  roadmap: Roadmap | null;
+  progress: UserProgress | null;
+}
+
+export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
+  const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchRoadmaps = async () => {
+      try {
+        const roadmaps = await getUserRoadmaps(user.uid) as RoadmapRecord[];
+        // exclude active if needed, but showing all history is fine
+        setArchivedRoadmaps(roadmaps.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0)));
+      } catch (err) {
+        console.error('Error fetching roadmap history', err);
+      }
+    };
+    fetchRoadmaps();
+  }, [user]);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -300 : 300;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  // Active Roadmap Metrics
+  let totalSubTopics = 0;
+  let completedSubTopics = 0;
+  let progressPercent = 0;
+  let hoursSpent = 0;
+  let totalQuizzes = 0;
+  let totalChallenges = 0;
+
+  if (roadmap && progress) {
+    totalSubTopics = roadmap.nodes.reduce((acc, n) => acc + n.subTopics.length, 0);
+    completedSubTopics = progress.completedSubTopicIds.length;
+    progressPercent = Math.round((completedSubTopics / (totalSubTopics || 1)) * 100);
+
     roadmap.nodes.forEach(node => {
       node.subTopics.forEach(sub => {
         if (progress.completedSubTopicIds.includes(sub.id)) {
-          hours += sub.estimatedHours || 2;
+          hoursSpent += sub.estimatedHours || 2;
         }
+        if (sub.quizzes) totalQuizzes += sub.quizzes.length;
+        if (sub.challenges) totalChallenges += sub.challenges.length;
       });
     });
-    return hours;
-  };
-
-  // Get count of total practice elements
-  let totalQuizzesCount = 0;
-  let totalChallengesCount = 0;
-  roadmap.nodes.forEach(n => {
-    n.subTopics.forEach(s => {
-      if (s.quizzes) totalQuizzesCount += s.quizzes.length;
-      if (s.challenges) totalChallengesCount += s.challenges.length;
-    });
-  });
-
-  const today = new Date();
-  const heatmapDays = Array.from({ length: 90 }, (_, i) => {
-    const d = new Date();
-    d.setDate(today.getDate() - (89 - i));
-    const dateStr = d.toISOString().split('T')[0];
-    return {
-      date: dateStr,
-      count: progress.dailyActivity?.[dateStr] || 0
-    };
-  });
-
-  // Calculate active days in heatmap
-  const activeDaysCount = heatmapDays.filter(d => d.count > 0).length;
+  }
 
   return (
     <div className="max-w-[1400px] w-full mx-auto px-8 md:px-12 pt-16 pb-40 space-y-0 relative divide-y divide-white/[0.06]">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
-      {/* Section 1: Dashboard Header */}
+      {/* Header */}
       <header className="pb-12 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-accent-glow animate-ping" />
             <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.35em] text-accent-glow/90">
-              Strategic Overview Protocol
+              Pilot Profile
             </span>
           </div>
           <h1 className="text-5xl md:text-6xl font-serif italic text-text-primary tracking-tight">
-            Control <span className="text-text-muted font-light font-serif opacity-70">Dashboard</span>
+            Ascent <span className="text-text-muted font-light font-serif opacity-70">Identity</span>
           </h1>
         </div>
-
-        {/* Telemetry Status Bar */}
-        <div className="flex flex-wrap items-center gap-8 md:gap-10">
-          <div className="hidden lg:flex items-center gap-8 text-[12px] font-mono text-text-muted/40 uppercase tracking-widest">
-            <div>NODE_STAT: OK</div>
-            <div className="w-1.5 h-1.5 bg-white/10 rounded-full" />
-            <div>CORE_FREQ: 2.4GHZ</div>
-            <div className="w-1.5 h-1.5 bg-white/10 rounded-full" />
-            <div>LATENCY: 14MS</div>
+        
+        {user && (
+          <div className="flex items-center gap-6 bg-white/[0.02] border border-white/[0.05] px-6 py-4 rounded-2xl shadow-xl backdrop-blur-md">
+            <div className="w-12 h-12 rounded-full border-2 border-accent-glow/30 overflow-hidden shrink-0">
+              <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="text-[10px] md:text-[11px] font-black text-text-muted/50 uppercase tracking-[0.2em] mb-0.5">Pilot ID</p>
+              <h3 className="text-sm md:text-base font-black text-text-primary uppercase tracking-widest leading-none">
+                {user.displayName}
+              </h3>
+            </div>
           </div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-8 bg-white/[0.02] border border-white/[0.05] px-6 py-4 rounded-2xl shadow-xl backdrop-blur-md"
-          >
-             <div className="text-left">
-               <p className="text-[10px] md:text-[11px] font-black text-text-muted/50 uppercase tracking-[0.2em] mb-0.5">Ranking</p>
-               <p className="text-sm md:text-base font-black text-text-primary uppercase tracking-widest leading-none">
-                 Architect <span className="text-accent-glow font-bold">LVL 0{Math.floor(progressPercent / 10) + 1}</span>
-               </p>
-             </div>
-             <div className="w-[1px] h-8 bg-white/[0.08]" />
-             <div className="text-left">
-               <p className="text-[10px] md:text-[11px] font-black text-text-muted/50 uppercase tracking-[0.2em] mb-0.5">Sync State</p>
-               <div className="flex items-center gap-2">
-                 <div className="w-2.5 h-2.5 rounded-full bg-accent-success animate-pulse" />
-                 <p className="text-[11px] md:text-xs font-bold text-accent-success uppercase tracking-widest">Active</p>
-               </div>
-             </div>
-          </motion.div>
-        </div>
+        )}
       </header>
 
-      {/* Section 2: Mastery & Milestone Grid */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 py-16 gap-10 lg:gap-0">
-        {/* Progress Display & Quick Stats List */}
-        <div className="lg:col-span-4 flex items-center gap-8 lg:pr-10">
-          <div className="relative w-52 h-52 shrink-0">
-             <svg className="w-full h-full -rotate-90 filter drop-shadow-[0_0_20px_rgba(99,102,241,0.15)]" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.01)" strokeWidth="4" />
-                <motion.circle 
-                   initial={{ pathLength: 0 }}
-                   animate={{ pathLength: progressPercent / 100 }}
-                   transition={{ duration: 1.2, ease: "circOut" }}
-                   cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="5.5" 
-                   className="text-accent-glow" strokeLinecap="round"
-                />
-             </svg>
-             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-5xl font-serif italic text-text-primary leading-none tracking-tight">{progressPercent}%</span>
-                <span className="text-[11px] md:text-xs font-black text-text-muted uppercase tracking-[0.3em] mt-2">Mastery</span>
-             </div>
-          </div>
-
-          <div className="space-y-4 flex-1">
-            <span className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.2em] block">Core Telemetry</span>
-            <div className="space-y-3.5 text-sm font-mono text-text-muted">
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>Completed:</span>
-                <span className="text-text-primary font-bold">{completedSubTopics} / {totalSubTopics}</span>
-              </div>
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>Pending:</span>
-                <span className="text-text-primary">{totalSubTopics - completedSubTopics}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Optimization:</span>
-                <span className="text-accent-glow font-bold">Dynamic</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Sync Velocity & Time Stats (Wider Column) */}
-        <div className="lg:col-span-5 flex flex-col justify-between lg:px-12 lg:border-r lg:border-white/[0.06] space-y-8 lg:space-y-0">
-          <div className="space-y-3">
-             <h3 className="text-3xl font-serif italic text-text-primary tracking-tight">Neural Sync Velocity</h3>
-             <p className="text-base text-text-muted leading-relaxed italic">
-                Optimal development trajectory. Theoretical completion reaches stable sync in <span className="text-accent-glow font-semibold">1.4 cycles</span>. Based on actual node completion rates and study consistency.
-             </p>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/[0.05]">
-             <div className="space-y-2">
-                <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em]">Time Delta</p>
-                <p className="text-3xl md:text-4xl font-serif italic text-text-primary">{calculateHoursSpent()} <span className="text-xs uppercase font-bold opacity-45">Hrs</span></p>
-             </div>
-             <div className="space-y-2">
-                <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em]">Streak</p>
-                <p className="text-3xl md:text-4xl font-serif italic text-accent-glow">{progress.currentStreak} <span className="text-xs uppercase font-bold opacity-45">Days</span></p>
-             </div>
-             <div className="space-y-2">
-                <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em]">Nodes Set</p>
-                <p className="text-3xl md:text-4xl font-serif italic text-text-primary">{completedSubTopics}</p>
-             </div>
-          </div>
-        </div>
-
-        {/* Milestone Sequence */}
-        <div className="lg:col-span-3 lg:pl-12 flex flex-col justify-center space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
-             <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80">Sequence Logic</h3>
-             <Sparkles className="w-4 h-4 text-accent-glow/60" />
-          </div>
-          <div className="space-y-4">
-             {[
-               { id: '01', label: 'Initialization', min: 0 },
-               { id: '02', label: 'Apprentice', min: 25 },
-               { id: '03', label: 'Decipherer', min: 50 },
-             ].map((m) => (
-                <div key={m.id} className={`flex items-center gap-4 ${progressPercent >= m.min ? 'opacity-100' : 'opacity-25'}`}>
-                  <span className="text-xs font-mono text-accent-glow/70">{m.id}</span>
-                  <p className="text-base font-semibold text-text-primary tracking-tight">{m.label}</p>
-                  <div className="ml-auto h-[1px] flex-1 bg-white/[0.04] mx-2" />
-                  {progressPercent >= m.min && <CheckCircle2 className="w-4 h-4 text-accent-success" />}
-                </div>
-             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3: Heatmap & Resources */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 py-16 gap-10 lg:gap-0">
-        {/* Heatmap Grid & Legend */}
-        <div className="lg:col-span-8 lg:pr-12 lg:border-r lg:border-white/[0.06] space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
-            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-accent-glow" />
-              Consistency Delta
-            </h3>
-            <div className="flex items-center gap-4">
-              <span className="text-[11px] md:text-xs font-bold text-text-muted/40 uppercase tracking-widest">Legend:</span>
-              <div className="flex items-center gap-2 text-xs font-mono text-text-muted">
-                <span className="w-3 h-3 rounded-[2px] bg-white/[0.03]" /> <span>0</span>
-                <span className="w-3 h-3 rounded-[2px] bg-accent-glow/30" /> <span>&lt;3</span>
-                <span className="w-3 h-3 rounded-[2px] bg-accent-glow" /> <span>3+</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(16px,1fr))] gap-2 pt-2 flex-1 w-full">
-              {heatmapDays.map((day, idx) => (
-                <div 
-                  key={idx}
-                  className={`aspect-square rounded-[3px] transition-all ${
-                    day.count === 0 ? 'bg-white/[0.03]' : 
-                    day.count < 3 ? 'bg-accent-glow/30' : 
-                    'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.45)]'
-                  }`}
-                  title={`${day.date}: ${day.count} activities`}
-                />
-              ))}
-            </div>
-            
-            {/* Quick stats on consistency */}
-            <div className="w-full sm:w-56 space-y-3.5 shrink-0 pt-2 text-sm font-mono text-text-muted">
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>Active Cycles:</span>
-                <span className="text-text-primary">{activeDaysCount} / 90</span>
-              </div>
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>Consistency Rate:</span>
-                <span className="text-text-primary">{Math.round((activeDaysCount / 90) * 100)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Target Sync:</span>
-                <span className="text-accent-glow font-bold">Stable</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center text-[10px] md:text-[11px] font-black text-text-muted/30 uppercase tracking-[0.25em] pt-2">
-            <span>Start of Cycle</span>
-            <div className="h-[1px] flex-1 mx-4 bg-white/[0.03] border-t border-dashed" />
-            <span>Target Synchronization</span>
-          </div>
-        </div>
-
-        {/* Resource Allocation with Explanatory Subtext */}
-        <div className="lg:col-span-4 lg:pl-12 flex flex-col justify-center space-y-5">
-          <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 pb-3 border-b border-white/[0.04]">
-            Resource Balance
+      {/* Active Blueprint Stats */}
+      <section className="py-16">
+        <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
+          <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
+            <Target className="w-5 h-5 text-accent-glow" />
+            Active Blueprint
           </h3>
-          <div className="space-y-5">
-             {[
-               { label: 'Conceptual', value: '45%', desc: 'Documentation, lectures, and quizzes.' },
-               { label: 'Technical', value: '35%', desc: 'Coding workspace and syntax validation.' },
-               { label: 'Applied', value: '20%', desc: 'Sandbox challenges and building projects.' },
-             ].map((item) => (
-               <div key={item.label} className="space-y-2">
-                  <div className="flex justify-between items-end">
-                     <div className="flex flex-col">
-                       <span className="text-[11px] md:text-xs font-black uppercase tracking-[0.1em] text-text-muted/75">{item.label}</span>
-                       <span className="text-[10px] md:text-xs text-text-muted/50 font-mono leading-none mt-0.5">{item.desc}</span>
-                     </div>
-                     <span className="text-xs md:text-sm font-serif italic text-accent-glow">{item.value}</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-white/[0.02] rounded-full overflow-hidden border border-white/[0.04]">
-                     <motion.div 
-                       initial={{ width: 0 }}
-                       animate={{ width: item.value }}
-                       transition={{ duration: 1, ease: "circOut" }}
-                       className="h-full bg-accent-glow/60" 
-                     />
-                  </div>
-               </div>
-             ))}
-          </div>
         </div>
+
+        {roadmap && progress ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex items-center gap-6 shadow-2xl">
+              <CompletionRing pct={progressPercent} size={80} />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-1">Current Mastery</p>
+                <p className="text-sm font-semibold text-text-primary leading-tight line-clamp-2">{roadmap.goal}</p>
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
+                <Activity className="w-3.5 h-3.5 text-accent-glow" /> Neural Streak
+              </p>
+              <p className="text-4xl font-serif italic text-accent-glow">{progress.currentStreak} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">Days</span></p>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
+                <Cpu className="w-3.5 h-3.5 text-text-primary" /> Nodes Mastered
+              </p>
+              <p className="text-4xl font-serif italic text-text-primary">{completedSubTopics} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">/ {totalSubTopics}</span></p>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
+                <History className="w-3.5 h-3.5 text-text-primary" /> Time Logged
+              </p>
+              <p className="text-4xl font-serif italic text-text-primary">{hoursSpent} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">Hrs</span></p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/[0.01] border border-white/[0.03] p-10 rounded-3xl flex flex-col items-center justify-center text-center text-text-muted/50">
+            <Target className="w-10 h-10 mb-4 opacity-20" />
+            <p className="text-sm font-black uppercase tracking-widest">No Active Mission</p>
+            <p className="text-xs mt-2 max-w-md">Initialize a new Mastery Journey to begin logging telemetry.</p>
+          </div>
+        )}
       </section>
 
-      {/* Section 4: Tactical Proficiency */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 py-16 gap-10 lg:gap-0">
-         {/* Verification Progress */}
-         <div className="lg:col-span-8 lg:pr-12 lg:border-r lg:border-white/[0.06] flex flex-col justify-center space-y-5">
-            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 pb-3 border-b border-white/[0.04] flex items-center gap-2">
-               <ShieldCheck className="w-4 h-4 text-accent-glow" />
-               Tactical Proficiency
+      {/* Practice & Engagement */}
+      {roadmap && progress && (
+        <section className="py-16">
+          <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
+            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
+              <FlaskConical className="w-5 h-5 text-accent-glow" />
+              Laboratory Metrics
             </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-3xl bg-accent-glow/[0.02] border border-accent-glow/20 flex flex-col items-center justify-center text-center">
+              <ShieldCheck className="w-8 h-8 text-accent-glow mb-3" />
+              <p className="text-5xl font-serif italic text-white mb-2">{progress.practiceScore || 0}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Verification Score</p>
+            </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-2">
-               <div className="flex-1 w-full space-y-3.5">
-                  <div className="flex justify-between items-end">
-                     <span className="text-xs font-black uppercase tracking-[0.15em] text-text-muted/50">Laboratory Verification</span>
-                     <span className="text-3xl font-serif italic text-text-primary font-bold">{progress.practiceScore}%</span>
-                  </div>
-                  <div className="w-full h-3 bg-white/[0.02] rounded-full overflow-hidden border border-white/[0.04]">
-                     <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progress.practiceScore}%` }}
-                        transition={{ duration: 1.5, ease: "circOut" }}
-                        className="h-full bg-accent-glow shadow-[0_0_12px_rgba(99,102,241,0.45)]"
-                     />
-                  </div>
-               </div>
-               
-               <div className="hidden sm:block w-[1px] h-10 bg-white/[0.08]" />
-               
-               {/* Telemetry metadata block for practice */}
-               <div className="flex items-center gap-10 sm:px-8">
-                 <div className="text-center">
-                    <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em] mb-1.5">Verified</p>
-                    <p className="text-2xl font-black text-text-primary leading-none">{progress.completedChallengeIds.length} / {totalChallengesCount}</p>
-                 </div>
-                 <div className="text-center">
-                    <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em] mb-1.5">Quizzes</p>
-                    <p className="text-2xl font-black text-text-muted leading-none">{totalQuizzesCount}</p>
-                 </div>
-               </div>
+            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center justify-center text-center">
+              <Terminal className="w-8 h-8 text-text-muted/40 mb-3" />
+              <p className="text-5xl font-serif italic text-white mb-2">
+                {progress.completedChallengeIds?.length || 0}
+              </p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Challenges Cleared</p>
             </div>
-         </div>
 
-         {/* Operational Rank Details */}
-         <div className="lg:col-span-4 lg:pl-12 flex flex-col justify-center space-y-3">
-            <div className="space-y-1">
-               <p className="text-[11px] md:text-xs font-black text-text-muted/50 uppercase tracking-[0.15em] italic">Operational Rank</p>
-               <h4 className="text-2xl font-serif italic text-text-primary leading-none">The Tactician</h4>
+            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center justify-center text-center">
+              <Sparkles className="w-8 h-8 text-text-muted/40 mb-3" />
+              <p className="text-5xl font-serif italic text-white mb-2">
+                {/* We don't explicitly track completedQuizzes yet, but we can assume it scales with nodes for now or just display 0 if not tracked */}
+                {Math.floor((progress.completedSubTopicIds.length / (totalSubTopics || 1)) * totalQuizzes)}
+              </p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Quizzes Passed</p>
             </div>
-            <p className="text-sm text-text-muted leading-relaxed">
-               High resonance verified in practical sandbox environments. Coding concepts are stabilizing with excellent accuracy. Solved challenges accelerate overall mastery.
-            </p>
-         </div>
-      </section>
+          </div>
+        </section>
+      )}
 
-      {/* Section 5: Diagnostic Stream & System Properties */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 py-16 gap-10 lg:gap-0">
-         {/* Live Diagnostic Logs Terminal */}
-         <div className="lg:col-span-8 lg:pr-12 lg:border-r lg:border-white/[0.06] flex flex-col justify-center space-y-5">
-            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 pb-3 border-b border-white/[0.04] flex items-center gap-2">
-               <Terminal className="w-4 h-4 text-accent-glow" />
-               Diagnostic Log Stream
-            </h3>
-            
-            <div className="bg-[#04040d] border border-white/[0.04] rounded-xl p-5 font-mono text-[12px] leading-relaxed text-text-muted/75 space-y-2.5 h-52 overflow-y-auto shadow-inner">
-               <div className="text-accent-glow/70">[SYS_INIT] Initializing cognitive parameters on client side.</div>
-               <div>[SYNC] Syncing active roadmap ID: {roadmap.id.substring(0, 12)}... with cloud database.</div>
-               <div>[CALC] Calculated streak value of {progress.currentStreak} day(s).</div>
-               <div className="text-accent-success/70">[STATUS] Connection state established via WebSocket to Firestore.</div>
-               <div>[TELEM] Loaded {completedSubTopics} completed node items.</div>
-               <div>[TELEM] Practice scores synced at {progress.practiceScore}% resonance.</div>
-               <div className="text-accent-glow/70">[SYS_READY] Diagnostics stabilized. Monitoring user activities.</div>
-            </div>
-         </div>
+      {/* Blueprint History */}
+      <section className="py-16">
+        <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
+          <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
+            <History className="w-5 h-5 text-accent-glow" />
+            Ascent History
+          </h3>
+          <span className="text-[10px] font-black uppercase tracking-widest text-text-muted/40">
+            {archivedRoadmaps.length} Blueprints
+          </span>
+        </div>
 
-         {/* Core System Parameters */}
-         <div className="lg:col-span-4 lg:pl-12 flex flex-col justify-center space-y-5">
-            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 pb-3 border-b border-white/[0.04] flex items-center gap-2">
-               <Cpu className="w-4 h-4 text-accent-glow" />
-               System Parameters
-            </h3>
-            <div className="space-y-4 text-sm font-mono text-text-muted">
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>GOAL_TARGET:</span>
-                <span className="text-text-primary truncate max-w-[180px]" title={roadmap.goal}>{roadmap.goal}</span>
-              </div>
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>INTELLIGENCE:</span>
-                <span className="text-text-primary">Gemini Core</span>
-              </div>
-              <div className="flex justify-between border-b border-white/[0.03] pb-1.5">
-                <span>SYNAPSE_VEL:</span>
-                <span className="text-accent-glow font-bold">1.4x Cycles</span>
-              </div>
-              <div className="flex justify-between">
-                <span>DATABASE_SYNC:</span>
-                <span className="text-accent-success font-bold">ONLINE</span>
+        {archivedRoadmaps.length > 0 ? (
+          <div className="relative group/scroll w-full">
+            <button 
+              onClick={() => handleScroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => handleScroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div className="relative w-full overflow-hidden" 
+              style={{ 
+                maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)', 
+                WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' 
+              }}
+            >
+              <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-6 pt-1 px-6 scroll-smooth" style={{ scrollbarWidth: 'none' }}>
+                {archivedRoadmaps.map((record, i) => {
+                  const pct = record.completion || 0;
+                  const iconUrl = getTopicIcon(record.goal);
+                  const initials = record.goal.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+                  const dateLabel = (() => {
+                    if (!record.createdAt) return '';
+                    const d = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
+                    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                  })();
+
+                  return (
+                    <motion.div
+                      key={record.id}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ delay: 0.1 + i * 0.05, type: 'spring', stiffness: 200, damping: 20 }}
+                      className="group relative flex-shrink-0 w-[200px] rounded-3xl border border-white/[0.07] overflow-hidden"
+                      style={{ background: 'rgba(255,255,255,0.02)' }}
+                    >
+                      <div className="relative h-[110px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.015)' }}>
+                        {iconUrl ? (
+                          <img
+                            src={iconUrl}
+                            alt={record.goal}
+                            className="w-16 h-16 object-contain drop-shadow-xl filter saturate-150 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white"
+                            style={{
+                              background: `hsl(${(i * 67 + 220) % 360}, 60%, 45%)`,
+                              boxShadow: `0 4px 20px hsl(${(i * 67 + 220) % 360}, 60%, 45%, 0.4)`
+                            }}
+                          >
+                            {initials}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-5">
+                        <p className="text-[13px] font-semibold text-text-primary leading-snug line-clamp-2 mb-4 h-10">
+                          {record.goal}
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 mr-3">
+                            {dateLabel && <p className="text-[9px] text-text-muted/40 font-mono mb-2">{dateLabel}</p>}
+                            <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ delay: 0.5 + i * 0.06, duration: 1, ease: 'easeOut' }}
+                                className="h-full rounded-full"
+                                style={{ background: pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)' }}
+                              />
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-black font-mono text-white mt-4">{pct}%</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+                <div className="w-12 flex-shrink-0" />
               </div>
             </div>
           </div>
+        ) : (
+          <div className="bg-white/[0.01] border border-white/[0.03] p-10 rounded-3xl flex items-center justify-center text-center text-text-muted/30">
+            <p className="text-xs font-black uppercase tracking-widest">No Past Blueprints</p>
+          </div>
+        )}
       </section>
     </div>
   );

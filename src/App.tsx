@@ -9,7 +9,7 @@ import {
   Map, 
   Calendar, 
   FlaskConical, 
-  BarChart3, 
+  Hexagon, 
   Loader2,
   X,
   Activity
@@ -82,7 +82,7 @@ export default function App() {
     { id: 'roadmap', icon: Map, label: 'Roadmap' },
     { id: 'planner', icon: Calendar, label: 'Planner' },
     { id: 'practice', icon: FlaskConical, label: 'Laboratory' },
-    { id: 'dashboard', icon: BarChart3, label: 'Stats' },
+    { id: 'dashboard', icon: Hexagon, label: 'Profile' },
   ];
 
   const [modalConfig, setModalConfig] = useState<ModalConfig>({
@@ -421,7 +421,7 @@ export default function App() {
                 {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level, answers) => handleStartGoal(goal, level, answers)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
                 {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
                 {view === 'planner' && roadmap && <Planner roadmap={roadmap} progress={progress} />}
-                {view === 'dashboard' && <Dashboard roadmap={roadmap} progress={progress} />}
+                {view === 'dashboard' && <Dashboard user={user} roadmap={roadmap} progress={progress} />}
                 {view === 'practice' && roadmap ? (
                   <PracticeHub 
                     roadmap={roadmap} 
