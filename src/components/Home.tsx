@@ -262,14 +262,6 @@ export default function Home({
         staggerChildren: 0.08,
         delayChildren: 0.1,
       }
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        staggerChildren: 0.04,
-        staggerDirection: -1,
-        when: "afterChildren"
-      }
     }
   };
 
@@ -284,14 +276,6 @@ export default function Home({
         stiffness: 100,
         damping: 14,
         mass: 1
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-      transition: {
-        duration: 0.2
       }
     }
   };
