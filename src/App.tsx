@@ -94,6 +94,11 @@ export default function App() {
 
   const mainContentRef = useRef<HTMLDivElement>(null);
 
+  const navigateTo = (v: View) => {
+    mainContentRef.current?.scrollTo(0, 0);
+    setView(v);
+  };
+
 
 
   // Close profile menu when clicking outside
@@ -345,7 +350,7 @@ export default function App() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-5 group cursor-pointer"
-                onClick={() => setView('home')}
+                onClick={() => navigateTo('home')}
               >
                 <div className="relative flex items-center justify-center">
                   <img src="/logo.ico" alt="Ascent AI Logo" className="w-8 h-8 group-hover:scale-110 transition-transform duration-500 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.5)]" />
@@ -428,7 +433,7 @@ export default function App() {
           )}
 
           <main ref={mainContentRef} className="flex-1 overflow-y-auto scrollbar-hide relative z-10 pb-40">
-            <AnimatePresence mode="wait" onExitComplete={() => mainContentRef.current?.scrollTo(0, 0)}>
+            <AnimatePresence mode="popLayout">
               <motion.div key={view} className="w-full flex-1 flex flex-col min-h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
                 {view === 'home' && <Home user={user} isNeuralReady={isNeuralReady} roadmap={roadmap} onSelectRoadmap={handleSelectRoadmap} onStartGoal={(goal, level, answers) => handleStartGoal(goal, level, answers)} onResetSystem={handleResetSystem} onClearActiveRoadmap={() => setRoadmap(null)} onShowModal={showModal} />}
                 {view === 'roadmap' && roadmap && <RoadmapView roadmap={roadmap} progress={progress} onToggleSubTopic={toggleSubTopic} onNavigateToPractice={() => setView('practice')} selectedNodeId={selectedNodeId} setSelectedNodeId={setSelectedNodeId} />}
@@ -439,14 +444,14 @@ export default function App() {
                     roadmap={roadmap} 
                     progress={progress} 
                     onCompleteChallenge={toggleChallenge}
-                    onNavigateHome={() => setView('home')}
+                    onNavigateHome={() => navigateTo('home')}
                   />
                 ) : view === 'practice' ? (
                   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-10">
                     <FlaskConical className="w-16 h-16 text-accent-glow/20" />
                     <h3 className="text-2xl font-serif italic text-text-secondary/60">No Active Mission Found</h3>
                     <p className="text-sm text-text-secondary/40 max-w-md uppercase tracking-widest leading-loose">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
-                    <button onClick={() => setView('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
+                    <button onClick={() => navigateTo('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
                   </div>
                 ) : null}
               </motion.div>
@@ -462,7 +467,7 @@ export default function App() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => setView(item.id as View)}
+                            onClick={() => navigateTo(item.id as View)}
                             aria-label={item.label}
                             className={cn(
                               buttonVariants({ variant: "ghost", size: "icon" }),
