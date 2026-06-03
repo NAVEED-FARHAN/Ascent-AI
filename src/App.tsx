@@ -344,7 +344,7 @@ export default function App() {
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
           {view === 'home' && (
-            <header className="relative z-[100] px-8 py-8 flex items-center justify-between">
+            <header className="absolute top-0 left-0 right-0 z-[100] px-8 py-8 flex items-center justify-between">
               {/* Left: System Branding */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
