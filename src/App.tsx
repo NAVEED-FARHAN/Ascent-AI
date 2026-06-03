@@ -378,7 +378,7 @@ export default function App() {
                       className="flex items-center gap-3 p-1.5 pr-4 rounded-full bg-white/5 border border-white/10 hover:border-accent-glow/40 transition-all"
                     >
                       <div className="w-9 h-9 rounded-full border-2 border-accent-glow/30 overflow-hidden shadow-lg">
-                        <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
+                        <img src={user.photoURL?.replace(/=s\d+-c/i, "=s200-c") || ''} alt="" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex flex-col items-start text-left">
                         <span className="text-[8px] font-black uppercase tracking-widest text-white/20">Access Key</span>

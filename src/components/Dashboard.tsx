@@ -171,7 +171,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
             <div className="space-y-4">
               <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl group">
                 <div className="absolute inset-0 bg-accent-glow/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 mix-blend-overlay" />
-                <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <img src={user.photoURL?.replace(/=s\d+-c/i, "=s400-c") || ''} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-text-primary uppercase tracking-wider">{user.displayName}</h1>
