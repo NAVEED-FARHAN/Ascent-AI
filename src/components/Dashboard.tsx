@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Roadmap, UserProgress, RoadmapRecord } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
-import { CheckCircle2, Zap, Activity, ShieldCheck, Sparkles, Terminal, Cpu, History, Trash2, ChevronLeft, ChevronRight, User as UserIcon, FlaskConical, Target } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { ShieldCheck, Sparkles, Terminal, Activity, History, Target, Cpu, Book, Zap } from 'lucide-react';
+import { motion } from 'motion/react';
 import { getUserRoadmaps } from '../lib/firestore';
 
 const TOPIC_ICON_MAP: Record<string, string> = {
@@ -74,25 +74,22 @@ function getTopicIcon(goal: string): string | null {
   return null;
 }
 
-function CompletionRing({ pct, size = 44 }: { pct: number, size?: number }) {
+function CompletionRing({ pct, size = 44, strokeWidth = 0.07 }: { pct: number, size?: number, strokeWidth?: number }) {
   const r = size * 0.4;
   const circ = 2 * Math.PI * r;
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="flex-shrink-0">
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size * 0.07} />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size * strokeWidth} />
       <circle
         cx={size/2} cy={size/2} r={r} fill="none"
         stroke={pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)'}
-        strokeWidth={size * 0.07}
+        strokeWidth={size * strokeWidth}
         strokeDasharray={`${dash} ${circ}`}
         strokeLinecap="round"
         transform={`rotate(-90 ${size/2} ${size/2})`}
         style={{ transition: 'stroke-dasharray 1s ease' }}
       />
-      <text x={size/2} y={size/2 + (size * 0.1)} textAnchor="middle" fill="white" fontSize={size * 0.22} fontWeight="800" fontFamily="monospace">
-        {pct}%
-      </text>
     </svg>
   );
 }
@@ -105,14 +102,12 @@ interface DashboardProps {
 
 export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
   const [archivedRoadmaps, setArchivedRoadmaps] = useState<RoadmapRecord[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
     const fetchRoadmaps = async () => {
       try {
         const roadmaps = await getUserRoadmaps(user.uid) as RoadmapRecord[];
-        // exclude active if needed, but showing all history is fine
         setArchivedRoadmaps(roadmaps.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0)));
       } catch (err) {
         console.error('Error fetching roadmap history', err);
@@ -120,13 +115,6 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
     };
     fetchRoadmaps();
   }, [user]);
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
 
   // Active Roadmap Metrics
   let totalSubTopics = 0;
@@ -152,232 +140,232 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
     });
   }
 
+  // Heatmap Data (90 days)
+  const today = new Date();
+  const heatmapDays = Array.from({ length: 90 }, (_, i) => {
+    const d = new Date();
+    d.setDate(today.getDate() - (89 - i));
+    const dateStr = d.toISOString().split('T')[0];
+    return {
+      date: dateStr,
+      count: progress?.dailyActivity?.[dateStr] || 0
+    };
+  });
+  
+  const activeDaysCount = heatmapDays.filter(d => d.count > 0).length;
+  // Calculate Level (just a simple mapping from completed topics)
+  const userLevel = Math.floor((progress?.completedSubTopicIds.length || 0) / 10) + 1;
+
   return (
-    <div className="max-w-[1400px] w-full mx-auto px-8 md:px-12 pt-16 pb-40 space-y-0 relative divide-y divide-white/[0.06]">
+    <div className="max-w-[1400px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
-      {/* Header */}
-      <header className="pb-12 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-        <div className="space-y-3">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-accent-glow animate-ping" />
-            <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.35em] text-accent-glow/90">
-              Pilot Profile
-            </span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-serif italic text-text-primary tracking-tight">
-            Ascent <span className="text-text-muted font-light font-serif opacity-70">Identity</span>
-          </h1>
-        </div>
+      {/* GitHub-Style Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10">
         
-        {user && (
-          <div className="flex items-center gap-6 bg-white/[0.02] border border-white/[0.05] px-6 py-4 rounded-2xl shadow-xl backdrop-blur-md">
-            <div className="w-12 h-12 rounded-full border-2 border-accent-glow/30 overflow-hidden shrink-0">
-              <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <p className="text-[10px] md:text-[11px] font-black text-text-muted/50 uppercase tracking-[0.2em] mb-0.5">Pilot ID</p>
-              <h3 className="text-sm md:text-base font-black text-text-primary uppercase tracking-widest leading-none">
-                {user.displayName}
-              </h3>
-            </div>
-          </div>
-        )}
-      </header>
-
-      {/* Active Blueprint Stats */}
-      <section className="py-16">
-        <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
-          <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
-            <Target className="w-5 h-5 text-accent-glow" />
-            Active Blueprint
-          </h3>
-        </div>
-
-        {roadmap && progress ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex items-center gap-6 shadow-2xl">
-              <CompletionRing pct={progressPercent} size={80} />
+        {/* =========================================
+            LEFT SIDEBAR: PILOT IDENTITY
+            ========================================= */}
+        <aside className="space-y-8">
+          {user ? (
+            <div className="space-y-4">
+              <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl group">
+                <div className="absolute inset-0 bg-accent-glow/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 mix-blend-overlay" />
+                <img src={user.photoURL || ''} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-1">Current Mastery</p>
-                <p className="text-sm font-semibold text-text-primary leading-tight line-clamp-2">{roadmap.goal}</p>
+                <h1 className="text-2xl font-black text-text-primary uppercase tracking-wider">{user.displayName}</h1>
+                <p className="text-sm font-mono text-accent-glow/70 mt-1">{user.email}</p>
               </div>
             </div>
-
-            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5 text-accent-glow" /> Neural Streak
-              </p>
-              <p className="text-4xl font-serif italic text-accent-glow">{progress.currentStreak} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">Days</span></p>
+          ) : (
+            <div className="w-full aspect-square rounded-[2rem] bg-white/[0.02] border border-white/5 flex items-center justify-center">
+              <p className="text-xs font-black uppercase tracking-widest text-text-muted/40">No Identity</p>
             </div>
+          )}
 
-            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
-                <Cpu className="w-3.5 h-3.5 text-text-primary" /> Nodes Mastered
-              </p>
-              <p className="text-4xl font-serif italic text-text-primary">{completedSubTopics} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">/ {totalSubTopics}</span></p>
-            </div>
-
-            <div className="bg-white/[0.02] border border-white/[0.05] p-6 rounded-3xl flex flex-col justify-center">
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-2 flex items-center gap-2">
-                <History className="w-3.5 h-3.5 text-text-primary" /> Time Logged
-              </p>
-              <p className="text-4xl font-serif italic text-text-primary">{hoursSpent} <span className="text-xs font-sans not-italic text-text-muted uppercase tracking-widest">Hrs</span></p>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white/[0.01] border border-white/[0.03] p-10 rounded-3xl flex flex-col items-center justify-center text-center text-text-muted/50">
-            <Target className="w-10 h-10 mb-4 opacity-20" />
-            <p className="text-sm font-black uppercase tracking-widest">No Active Mission</p>
-            <p className="text-xs mt-2 max-w-md">Initialize a new Mastery Journey to begin logging telemetry.</p>
-          </div>
-        )}
-      </section>
-
-      {/* Practice & Engagement */}
-      {roadmap && progress && (
-        <section className="py-16">
-          <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
-            <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
-              <FlaskConical className="w-5 h-5 text-accent-glow" />
-              Laboratory Metrics
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-3xl bg-accent-glow/[0.02] border border-accent-glow/20 flex flex-col items-center justify-center text-center">
-              <ShieldCheck className="w-8 h-8 text-accent-glow mb-3" />
-              <p className="text-5xl font-serif italic text-white mb-2">{progress.practiceScore || 0}</p>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Verification Score</p>
+          <div className="py-5 border-y border-white/5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-accent-glow/10 flex items-center justify-center border border-accent-glow/20">
+                <Zap className="w-4 h-4 text-accent-glow" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-0.5">Pilot Level</p>
+                <p className="text-sm font-bold text-white tracking-widest">LVL {userLevel < 10 ? `0${userLevel}` : userLevel}</p>
+              </div>
             </div>
             
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center justify-center text-center">
-              <Terminal className="w-8 h-8 text-text-muted/40 mb-3" />
-              <p className="text-5xl font-serif italic text-white mb-2">
-                {progress.completedChallengeIds?.length || 0}
-              </p>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Challenges Cleared</p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.05] flex flex-col items-center justify-center text-center">
-              <Sparkles className="w-8 h-8 text-text-muted/40 mb-3" />
-              <p className="text-5xl font-serif italic text-white mb-2">
-                {/* We don't explicitly track completedQuizzes yet, but we can assume it scales with nodes for now or just display 0 if not tracked */}
-                {Math.floor((progress.completedSubTopicIds.length / (totalSubTopics || 1)) * totalQuizzes)}
-              </p>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/70">Quizzes Passed</p>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+                <Activity className="w-4 h-4 text-orange-400" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/50 mb-0.5">Neural Streak</p>
+                <p className="text-sm font-bold text-white tracking-widest">{progress?.currentStreak || 0} DAYS</p>
+              </div>
             </div>
           </div>
-        </section>
-      )}
 
-      {/* Blueprint History */}
-      <section className="py-16">
-        <div className="flex items-center justify-between pb-6 border-b border-white/[0.04] mb-8">
-          <h3 className="text-sm md:text-base font-black uppercase tracking-widest text-text-primary opacity-80 flex items-center gap-3">
-            <History className="w-5 h-5 text-accent-glow" />
-            Ascent History
-          </h3>
-          <span className="text-[10px] font-black uppercase tracking-widest text-text-muted/40">
-            {archivedRoadmaps.length} Blueprints
-          </span>
-        </div>
+          <div className="space-y-4 pt-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-text-muted/60 mb-4">Laboratory Metrics</h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-text-muted flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent-success" /> Verification</span>
+                <span className="font-mono text-white font-bold">{progress?.practiceScore || 0}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-text-muted flex items-center gap-2"><Terminal className="w-4 h-4 text-text-muted/70" /> Challenges</span>
+                <span className="font-mono text-white">{progress?.completedChallengeIds?.length || 0}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-text-muted flex items-center gap-2"><Sparkles className="w-4 h-4 text-accent-glow/70" /> Quizzes</span>
+                <span className="font-mono text-white">{Math.floor(((progress?.completedSubTopicIds?.length || 0) / (totalSubTopics || 1)) * totalQuizzes)}</span>
+              </div>
+            </div>
+          </div>
+        </aside>
 
-        {archivedRoadmaps.length > 0 ? (
-          <div className="relative group/scroll w-full">
-            <button 
-              onClick={() => handleScroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleScroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/80 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 transition-opacity hover:bg-black hover:scale-110 shadow-xl"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
 
-            <div className="relative w-full overflow-hidden" 
-              style={{ 
-                maskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)', 
-                WebkitMaskImage: 'linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)' 
-              }}
-            >
-              <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-6 pt-1 px-6 scroll-smooth" style={{ scrollbarWidth: 'none' }}>
-                {archivedRoadmaps.map((record, i) => {
+        {/* =========================================
+            RIGHT MAIN CONTENT: HEATMAP & HISTORY
+            ========================================= */}
+        <main className="space-y-12">
+          
+          {/* Active Blueprint (Sticky at the top like a pinned repo) */}
+          <section>
+            <h2 className="text-sm font-black uppercase tracking-widest text-text-primary mb-4 flex items-center gap-2">
+              <Target className="w-4 h-4 text-accent-glow" /> Active Blueprint
+            </h2>
+            {roadmap && progress ? (
+              <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-accent-glow/30 transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-2 flex-1">
+                  <h3 className="text-xl font-serif italic text-white line-clamp-1">{roadmap.goal}</h3>
+                  <div className="flex items-center gap-4 text-xs font-mono text-text-muted/70">
+                    <span className="flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5" /> {completedSubTopics}/{totalSubTopics} Nodes</span>
+                    <span className="flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> {hoursSpent}h Logged</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted/50">Mastery</p>
+                    <p className="text-lg font-bold text-white">{progressPercent}%</p>
+                  </div>
+                  <CompletionRing pct={progressPercent} size={50} strokeWidth={0.08} />
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 rounded-2xl bg-white/[0.01] border border-white/[0.03] text-center">
+                <p className="text-xs font-mono text-text-muted/40">No active mission to display.</p>
+              </div>
+            )}
+          </section>
+
+          {/* Neural Sync Heatmap (GitHub Style) */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-black uppercase tracking-widest text-text-primary flex items-center gap-2">
+                <Activity className="w-4 h-4 text-accent-glow" /> Neural Sync Log
+              </h2>
+              <span className="text-[10px] font-mono text-text-muted uppercase tracking-[0.2em]">{activeDaysCount} Active Cycles</span>
+            </div>
+            
+            <div className="p-6 rounded-2xl bg-white/[0.015] border border-white/[0.04] overflow-x-auto scrollbar-hide">
+              <div className="min-w-[700px]">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(14px,1fr))] gap-[3px] w-full">
+                  {heatmapDays.map((day, idx) => (
+                    <div 
+                      key={idx}
+                      className={`w-[14px] h-[14px] rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
+                        day.count === 0 ? 'bg-white/[0.03] hover:bg-white/10' : 
+                        day.count < 3 ? 'bg-accent-glow/40 hover:bg-accent-glow/60' : 
+                        'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]'
+                      }`}
+                      title={`${day.date}: ${day.count} activities`}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-end gap-2 mt-3 text-[10px] font-mono text-text-muted">
+                  <span>Less</span>
+                  <div className="w-[12px] h-[12px] rounded-[2px] bg-white/[0.03]" />
+                  <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow/40" />
+                  <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                  <span>More</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Ascent History (List View) */}
+          <section>
+            <h2 className="text-sm font-black uppercase tracking-widest text-text-primary mb-4 flex items-center gap-2">
+              <Book className="w-4 h-4 text-accent-glow" /> Ascent History
+            </h2>
+
+            {archivedRoadmaps.length > 0 ? (
+              <div className="space-y-3">
+                {archivedRoadmaps.map((record) => {
                   const pct = record.completion || 0;
                   const iconUrl = getTopicIcon(record.goal);
                   const initials = record.goal.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
                   const dateLabel = (() => {
                     if (!record.createdAt) return '';
                     const d = (record.createdAt as any).toDate ? (record.createdAt as any).toDate() : new Date(record.createdAt as any);
-                    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+                    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                   })();
 
                   return (
                     <motion.div
                       key={record.id}
-                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ delay: 0.1 + i * 0.05, type: 'spring', stiffness: 200, damping: 20 }}
-                      className="group relative flex-shrink-0 w-[200px] rounded-3xl border border-white/[0.07] overflow-hidden"
-                      style={{ background: 'rgba(255,255,255,0.02)' }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl bg-white/[0.015] border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/10 transition-colors gap-4"
                     >
-                      <div className="relative h-[110px] flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.015)' }}>
+                      <div className="flex items-center gap-5 flex-1 min-w-0">
                         {iconUrl ? (
-                          <img
-                            src={iconUrl}
-                            alt={record.goal}
-                            className="w-16 h-16 object-contain drop-shadow-xl filter saturate-150 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
+                          <img src={iconUrl} alt="" className="w-10 h-10 object-contain drop-shadow-lg filter saturate-150 opacity-80 group-hover:opacity-100 transition-opacity" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         ) : (
-                          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white"
-                            style={{
-                              background: `hsl(${(i * 67 + 220) % 360}, 60%, 45%)`,
-                              boxShadow: `0 4px 20px hsl(${(i * 67 + 220) % 360}, 60%, 45%, 0.4)`
-                            }}
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white shrink-0"
+                            style={{ background: `linear-gradient(135deg, hsl(${(pct * 123) % 360}, 60%, 45%), hsl(${(pct * 321) % 360}, 50%, 30%))` }}
                           >
                             {initials}
                           </div>
                         )}
+                        
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-semibold text-white truncate group-hover:text-accent-glow transition-colors">{record.goal}</h3>
+                          <div className="flex items-center gap-3 mt-1 text-[11px] font-mono text-text-muted/60">
+                            {dateLabel && <span>{dateLabel}</span>}
+                            {dateLabel && <span className="w-1 h-1 rounded-full bg-white/10" />}
+                            <span>{record.nodes?.length || 0} Modules</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="p-5">
-                        <p className="text-[13px] font-semibold text-text-primary leading-snug line-clamp-2 mb-4 h-10">
-                          {record.goal}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 mr-3">
-                            {dateLabel && <p className="text-[9px] text-text-muted/40 font-mono mb-2">{dateLabel}</p>}
-                            <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${pct}%` }}
-                                transition={{ delay: 0.5 + i * 0.06, duration: 1, ease: 'easeOut' }}
-                                className="h-full rounded-full"
-                                style={{ background: pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)' }}
-                              />
-                            </div>
+                      <div className="flex items-center gap-6 sm:w-48 shrink-0">
+                        <div className="flex-1">
+                          <div className="flex justify-between text-[10px] font-mono mb-1.5">
+                            <span className="text-text-muted">Mastery</span>
+                            <span className={pct === 100 ? 'text-accent-success' : 'text-accent-glow'}>{pct}%</span>
                           </div>
-                          <span className="text-[10px] font-black font-mono text-white mt-4">{pct}%</span>
+                          <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, background: pct === 100 ? '#4ade80' : 'rgba(124,111,250,0.9)' }} />
+                          </div>
                         </div>
                       </div>
                     </motion.div>
                   );
                 })}
-                <div className="w-12 flex-shrink-0" />
               </div>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white/[0.01] border border-white/[0.03] p-10 rounded-3xl flex items-center justify-center text-center text-text-muted/30">
-            <p className="text-xs font-black uppercase tracking-widest">No Past Blueprints</p>
-          </div>
-        )}
-      </section>
+            ) : (
+              <div className="p-10 rounded-2xl bg-white/[0.015] border border-white/[0.04] text-center border-dashed">
+                <p className="text-xs font-mono text-text-muted/50">No past blueprints recorded.</p>
+              </div>
+            )}
+          </section>
+
+        </main>
+      </div>
     </div>
   );
 }
