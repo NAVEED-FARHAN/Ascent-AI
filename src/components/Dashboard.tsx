@@ -168,19 +168,23 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
             ========================================= */}
         <aside className="space-y-8">
           {user ? (
-            <div className="space-y-4">
-              <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl group">
+            <div className="space-y-5">
+              <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl group">
                 <div className="absolute inset-0 bg-accent-glow/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 mix-blend-overlay" />
                 <img 
-                  src={user.photoURL?.replace(/=s\d+(?:-c)?/i, "=s400-c") || ''} 
+                  src={(() => {
+                    const url = user.photoURL || '';
+                    if (url.includes('=s')) return url.replace(/=s\d+(-c)?/i, '=s400-c');
+                    if (url.includes('googleusercontent.com')) return url + '=s400-c';
+                    return url;
+                  })()} 
                   alt="" 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    if (target.src !== user.photoURL) {
+                    if (target.src !== (user.photoURL || '')) {
                       target.src = user.photoURL || '';
-                    } else {
-                      target.style.display = 'none';
                     }
                   }}
                 />
@@ -191,7 +195,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
               </div>
             </div>
           ) : (
-            <div className="w-full aspect-square rounded-[2rem] bg-white/[0.02] border border-white/5 flex items-center justify-center">
+            <div className="w-40 h-40 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center">
               <p className="text-xs font-black uppercase tracking-widest text-text-muted/40">No Identity</p>
             </div>
           )}
