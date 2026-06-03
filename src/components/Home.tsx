@@ -88,11 +88,7 @@ function getTopicIcon(goal: string): string | null {
 }
 
 function getCompletion(record: RoadmapRecord): number {
-  const allSubs = (record.nodes || []).flatMap(n => n.subTopics || []);
-  const total = allSubs.length;
-  if (total === 0) return 0;
-  const done = allSubs.filter(st => st.isCompleted).length;
-  return Math.round((done / total) * 100);
+  return record.completion || 0;
 }
 
 function CompletionRing({ pct }: { pct: number }) {
