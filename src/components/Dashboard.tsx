@@ -157,7 +157,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
   const userLevel = Math.floor((progress?.completedSubTopicIds.length || 0) / 10) + 1;
 
   return (
-    <div className="max-w-[1400px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative">
+    <div className="max-w-[1100px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
       {/* GitHub-Style Grid Layout */}
@@ -286,28 +286,26 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
               <span className="text-[10px] font-mono text-text-muted uppercase tracking-[0.2em]">{activeDaysCount} Active Cycles</span>
             </div>
             
-            <div className="p-6 rounded-2xl bg-white/[0.015] border border-white/[0.04] overflow-x-auto scrollbar-hide">
-              <div className="min-w-[700px]">
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(14px,1fr))] gap-[3px] w-full">
-                  {heatmapDays.map((day, idx) => (
-                    <div 
-                      key={idx}
-                      className={`w-[14px] h-[14px] rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
-                        day.count === 0 ? 'bg-white/[0.03] hover:bg-white/10' : 
-                        day.count < 3 ? 'bg-accent-glow/40 hover:bg-accent-glow/60' : 
-                        'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]'
-                      }`}
-                      title={`${day.date}: ${day.count} activities`}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center justify-end gap-2 mt-3 text-[10px] font-mono text-text-muted">
-                  <span>Less</span>
-                  <div className="w-[12px] h-[12px] rounded-[2px] bg-white/[0.03]" />
-                  <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow/40" />
-                  <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                  <span>More</span>
-                </div>
+            <div className="p-4 md:p-6 rounded-2xl bg-white/[0.015] border border-white/[0.04]">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(12px,1fr))] gap-[3px] w-full">
+                {heatmapDays.map((day, idx) => (
+                  <div 
+                    key={idx}
+                    className={`aspect-square rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
+                      day.count === 0 ? 'bg-white/[0.03] hover:bg-white/10' : 
+                      day.count < 3 ? 'bg-accent-glow/40 hover:bg-accent-glow/60' : 
+                      'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]'
+                    }`}
+                    title={`${day.date}: ${day.count} activities`}
+                  />
+                ))}
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-3 text-[10px] font-mono text-text-muted">
+                <span>Less</span>
+                <div className="w-[12px] h-[12px] rounded-[2px] bg-white/[0.03]" />
+                <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow/40" />
+                <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                <span>More</span>
               </div>
             </div>
           </section>
