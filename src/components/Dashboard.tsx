@@ -140,11 +140,11 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
     });
   }
 
-  // Heatmap Data (90 days)
+  // Heatmap Data (182 days / 26 weeks for a nice grid)
   const today = new Date();
-  const heatmapDays = Array.from({ length: 90 }, (_, i) => {
+  const heatmapDays = Array.from({ length: 182 }, (_, i) => {
     const d = new Date();
-    d.setDate(today.getDate() - (89 - i));
+    d.setDate(today.getDate() - (181 - i));
     const dateStr = d.toISOString().split('T')[0];
     return {
       date: dateStr,
@@ -157,7 +157,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
   const userLevel = Math.floor((progress?.completedSubTopicIds.length || 0) / 10) + 1;
 
   return (
-    <div className="max-w-[1100px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative">
+    <div className="max-w-7xl w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
       {/* GitHub-Style Grid Layout */}
@@ -286,12 +286,12 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
               <span className="text-[10px] font-mono text-text-muted uppercase tracking-[0.2em]">{activeDaysCount} Active Cycles</span>
             </div>
             
-            <div className="p-4 md:p-6 rounded-2xl bg-white/[0.015] border border-white/[0.04]">
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(12px,1fr))] gap-[3px] w-full">
+            <div className="p-4 md:p-6 rounded-2xl bg-white/[0.015] border border-white/[0.04] overflow-x-auto">
+              <div className="grid grid-flow-col grid-rows-7 gap-1 w-max mx-auto md:mx-0 pb-2">
                 {heatmapDays.map((day, idx) => (
                   <div 
                     key={idx}
-                    className={`aspect-square rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
+                    className={`w-3 h-3 md:w-3.5 md:h-3.5 rounded-[2px] md:rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
                       day.count === 0 ? 'bg-white/[0.03] hover:bg-white/10' : 
                       day.count < 3 ? 'bg-accent-glow/40 hover:bg-accent-glow/60' : 
                       'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]'
