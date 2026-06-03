@@ -157,7 +157,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
   const userLevel = Math.floor((progress?.completedSubTopicIds.length || 0) / 10) + 1;
 
   return (
-    <div className="max-w-[1100px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative overflow-hidden">
+    <div className="max-w-[1100px] w-full mx-auto px-6 md:px-12 pt-16 pb-40 space-y-0 relative">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.012] blur-[150px] -z-10" />
 
       {/* GitHub-Style Grid Layout */}
@@ -166,7 +166,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
         {/* =========================================
             LEFT SIDEBAR: PILOT IDENTITY
             ========================================= */}
-        <aside className="space-y-8">
+        <aside className="space-y-8 min-w-0">
           {user ? (
             <div className="space-y-5">
               <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl group">
@@ -246,7 +246,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
         {/* =========================================
             RIGHT MAIN CONTENT: HEATMAP & HISTORY
             ========================================= */}
-        <main className="space-y-12">
+        <main className="space-y-12 min-w-0">
           
           {/* Active Blueprint (Sticky at the top like a pinned repo) */}
           <section>
