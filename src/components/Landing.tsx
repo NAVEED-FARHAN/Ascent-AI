@@ -40,39 +40,16 @@ const TypewriterText = ({ text, delay = 0, speed = 0.05, className = "" }: { tex
   );
 };
 
-const TerminalBootSequence = () => {
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    const sequence = [
-      { delay: 500, step: 1 },
-      { delay: 1500, step: 2 },
-      { delay: 2500, step: 3 },
-      { delay: 3500, step: 4 },
-    ];
-    sequence.forEach(({ delay, step }) => {
-      setTimeout(() => setStep(step), delay);
-    });
-  }, []);
-
+const MascotClimber = () => {
   return (
-    <div className="absolute top-1/4 -right-16 lg:right-0 xl:right-10 w-72 h-64 border border-accent-glow/20 bg-[#04040d]/80 backdrop-blur-md rounded-lg p-4 font-mono text-[10px] text-accent-glow shadow-[0_0_30px_rgba(124,111,250,0.15)] transform rotate-2 hidden md:block">
-      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-accent-glow/20">
-        <Terminal className="w-4 h-4" />
-        <span className="uppercase tracking-widest font-black">Sys_Boot</span>
-      </div>
-      <div className="space-y-2 opacity-80">
-        <p className="text-white/50">{'>'} initializing cognitive matrix...</p>
-        {step >= 1 && <p className="text-emerald-400">[OK] Core systems online</p>}
-        {step >= 2 && <p className="text-white/50">{'>'} loading neural pathways v2.5...</p>}
-        {step >= 3 && <p className="text-emerald-400">[OK] Pathways mapped</p>}
-        {step >= 4 && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="text-accent-glow mt-4 font-black">
-            {'>'} AWAITING USER INTENT_
-          </motion.p>
-        )}
-      </div>
-    </div>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="absolute top-0 md:top-[-40px] -right-10 lg:right-0 xl:right-10 w-64 md:w-80 h-auto hidden md:block z-30 drop-shadow-[0_0_30px_rgba(124,111,250,0.3)] pointer-events-none"
+    >
+      <img src="/mascot.png" alt="Ascent AI Mascot" className="w-full h-full object-contain mix-blend-screen" />
+    </motion.div>
   );
 };
 
@@ -110,7 +87,7 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
       {/* Hero */}
       <main className="relative z-10 pt-40 pb-32 max-w-7xl mx-auto px-8">
         <div className="relative">
-          <TerminalBootSequence />
+          <MascotClimber />
           
           <div className="max-w-4xl relative z-20">
             <motion.div
