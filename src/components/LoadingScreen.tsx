@@ -33,7 +33,7 @@ export default function LoadingScreen() {
 
       <div className="relative z-10 flex flex-col items-center text-center px-10">
         <div className="space-y-4">
-          <h1 className="text-5xl md:text-6xl font-serif italic text-text-primary tracking-tighter leading-none">
+          <h1 className="text-5xl md:text-6xl font-langdon-display text-text-primary">
             Materializing <span className="text-accent-glow">Architecture</span>
             <motion.span
               animate={{ opacity: [0, 1, 0] }}
@@ -48,7 +48,7 @@ export default function LoadingScreen() {
               transition={{ duration: 1.5, repeat: Infinity, times: [0, 0.5, 1], delay: 0.4 }}
             >.</motion.span>
           </h1>
-          <p className="max-w-md mx-auto text-lg text-text-muted font-serif italic leading-relaxed opacity-45 text-center">
+          <p className="max-w-md mx-auto text-lg text-text-muted font-sans font-light leading-relaxed opacity-45 text-center">
             Consulting the neural nodes to architect <br className="hidden sm:inline" /> your optimal learning trajectory.
           </p>
         </div>

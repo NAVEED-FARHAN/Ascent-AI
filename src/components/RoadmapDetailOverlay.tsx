@@ -116,7 +116,7 @@ export default function RoadmapDetailOverlay({
             
             <div className="space-y-4">
                <span className="text-[10px] font-black text-accent-glow uppercase tracking-[0.5em] opacity-60">Milestone Directive</span>
-               <h2 className="text-6xl md:text-7xl font-serif italic text-text-primary tracking-tighter leading-[0.9]">
+               <h2 className="text-5xl md:text-7xl font-langdon-display text-text-primary">
                  {node.title}
                </h2>
             </div>
@@ -137,7 +137,7 @@ export default function RoadmapDetailOverlay({
                 >
                   <div className="flex justify-between items-start mb-8">
                     <div className="space-y-3">
-                      <h4 className="text-3xl font-serif italic text-text-primary leading-tight">{sub.title}</h4>
+                      <h4 className="text-3xl font-langdon text-text-primary leading-tight">{sub.title}</h4>
                       <div className="flex items-center gap-4 text-[10px] font-black text-text-muted uppercase tracking-widest">
                         <span className="flex items-center gap-2 bg-bg-secondary px-3 py-1 rounded-lg border border-border-pill">
                           <Clock className="w-3 h-3 text-accent-glow" /> {sub.estimatedHours}h Duration

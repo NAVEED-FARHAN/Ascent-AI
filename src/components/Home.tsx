@@ -294,7 +294,7 @@ export default function Home({
           >
             {/* Hero Section */}
             <div className="space-y-8">
-              <h1 className="text-6xl md:text-8xl font-serif italic tracking-tighter text-[#f8fafc] leading-[0.9] mb-8">
+              <h1 className="text-5xl md:text-7xl lg:text-[88px] font-langdon-display text-[#f8fafc] mb-8">
                 Master anything with <br />
                 <span className="text-accent-glow relative inline-block">
                   Architected Learning
@@ -349,7 +349,7 @@ export default function Home({
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="What path shall we architect today?" 
-                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-white/60 font-serif italic tracking-wide"
+                    className="flex-1 bg-transparent border-none px-4 py-5 text-xl text-text-primary outline-none placeholder:text-white/60 font-langdon tracking-wide"
                   />
 
                   <motion.button
@@ -428,7 +428,7 @@ export default function Home({
                     >
                       <div className="w-2 h-2 rounded-full bg-accent-glow animate-pulse shadow-[0_0_8px_rgba(124,111,250,0.8)]" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-accent-glow/70">Continue Active Journey</span>
-                      <span className="text-[11px] font-serif italic text-text-primary group-hover:text-accent-glow transition-colors">{roadmap.goal}</span>
+                      <span className="text-[11px] font-sans font-medium text-text-primary group-hover:text-accent-glow transition-colors">{roadmap.goal}</span>
                       <ArrowRight className="w-3 h-3 text-accent-glow group-hover:translate-x-1 transition-transform" />
                     </button>
                   </motion.div>
@@ -615,7 +615,7 @@ export default function Home({
             className="w-full flex flex-col items-center space-y-8 py-10 max-w-2xl mx-auto"
           >
             <div className="space-y-3">
-              <h2 className="text-3xl md:text-4xl font-serif italic tracking-tighter text-[#f8fafc]">
+              <h2 className="text-3xl md:text-4xl font-langdon-display text-[#f8fafc]">
                 Refining Your Learning Path
               </h2>
               <p className="text-sm text-text-muted/80 max-w-md mx-auto">
@@ -624,7 +624,7 @@ export default function Home({
               
               <div className="max-w-md mx-auto mt-4 px-4 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md">
                 <span className="text-[8px] font-black uppercase tracking-[0.3em] text-text-muted/40 block mb-1">TARGET GOAL</span>
-                <p className="text-sm font-serif italic text-accent-glow/95">
+                <p className="text-sm font-sans font-medium text-accent-glow/95">
                   "{goal}"
                 </p>
               </div>
@@ -633,7 +633,7 @@ export default function Home({
             <div className="w-full space-y-6 text-left">
               {evaluation?.questions?.map((q, idx) => (
                 <div key={q.id} className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md space-y-4 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
-                  <h3 className="text-sm font-serif italic text-text-primary">
+                  <h3 className="text-sm font-sans font-semibold text-text-primary">
                     <span className="text-accent-glow mr-2 font-mono font-bold">{idx + 1}.</span> {q.question}
                   </h3>
                   
@@ -718,13 +718,13 @@ export default function Home({
             className="w-full flex flex-col items-center space-y-12 py-10 animate-fade-in"
           >
             <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl font-serif italic tracking-tighter text-[#f8fafc]">
+              <h2 className="text-4xl md:text-5xl font-langdon-display text-[#f8fafc]">
                 Configure Your Ascent
               </h2>
               
               <div className="max-w-2xl mx-auto mt-4 px-6 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.05] backdrop-blur-md shadow-2xl">
                 <span className="text-[8px] font-black uppercase tracking-[0.3em] text-text-muted/40 block mb-1">TARGET BLUEPRINT</span>
-                <p className="text-lg font-serif italic text-text-primary text-accent-glow/95">
+                <p className="text-lg font-langdon text-text-primary text-accent-glow/95">
                   "{goal}"
                 </p>
               </div>
@@ -779,7 +779,7 @@ export default function Home({
                       </div>
 
                       <div className="space-y-1">
-                        <h3 className="text-lg font-serif italic text-text-primary group-hover:text-accent-glow transition-colors duration-300">
+                        <h3 className="text-lg font-langdon text-text-primary group-hover:text-accent-glow transition-colors duration-300">
                           {lvl.label}
                         </h3>
                         <p className="text-[9px] font-black uppercase tracking-widest text-text-muted/60">

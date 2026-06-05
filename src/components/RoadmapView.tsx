@@ -76,15 +76,15 @@ function RoadmapPreviewModal({
             <div className="flex items-center gap-4">
               <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
                 <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Phases</p>
-                <p className="text-lg font-serif italic text-text-primary">{roadmap.nodes.length}</p>
+                <p className="text-lg font-langdon text-text-primary">{roadmap.nodes.length}</p>
               </div>
               <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
                 <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Modules</p>
-                <p className="text-lg font-serif italic text-text-primary">{completedSubTopics}/{totalSubTopics}</p>
+                <p className="text-lg font-langdon text-text-primary">{completedSubTopics}/{totalSubTopics}</p>
               </div>
               <div className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center min-w-[80px]">
                 <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 mb-0.5">Est. Hours</p>
-                <p className="text-lg font-serif italic text-text-primary">{totalHours}h</p>
+                <p className="text-lg font-langdon text-text-primary">{totalHours}h</p>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ function RoadmapPreviewModal({
                           Phase {idx + 1} · {nodeCompleted ? 'Completed' : `${completedInNode}/${node.subTopics.length} done`}
                         </span>
                       </div>
-                      <h3 className="text-3xl font-serif italic text-text-primary truncate">{node.title}</h3>
+                      <h3 className="text-3xl font-langdon text-text-primary truncate">{node.title}</h3>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 text-text-muted/60">
                       <div className="flex items-center gap-1.5">
@@ -328,7 +328,7 @@ export default function RoadmapView({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-6xl md:text-8xl font-serif italic text-text-primary tracking-tighter mb-10 leading-[0.85]"
+              className="text-5xl md:text-7xl font-langdon-display text-text-primary mb-10"
             >
               The {roadmap.goal.split(' ').slice(0, 2).join(' ')} <br />
               <span className="text-accent-glow relative">
@@ -352,7 +352,7 @@ export default function RoadmapView({
                 />
               </div>
               <div className="flex items-baseline gap-2 flex-shrink-0">
-                <span className="text-4xl font-serif italic text-text-primary">{calculateProgress()}</span>
+                <span className="text-4xl font-langdon text-text-primary">{calculateProgress()}</span>
                 <span className="text-sm font-black text-text-muted uppercase tracking-widest">% Mastery</span>
               </div>
             </div>
@@ -460,7 +460,7 @@ export default function RoadmapView({
                           <Zap className="w-3 h-3 fill-current" />
                           {completed ? 'Protocol Decoded' : 'Active Stream'}
                         </div>
-                        <h3 className="text-4xl md:text-5xl font-serif italic mb-6 transition-all duration-500 text-text-primary group-hover:text-accent-glow">
+                        <h3 className="text-4xl md:text-5xl font-langdon mb-6 transition-all duration-500 text-text-primary group-hover:text-accent-glow">
                           {node.title}
                         </h3>
                         <ul className={`space-y-3 max-w-sm ${isEven ? 'lg:ml-auto text-right' : 'text-left'}`}>
@@ -496,7 +496,7 @@ export default function RoadmapView({
                           <Lock className="w-3 h-3" />
                           Encrypted Phase
                         </div>
-                        <h3 className="text-4xl md:text-5xl font-serif italic mb-4 text-text-muted/20">
+                        <h3 className="text-4xl md:text-5xl font-langdon mb-4 text-text-muted/20">
                           {node.title}
                         </h3>
 
@@ -561,7 +561,7 @@ export default function RoadmapView({
           <div className="glass-panel rounded-2xl p-10 flex flex-col justify-between min-h-[300px] group overflow-hidden relative">
             <div>
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted mb-6">Challenge Center</h4>
-              <h3 className="text-3xl font-serif italic text-text-primary mb-4">The Logic Paradox</h3>
+              <h3 className="text-3xl font-langdon text-text-primary mb-4">The Logic Paradox</h3>
               <p className="text-text-secondary font-medium max-w-sm">Solve specialized challenges to earn exclusive Architect Badges and validate your progress.</p>
             </div>
             <button
@@ -576,7 +576,7 @@ export default function RoadmapView({
           <div className="bg-bg-secondary/40 border border-border-primary rounded-2xl p-10 flex flex-col justify-between min-h-[300px] relative overflow-hidden group">
             <div>
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-glow mb-6">Tactical Validation</h4>
-              <h3 className="text-3xl font-serif italic text-text-primary mb-4">Validate Your Knowledge</h3>
+              <h3 className="text-3xl font-langdon text-text-primary mb-4">Validate Your Knowledge</h3>
               <p className="text-text-secondary font-medium max-w-sm">Every completed module unlocks a new set of practice protocols. Don't just learn—master.</p>
             </div>
             <div className="flex items-center gap-4">

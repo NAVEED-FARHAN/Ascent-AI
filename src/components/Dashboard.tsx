@@ -256,7 +256,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
             {roadmap && progress ? (
               <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-accent-glow/30 transition-colors flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div className="space-y-2 flex-1">
-                  <h3 className="text-xl font-serif italic text-white line-clamp-1">{roadmap.goal}</h3>
+                  <h3 className="text-xl font-langdon text-white line-clamp-1">{roadmap.goal}</h3>
                   <div className="flex items-center gap-4 text-xs font-mono text-text-muted/70">
                     <span className="flex items-center gap-1.5"><Cpu className="w-3.5 h-3.5" /> {completedSubTopics}/{totalSubTopics} Nodes</span>
                     <span className="flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> {hoursSpent}h Logged</span>

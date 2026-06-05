@@ -81,7 +81,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-7xl md:text-9xl font-serif italic text-text-primary tracking-tighter leading-[0.8] -ml-2"
+            className="text-6xl md:text-8xl font-langdon-display text-text-primary -ml-2"
           >
             Chronos <br />
             <span className="text-text-muted/20 font-light text-6xl md:text-8xl">Architecture</span>
@@ -92,7 +92,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
            <button onClick={handlePrevMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
               <ChevronLeft className="w-6 h-6" />
            </button>
-           <span className="text-xl font-serif italic text-text-primary px-8 min-w-[200px] text-center">
+           <span className="text-xl font-langdon text-text-primary px-8 min-w-[200px] text-center">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
            </span>
            <button onClick={handleNextMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
@@ -127,7 +127,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                 className={`min-h-[160px] p-6 border-b border-r border-border-primary relative group cursor-pointer transition-all ${isToday ? 'bg-accent-glow/5' : ''}`}
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className={`text-2xl font-serif italic ${isToday ? 'text-accent-glow scale-110' : 'text-text-muted/40'}`}>
+                  <span className={`text-2xl font-langdon ${isToday ? 'text-accent-glow scale-110' : 'text-text-muted/40'}`}>
                     {date.getDate()}
                   </span>
                   {dayTasks.length > 0 && (
@@ -173,7 +173,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                   <div className="flex justify-between items-start">
                      <div>
                         <h3 className="text-[11px] font-black text-accent-glow uppercase tracking-[0.4em] mb-4">Daily Manifest</h3>
-                        <h2 className="text-5xl font-serif italic text-text-primary tracking-tighter">
+                        <h2 className="text-5xl font-langdon-display text-text-primary">
                            {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
                         </h2>
                      </div>
@@ -188,7 +188,7 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
                            <div className="flex justify-between items-start">
                               <div className="space-y-2">
                                  <p className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest">{t.nodeTitle}</p>
-                                 <h4 className="text-3xl font-serif italic text-text-primary group-hover/item:text-accent-glow transition-colors">{t.subTopic.title}</h4>
+                                 <h4 className="text-3xl font-langdon text-text-primary group-hover/item:text-accent-glow transition-colors">{t.subTopic.title}</h4>
                               </div>
                               <div className="px-4 py-2 rounded-xl bg-accent-glow/10 border border-accent-glow/20 text-xs font-black text-accent-glow uppercase tracking-tighter">
                                  {t.subTopic.estimatedHours}h Dev

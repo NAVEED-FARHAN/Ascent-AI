@@ -102,9 +102,9 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
               System V2.5 Online
             </motion.div>
 
-            <h1 className="text-6xl md:text-8xl lg:text-[110px] font-serif italic tracking-tighter leading-[0.9] mb-8">
-              <span className="block text-white mb-2">Architect your</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-accent-glow via-purple-400 to-indigo-400 drop-shadow-[0_0_30px_rgba(124,111,250,0.4)]">
+            <h1 className="text-5xl md:text-7xl lg:text-[96px] font-langdon-display mb-8">
+              <span className="block text-white mb-1 md:mb-2">Architect your</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#7c6ffa] via-[#a78bfa] to-[#818cf8] drop-shadow-[0_0_40px_rgba(124,111,250,0.35)] pb-1">
                 intellectual destiny.
               </span>
             </h1>
@@ -154,7 +154,7 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center justify-center p-4">
               <stat.i className="w-5 h-5 text-accent-glow mb-3 opacity-50" />
-              <span className="text-3xl font-serif italic text-white mb-1">{stat.v}</span>
+              <span className="text-3xl font-langdon text-white mb-1">{stat.v}</span>
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">{stat.l}</span>
             </div>
           ))}
@@ -164,7 +164,7 @@ export default function Landing({ onGetStarted, onGoogleSignIn }: LandingProps) 
         <div className="mt-40">
           <div className="flex items-center gap-6 mb-16">
             <div className="w-12 h-[1px] bg-accent-glow/40" />
-            <h2 className="text-2xl font-serif italic text-white">Core System Architecture</h2>
+            <h2 className="text-2xl font-langdon text-white">Core System Architecture</h2>
             <div className="flex-1 h-[1px] bg-white/10" />
           </div>
 

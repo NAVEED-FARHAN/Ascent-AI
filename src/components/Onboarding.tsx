@@ -89,7 +89,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       {/* Top Brand Marker */}
       <div className="fixed top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3">
         <Zap className="w-5 h-5 text-accent-glow fill-current" />
-        <span className="text-xl font-serif italic text-text-primary tracking-tighter">Ascent AI</span>
+        <span className="text-xl font-langdon text-text-primary tracking-tighter">Ascent AI</span>
       </div>
 
       <div className="max-w-4xl w-full relative z-10">
@@ -123,10 +123,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                <h2 className="text-[10px] font-black uppercase tracking-[0.8em] text-accent-glow/60 mb-5">
                  {showManual ? "Manual Override" : currentStep.subtitle}
                </h2>
-               <h1 className="text-6xl md:text-9xl font-serif italic text-text-primary tracking-tighter leading-[0.85] mb-10">
+               <h1 className="text-5xl md:text-8xl font-langdon-display text-text-primary mb-10">
                 {isSubmitting ? "Success" : isDetecting ? "Detecting" : showManual ? "Paste Key" : currentStep.title}
                </h1>
-               <p className="max-w-xl mx-auto text-xl md:text-3xl text-text-muted font-serif italic leading-relaxed opacity-80">
+               <p className="max-w-xl mx-auto text-lg md:text-xl text-text-muted font-sans font-light leading-relaxed opacity-80">
                 {isSubmitting 
                   ? "Intelligence Sync Complete. Launching..." 
                   : showManual 

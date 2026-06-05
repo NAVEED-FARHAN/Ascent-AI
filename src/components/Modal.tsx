@@ -58,7 +58,7 @@ export default function Modal({
               </div>
               
               <div className="space-y-4 mb-10">
-                <h2 className="text-4xl font-serif italic text-text-primary tracking-tight leading-tight">{title}</h2>
+                <h2 className="text-4xl font-langdon text-text-primary tracking-tight leading-tight">{title}</h2>
                 <p className="text-text-secondary leading-relaxed font-medium">
                   {message}
                 </p>

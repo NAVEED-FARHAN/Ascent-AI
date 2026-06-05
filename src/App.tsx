@@ -449,7 +449,7 @@ export default function App() {
                 ) : view === 'practice' ? (
                   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-10">
                     <FlaskConical className="w-16 h-16 text-accent-glow/20" />
-                    <h3 className="text-2xl font-serif italic text-text-secondary/60">No Active Mission Found</h3>
+                    <h3 className="text-2xl font-langdon text-text-secondary/60">No Active Mission Found</h3>
                     <p className="text-sm text-text-secondary/40 max-w-md uppercase tracking-widest leading-loose">The Laboratory requires an active Mastery Journey to generate practice protocols.</p>
                     <button onClick={() => navigateTo('home')} className="mt-4 px-8 py-3 bg-accent-glow text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-accent-glow/20 transition-all hover:scale-105">Initialize Mission</button>
                   </div>

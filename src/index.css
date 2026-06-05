@@ -1,9 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@100..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=JetBrains+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Langdon";
+  src:
+    local("Langdon"),
+    local("Langdon Regular"),
+    local("Langdon-Regular");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", serif;
+  --font-serif: "Langdon", "Langdon Regular", Georgia, serif;
+  --font-langdon: "Langdon", "Langdon Regular", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Theme-aware semantic colors */
@@ -65,12 +77,32 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Crimson Pro", serif !important;
+    font-family: "Langdon", "Langdon Regular", Georgia, serif !important;
+    font-style: normal !important;
+    letter-spacing: 0.04em;
     color: var(--text-primary) !important;
   }
 
+  .font-langdon,
   .font-serif {
-    font-family: "Playfair Display", serif !important;
+    font-family: "Langdon", "Langdon Regular", Georgia, serif !important;
+    font-style: normal !important;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .font-langdon-display {
+    font-family: "Langdon", "Langdon Regular", Georgia, serif !important;
+    font-style: normal !important;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 0.88;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .font-sans {
