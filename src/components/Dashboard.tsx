@@ -311,7 +311,15 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
           </section>
 
           {/* Ascent History (List View) */}
-          <section>
+          <section className="relative">
+            <motion.img 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              src="/mascot_reading.png" 
+              alt="Mascot Reading" 
+              className="absolute -top-20 right-4 w-24 h-24 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.3)] z-10 pointer-events-none"
+            />
             <h2 className="text-sm font-black uppercase tracking-widest text-text-primary mb-4 flex items-center gap-2">
               <Book className="w-4 h-4 text-accent-glow" /> Ascent History
             </h2>
@@ -372,8 +380,9 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
                 })}
               </div>
             ) : (
-              <div className="p-10 rounded-2xl bg-white/[0.015] border border-white/[0.04] text-center border-dashed">
-                <p className="text-xs font-mono text-text-muted/50">No past blueprints recorded.</p>
+              <div className="p-10 rounded-2xl bg-white/[0.015] border border-white/[0.04] text-center border-dashed flex flex-col items-center justify-center gap-4">
+                <img src="/mascot_resting.png" alt="Resting Mascot" className="w-32 h-32 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.2)]" />
+                <p className="text-xs font-mono text-text-muted/50">No past blueprints recorded. Time to start building!</p>
               </div>
             )}
           </section>

@@ -715,10 +715,18 @@ export default function Home({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.4 }}
-            className="w-full flex flex-col items-center space-y-12 py-10 animate-fade-in"
+            className="w-full flex flex-col items-center space-y-12 py-10 animate-fade-in relative"
           >
+            <motion.img 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              src="/mascot_exploring.png" 
+              alt="Mascot Exploring" 
+              className="absolute top-0 right-10 w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)] z-10 pointer-events-none hidden md:block"
+            />
             <div className="space-y-4">
-              <h2 className="text-4xl md:text-5xl font-langdon-display text-[#f8fafc]">
+              <h2 className="text-4xl md:text-5xl font-langdon-display text-[#f8fafc] relative z-20">
                 Configure Your Ascent
               </h2>
               
