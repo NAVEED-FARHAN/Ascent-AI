@@ -312,6 +312,11 @@ export default function Home({
               </p>
             </div>
 
+            {/* Mascot next to search */}
+            <div className="flex justify-center mb-4">
+              <img src="/mascot_exploring.png" alt="Mascot" className="w-28 h-28 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)]" />
+            </div>
+
             {/* Search & Launch Section */}
             <div className="w-full flex flex-col items-center gap-8">
               <motion.div 

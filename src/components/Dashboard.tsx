@@ -312,16 +312,9 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
 
           {/* Ascent History (List View) */}
           <section className="relative">
-            <motion.img 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              src="/mascot_reading.png" 
-              alt="Mascot Reading" 
-              className="absolute -top-20 right-4 w-24 h-24 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.3)] z-10 pointer-events-none"
-            />
             <h2 className="text-sm font-black uppercase tracking-widest text-text-primary mb-4 flex items-center gap-2">
               <Book className="w-4 h-4 text-accent-glow" /> Ascent History
+              <img src="/mascot_reading.png" alt="Mascot Reading" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(124,111,250,0.3)] ml-auto" />
             </h2>
 
             {archivedRoadmaps.length > 0 ? (
