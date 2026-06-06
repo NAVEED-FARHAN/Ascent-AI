@@ -19,6 +19,28 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const getCheerleaderMascot = (idx: number) => {
+  switch (idx) {
+    case 0:
+      return {
+        src: "/mascot_exploring.png",
+        bubble: "Ready to launch! You got this! 🚀"
+      };
+    case 1:
+      return {
+        src: "/mascot_reading.png",
+        bubble: "Deep learning in progress! Keep it up! 📚"
+      };
+    case 2:
+      return {
+        src: "/mascot.png",
+        bubble: "Mastery within reach! Push forward! 💪"
+      };
+    default:
+      return null;
+  }
+};
+
 // ─── Full Blueprint Preview Modal ──────────────────────────────────────────────
 function RoadmapPreviewModal({
   roadmap,
@@ -551,6 +573,30 @@ export default function RoadmapView({
                     )}
                   </div>
                   <div className="hidden lg:block lg:w-[calc(50%-100px)]" />
+                  
+                  {/* Cheerleader Mascot (Level 1, 2, 3) */}
+                  {(() => {
+                    const cheerleader = getCheerleaderMascot(index);
+                    if (!cheerleader) return null;
+                    return (
+                      <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[12%] right-4' : 'lg:left-[12%] right-4'} bottom-8 lg:top-12 lg:bottom-auto z-20 pointer-events-none`}>
+                        <motion.div 
+                          animate={{ y: [0, -8, 0] }}
+                          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                          className="flex flex-col items-center"
+                        >
+                          <div className="bg-[#0c0c1e]/95 border border-accent-glow/30 text-accent-glow text-[9px] lg:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-2xl mb-2 shadow-[0_0_15px_rgba(124,111,250,0.25)] backdrop-blur-md max-w-[140px] lg:max-w-none text-center">
+                            {cheerleader.bubble}
+                          </div>
+                          <img 
+                            src={cheerleader.src} 
+                            alt="Cheerleader Mascot" 
+                            className="w-16 h-16 lg:w-24 lg:h-24 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)]"
+                          />
+                        </motion.div>
+                      </div>
+                    );
+                  })()}
                 </motion.div>
               );
             })}
