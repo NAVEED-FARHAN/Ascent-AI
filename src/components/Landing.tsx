@@ -46,7 +46,7 @@ const MascotClimber = () => {
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="absolute top-20 md:top-10 -right-10 lg:-right-10 xl:-right-20 w-72 md:w-96 h-auto hidden md:block z-30 drop-shadow-[0_0_40px_rgba(124,111,250,0.5)] pointer-events-none"
+      className="absolute -top-16 -right-6 w-28 md:top-10 md:-right-10 lg:-right-10 xl:-right-20 md:w-96 h-auto z-30 drop-shadow-[0_0_40px_rgba(124,111,250,0.5)] pointer-events-none"
     >
       <img src="/mascot.png" alt="Ascent AI Mascot" className="w-full h-full object-contain" />
     </motion.div>

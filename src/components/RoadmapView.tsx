@@ -323,7 +323,7 @@ export default function RoadmapView({
       <div className="max-w-[1240px] w-full mx-auto space-y-24 pb-48 pt-10 relative px-6 md:px-10">
         {/* Header Summary */}
         <section className="flex flex-col lg:flex-row justify-between items-center gap-16 relative">
-          <img src="/mascot_reading.png" alt="Mascot Reading" className="absolute -top-2 right-0 w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.3)] pointer-events-none hidden lg:block" />
+          <img src="/mascot_reading.png" alt="Mascot Reading" className="absolute -top-12 right-2 w-20 h-20 md:-top-6 md:right-4 md:w-24 md:h-24 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.3)] pointer-events-none" />
           <div className="flex-1 text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}

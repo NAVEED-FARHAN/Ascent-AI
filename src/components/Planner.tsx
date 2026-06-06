@@ -69,8 +69,9 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.02] blur-[150px] -z-10" />
       
       {/* Header Slab */}
-      <section className="py-20 border-b border-border-primary flex flex-col lg:flex-row items-end justify-between gap-12">
-        <div className="space-y-6">
+      <section className="py-20 border-b border-border-primary flex flex-col lg:flex-row items-end justify-between gap-12 relative">
+        <div className="space-y-6 relative pr-24">
+          <img src="/mascot_reading.png" alt="Mascot Reading" className="absolute right-0 bottom-0 w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.35)] pointer-events-none" />
           <motion.h2 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}

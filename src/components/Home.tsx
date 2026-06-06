@@ -728,7 +728,7 @@ export default function Home({
               transition={{ delay: 0.3, duration: 0.8 }}
               src="/mascot_exploring.png" 
               alt="Mascot Exploring" 
-              className="absolute top-0 right-10 w-32 h-32 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)] z-10 pointer-events-none hidden md:block"
+              className="absolute -top-12 right-2 w-20 h-20 md:top-0 md:right-10 md:w-32 md:h-32 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)] z-10 pointer-events-none"
             />
             <div className="space-y-4">
               <h2 className="text-4xl md:text-5xl font-langdon-display text-[#f8fafc] relative z-20">

@@ -75,9 +75,10 @@ export default function PracticeHub({ roadmap, progress, onCompleteChallenge, on
       <div className="absolute top-0 left-0 w-full h-[600px] bg-accent-glow/[0.015] blur-[130px] -z-10" />
 
       {/* Slab 1: Premium Laboratory Header */}
-      <section className="py-10 border-b border-white/[0.06] relative overflow-hidden">
+      <section className="py-10 border-b border-white/[0.06] relative">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-2">
+          <div className="space-y-2 relative pr-16">
+            <img src="/mascot_exploring.png" alt="Mascot Exploring" className="absolute right-0 bottom-0 w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(124,111,250,0.3)] pointer-events-none" />
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-glow animate-ping" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-glow/85">
