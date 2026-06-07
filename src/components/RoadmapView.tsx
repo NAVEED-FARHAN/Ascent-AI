@@ -23,17 +23,17 @@ const getCheerleaderMascot = (idx: number) => {
   switch (idx) {
     case 0:
       return {
-        src: "/mascot_exploring.png",
+        src: "/mascot_cheerleader_1.png",
         bubble: "Ready to launch! You got this! 🚀"
       };
     case 1:
       return {
-        src: "/mascot_reading.png",
+        src: "/mascot_cheerleader_2.png",
         bubble: "Deep learning in progress! Keep it up! 📚"
       };
     case 2:
       return {
-        src: "/mascot.png",
+        src: "/mascot_cheerleader_3.png",
         bubble: "Mastery within reach! Push forward! 💪"
       };
     default:
