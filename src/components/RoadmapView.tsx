@@ -579,19 +579,30 @@ export default function RoadmapView({
                     const cheerleader = getCheerleaderMascot(index);
                     if (!cheerleader) return null;
                     return (
-                      <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[12%] right-4' : 'lg:left-[12%] right-4'} bottom-8 lg:top-12 lg:bottom-auto z-20 pointer-events-none`}>
+                      <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[15%] right-6' : 'lg:left-[15%] right-6'} bottom-12 lg:top-16 lg:bottom-auto z-20 pointer-events-none`}>
                         <motion.div 
-                          animate={{ y: [0, -8, 0] }}
-                          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                          animate={{ 
+                            y: [0, -15, 0],
+                            rotate: [-4, 4, -4],
+                            scale: [1, 1.03, 1]
+                          }}
+                          transition={{ 
+                            repeat: Infinity, 
+                            duration: 4, 
+                            ease: "easeInOut" 
+                          }}
                           className="flex flex-col items-center"
                         >
-                          <div className="bg-[#0c0c1e]/95 border border-accent-glow/30 text-accent-glow text-[9px] lg:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-2xl mb-2 shadow-[0_0_15px_rgba(124,111,250,0.25)] backdrop-blur-md max-w-[140px] lg:max-w-none text-center">
+                          {/* Speech Bubble */}
+                          <div className="relative bg-[#0c0c1e]/95 border border-accent-glow/30 text-accent-glow text-[10px] lg:text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-2xl mb-4 shadow-[0_0_20px_rgba(124,111,250,0.4)] backdrop-blur-md max-w-[160px] lg:max-w-none text-center">
                             {cheerleader.bubble}
+                            {/* Speech Bubble Arrow */}
+                            <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#0c0c1e] border-r border-b border-accent-glow/30 rotate-45" />
                           </div>
                           <img 
                             src={cheerleader.src} 
                             alt="Cheerleader Mascot" 
-                            className="w-16 h-16 lg:w-24 lg:h-24 object-contain drop-shadow-[0_0_20px_rgba(124,111,250,0.4)]"
+                            className="w-24 h-24 lg:w-36 lg:h-36 object-contain drop-shadow-[0_0_25px_rgba(124,111,250,0.5)]"
                           />
                         </motion.div>
                       </div>
