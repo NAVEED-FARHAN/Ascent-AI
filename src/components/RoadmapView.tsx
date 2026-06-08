@@ -582,22 +582,22 @@ export default function RoadmapView({
                       <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[15%] right-6' : 'lg:left-[15%] right-6'} bottom-12 lg:top-16 lg:bottom-auto z-20 pointer-events-none`}>
                         <motion.div 
                           animate={{ 
-                            y: [0, -15, 0],
-                            rotate: [-4, 4, -4],
-                            scale: [1, 1.03, 1]
+                            y: [0, -6, 2, -4, 0],
+                            x: [0, 4, -2, 3, 0]
                           }}
                           transition={{ 
                             repeat: Infinity, 
-                            duration: 4, 
+                            duration: 7, 
                             ease: "easeInOut" 
                           }}
                           className="flex flex-col items-center"
                         >
-                          {/* Speech Bubble */}
-                          <div className="relative bg-[#0c0c1e]/95 border border-accent-glow/30 text-accent-glow text-[10px] lg:text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-2xl mb-4 shadow-[0_0_20px_rgba(124,111,250,0.4)] backdrop-blur-md max-w-[160px] lg:max-w-none text-center">
+                          {/* Thought Cloud */}
+                          <div className="relative bg-[#0c0c1e]/95 border border-accent-glow/30 text-accent-glow text-[10px] lg:text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-3xl mb-6 shadow-[0_0_20px_rgba(124,111,250,0.4)] backdrop-blur-md max-w-[160px] lg:max-w-none text-center">
                             {cheerleader.bubble}
-                            {/* Speech Bubble Arrow */}
-                            <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-[#0c0c1e] border-r border-b border-accent-glow/30 rotate-45" />
+                            {/* Thought Tail Bubbles */}
+                            <div className="absolute bottom-[-8px] left-[52%] -translate-x-1/2 w-3.5 h-3.5 bg-[#0c0c1e] border border-accent-glow/30 rounded-full" />
+                            <div className="absolute bottom-[-16px] left-[46%] -translate-x-1/2 w-2 h-2 bg-[#0c0c1e] border border-accent-glow/30 rounded-full" />
                           </div>
                           <img 
                             src={cheerleader.src} 
