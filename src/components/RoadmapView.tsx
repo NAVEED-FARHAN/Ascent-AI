@@ -579,7 +579,7 @@ export default function RoadmapView({
                     const cheerleader = getCheerleaderMascot(index);
                     if (!cheerleader) return null;
                     return (
-                      <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[15%] right-6' : 'lg:left-[15%] right-6'} bottom-12 lg:top-16 lg:bottom-auto z-20 pointer-events-none`}>
+                      <div className={`flex flex-col items-center absolute ${isEven ? 'lg:right-[15%] lg:left-auto right-6' : 'lg:left-[15%] lg:right-auto right-6'} bottom-12 lg:top-16 lg:bottom-auto z-20 pointer-events-none`}>
                         <motion.div 
                           animate={{ 
                             y: [0, -6, 2, -4, 0],
@@ -588,7 +588,8 @@ export default function RoadmapView({
                           transition={{ 
                             repeat: Infinity, 
                             duration: 7, 
-                            ease: "easeInOut" 
+                            ease: "easeInOut",
+                            delay: index * 2.2
                           }}
                           className="flex flex-col items-center"
                         >
