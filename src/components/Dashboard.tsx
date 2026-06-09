@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Roadmap, UserProgress, RoadmapRecord } from '../types';
 import { User as FirebaseUser } from 'firebase/auth';
 import { ShieldCheck, Sparkles, Terminal, Activity, History, Target, Cpu, Book, Zap } from 'lucide-react';
@@ -140,18 +140,34 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
     });
   }
 
-  // Heatmap Data (182 days / 26 weeks for a nice grid)
-  const today = new Date();
-  const heatmapDays = Array.from({ length: 182 }, (_, i) => {
-    const d = new Date();
-    d.setDate(today.getDate() - (181 - i));
-    const dateStr = d.toISOString().split('T')[0];
-    return {
-      date: dateStr,
-      count: progress?.dailyActivity?.[dateStr] || 0
-    };
-  });
-  
+  // Heatmap Data (371 days / 53 weeks aligned to Sunday-Saturday weeks)
+  const heatmapDays = useMemo(() => {
+    const days = [];
+    const today = new Date();
+    
+    // Find the Sunday of the week 52 weeks ago
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 364);
+    const dayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+    
+    // Align end date to Saturday of the current week to keep the grid perfectly square
+    const endDate = new Date(today);
+    const endDayOfWeek = endDate.getDay();
+    endDate.setDate(endDate.getDate() + (6 - endDayOfWeek));
+    
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const dateStr = current.toISOString().split('T')[0];
+      days.push({
+        date: dateStr,
+        count: progress?.dailyActivity?.[dateStr] || 0
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  }, [progress?.dailyActivity]);
+
   const activeDaysCount = heatmapDays.filter(d => d.count > 0).length;
   // Calculate Level (just a simple mapping from completed topics)
   const userLevel = Math.floor((progress?.completedSubTopicIds.length || 0) / 10) + 1;
@@ -292,7 +308,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
                   <div 
                     key={idx}
                     className={`w-3 h-3 md:w-3.5 md:h-3.5 rounded-[2px] md:rounded-[3px] transition-all duration-300 hover:scale-125 hover:z-10 cursor-pointer ${
-                      day.count === 0 ? 'bg-white/[0.03] hover:bg-white/10' : 
+                      day.count === 0 ? 'bg-white/[0.06] hover:bg-white/15' : 
                       day.count < 3 ? 'bg-accent-glow/40 hover:bg-accent-glow/60' : 
                       'bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]'
                     }`}
@@ -302,7 +318,7 @@ export default function Dashboard({ user, roadmap, progress }: DashboardProps) {
               </div>
               <div className="flex items-center justify-end gap-2 mt-3 text-[10px] font-mono text-text-muted">
                 <span>Less</span>
-                <div className="w-[12px] h-[12px] rounded-[2px] bg-white/[0.03]" />
+                <div className="w-[12px] h-[12px] rounded-[2px] bg-white/[0.06]" />
                 <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow/40" />
                 <div className="w-[12px] h-[12px] rounded-[2px] bg-accent-glow shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
                 <span>More</span>
