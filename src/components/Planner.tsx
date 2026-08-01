@@ -26,27 +26,52 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
     return pending;
   }, [roadmap, progress]);
 
-  // Distribute tasks across days (mock schedule for specific dates)
+  // Extract target duration from the roadmap goal (e.g., "learn Python in 30 days" -> 30)
+  const targetDays = useMemo(() => {
+    const goalText = roadmap.goal.toLowerCase();
+    
+    // Check for days
+    const dayMatch = goalText.match(/(\d+)\s*day/);
+    if (dayMatch) return parseInt(dayMatch[1], 10);
+    
+    // Check for weeks
+    const weekMatch = goalText.match(/(\d+)\s*week/);
+    if (weekMatch) return parseInt(weekMatch[1], 10) * 7;
+    
+    // Check for months
+    const monthMatch = goalText.match(/(\d+)\s*month/);
+    if (monthMatch) return parseInt(monthMatch[1], 10) * 30;
+    
+    return 30; // default to 30 days
+  }, [roadmap.goal]);
+
+  // Distribute tasks across target days evenly (mock schedule for specific dates)
   const scheduledTasks = useMemo(() => {
     const schedule: Record<string, typeof pendingSubTopics> = {};
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     
-    let currentTaskIdx = 0;
-    for (let i = 0; i < 30; i++) {
-       const date = new Date(startDate);
-       date.setDate(startDate.getDate() + i);
-       const dateKey = date.toISOString().split('T')[0];
-       
-       // Assign 1-2 tasks per day roughly
-       const dayTasks = pendingSubTopics.slice(currentTaskIdx, currentTaskIdx + 2);
-       if (dayTasks.length > 0) {
-         schedule[dateKey] = dayTasks;
-         currentTaskIdx += dayTasks.length;
-       }
+    const totalTasks = pendingSubTopics.length;
+    if (totalTasks === 0) return schedule;
+    
+    const tasksPerDay = totalTasks / targetDays;
+    
+    for (let i = 0; i < targetDays; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      const dateKey = date.toISOString().split('T')[0];
+      
+      const dayStart = Math.floor(i * tasksPerDay);
+      const dayEnd = Math.floor((i + 1) * tasksPerDay);
+      const actualEnd = (i === targetDays - 1) ? totalTasks : dayEnd;
+      
+      const dayTasks = pendingSubTopics.slice(dayStart, actualEnd);
+      if (dayTasks.length > 0) {
+        schedule[dateKey] = dayTasks;
+      }
     }
     return schedule;
-  }, [pendingSubTopics]);
+  }, [pendingSubTopics, targetDays]);
 
   const daysInMonth = useMemo(() => {
     const year = currentDate.getFullYear();
