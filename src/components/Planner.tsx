@@ -1,8 +1,9 @@
-
-import { Landmark, Calendar as CalendarIcon, Clock, AlertCircle, CheckCircle2, Search, ArrowRight, Activity, Zap, Layers, Sparkles, Target, Compass, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Landmark, Calendar as CalendarIcon, Clock, AlertCircle, CheckCircle2, Search, ArrowRight, Activity, Zap, Layers, Sparkles, Target, Compass, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useMemo } from 'react';
 import { Roadmap, UserProgress, SubTopic } from '../types';
+import { auth, googleProvider } from '../lib/firestore';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 interface PlannerProps {
   roadmap: Roadmap;
@@ -13,6 +14,85 @@ interface PlannerProps {
 export default function Planner({ roadmap, progress, searchQuery = '' }: PlannerProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncGoogleCalendar = async () => {
+    setIsSyncing(true);
+    try {
+      let token = localStorage.getItem('google_access_token');
+      
+      const testTokenValidity = async (t: string) => {
+        try {
+          const res = await fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=' + t);
+          return res.ok;
+        } catch {
+          return false;
+        }
+      };
+
+      const isValid = token ? await testTokenValidity(token) : false;
+
+      if (!isValid) {
+        googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
+        const result = await signInWithPopup(auth, googleProvider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential && credential.accessToken) {
+          token = credential.accessToken;
+          localStorage.setItem('google_access_token', token);
+        } else {
+          throw new Error("Authentication failed or access token missing.");
+        }
+      }
+
+      if (!token) throw new Error("Google Calendar access token not found.");
+
+      const days = Object.keys(scheduledTasks);
+      let successCount = 0;
+
+      for (const dateKey of days) {
+        const tasks = scheduledTasks[dateKey];
+        if (!tasks || tasks.length === 0) continue;
+
+        for (const task of tasks) {
+          const event = {
+            summary: `Ascent AI: ${task.subTopic.title}`,
+            description: `Goal: ${roadmap.goal}\nPhase: ${task.nodeTitle}\nDescription: ${task.subTopic.description}\nEstimated Hours: ${task.subTopic.estimatedHours} hours\n\nSynced via Ascent AI.`,
+            start: {
+              date: dateKey
+            },
+            end: {
+              date: new Date(new Date(dateKey).getTime() + 86400000).toISOString().split('T')[0]
+            },
+            reminders: {
+              useDefault: true
+            }
+          };
+
+          const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(event)
+          });
+
+          if (response.ok) {
+            successCount++;
+          } else {
+            console.error("Failed to create event for:", task.subTopic.title, await response.text());
+          }
+        }
+      }
+
+      alert(`Sync Complete! Successfully added ${successCount} learning tasks to your Google Calendar.`);
+    } catch (error: any) {
+      console.error("Calendar Sync Error:", error);
+      alert("Google Calendar Sync failed: " + (error.message || error));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const pendingSubTopics = useMemo(() => {
     const pending: { nodeTitle: string; subTopic: SubTopic }[] = [];
@@ -114,16 +194,31 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
           </motion.h1>
         </div>
 
-        <div className="flex items-center gap-4 bg-bg-secondary/80 backdrop-blur-3xl p-2 rounded-2xl border border-border-pill">
-           <button onClick={handlePrevMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
-              <ChevronLeft className="w-6 h-6" />
-           </button>
-           <span className="text-xl font-langdon text-text-primary px-8 min-w-[200px] text-center">
-              {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-           </span>
-           <button onClick={handleNextMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
-              <ChevronRight className="w-6 h-6" />
-           </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <button 
+            disabled={isSyncing}
+            onClick={handleSyncGoogleCalendar}
+            className="group flex items-center justify-center gap-3 px-6 h-[68px] rounded-2xl bg-accent-glow/10 border border-accent-glow/30 hover:bg-accent-glow/20 disabled:bg-accent-glow/5 disabled:border-accent-glow/10 disabled:opacity-50 text-[10px] font-black uppercase tracking-[0.2em] text-accent-glow transition-all duration-300 shadow-[0_0_20px_rgba(124,111,250,0.1)] cursor-pointer"
+          >
+            {isSyncing ? (
+              <Loader2 className="w-4 h-4 text-accent-glow animate-spin" />
+            ) : (
+              <CalendarIcon className="w-4 h-4 text-accent-glow group-hover:scale-110 transition-transform" />
+            )}
+            {isSyncing ? 'Syncing...' : 'Sync to Google Calendar'}
+          </button>
+
+          <div className="flex items-center gap-4 bg-bg-secondary/80 backdrop-blur-3xl p-2 rounded-2xl border border-border-pill">
+             <button onClick={handlePrevMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
+                <ChevronLeft className="w-6 h-6" />
+             </button>
+             <span className="text-xl font-langdon text-text-primary px-8 min-w-[200px] text-center">
+                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+             </span>
+             <button onClick={handleNextMonth} className="p-4 hover:bg-bg-secondary rounded-xl text-text-muted hover:text-text-primary transition-all">
+                <ChevronRight className="w-6 h-6" />
+             </button>
+          </div>
         </div>
       </section>
 
