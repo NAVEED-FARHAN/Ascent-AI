@@ -15,9 +15,11 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncToast, setSyncToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleSyncGoogleCalendar = async () => {
     setIsSyncing(true);
+    setSyncToast(null);
     try {
       let token = localStorage.getItem('google_access_token');
       
@@ -46,26 +48,51 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
 
       if (!token) throw new Error("Google Calendar access token not found.");
 
-      const days = Object.keys(scheduledTasks);
+      // Build full schedule from ALL roadmap nodes (not just pending)
+      const allTasks: { nodeTitle: string; subTopic: SubTopic }[] = [];
+      roadmap.nodes.forEach(node => {
+        node.subTopics.forEach(sub => {
+          allTasks.push({ nodeTitle: node.title, subTopic: sub });
+        });
+      });
+
+      if (allTasks.length === 0) {
+        setSyncToast({ type: 'error', message: 'No tasks found in your roadmap to sync.' });
+        return;
+      }
+
+      // Parse target duration
+      const goalText = roadmap.goal.toLowerCase();
+      let days = 30;
+      const dayMatch = goalText.match(/(\d+)\s*day/);
+      const weekMatch = goalText.match(/(\d+)\s*week/);
+      const monthMatch = goalText.match(/(\d+)\s*month/);
+      if (dayMatch) days = parseInt(dayMatch[1], 10);
+      else if (weekMatch) days = parseInt(weekMatch[1], 10) * 7;
+      else if (monthMatch) days = parseInt(monthMatch[1], 10) * 30;
+
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      const tasksPerDay = allTasks.length / days;
+
       let successCount = 0;
 
-      for (const dateKey of days) {
-        const tasks = scheduledTasks[dateKey];
-        if (!tasks || tasks.length === 0) continue;
+      for (let i = 0; i < days; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        const dateKey = date.toISOString().split('T')[0];
 
-        for (const task of tasks) {
+        const dayStart = Math.floor(i * tasksPerDay);
+        const dayEnd = (i === days - 1) ? allTasks.length : Math.floor((i + 1) * tasksPerDay);
+        const dayTasks = allTasks.slice(dayStart, dayEnd);
+
+        for (const task of dayTasks) {
           const event = {
-            summary: `Ascent AI: ${task.subTopic.title}`,
-            description: `Goal: ${roadmap.goal}\nPhase: ${task.nodeTitle}\nDescription: ${task.subTopic.description}\nEstimated Hours: ${task.subTopic.estimatedHours} hours\n\nSynced via Ascent AI.`,
-            start: {
-              date: dateKey
-            },
-            end: {
-              date: new Date(new Date(dateKey).getTime() + 86400000).toISOString().split('T')[0]
-            },
-            reminders: {
-              useDefault: true
-            }
+            summary: `📚 ${task.subTopic.title}`,
+            description: `🎯 Goal: ${roadmap.goal}\n📂 Phase: ${task.nodeTitle}\n📝 ${task.subTopic.description}\n⏱️ Estimated: ${task.subTopic.estimatedHours} hours\n\n— Synced via Ascent AI`,
+            start: { date: dateKey },
+            end: { date: new Date(date.getTime() + 86400000).toISOString().split('T')[0] },
+            reminders: { useDefault: true }
           };
 
           const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
@@ -85,10 +112,12 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
         }
       }
 
-      alert(`Sync Complete! Successfully added ${successCount} learning tasks to your Google Calendar.`);
+      setSyncToast({ type: 'success', message: `Added ${successCount} learning tasks to your Google Calendar!` });
+      setTimeout(() => setSyncToast(null), 6000);
     } catch (error: any) {
       console.error("Calendar Sync Error:", error);
-      alert("Google Calendar Sync failed: " + (error.message || error));
+      setSyncToast({ type: 'error', message: error.message || 'Calendar sync failed.' });
+      setTimeout(() => setSyncToast(null), 6000);
     } finally {
       setIsSyncing(false);
     }
@@ -172,6 +201,33 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
   return (
     <div className="max-w-[1240px] w-full mx-auto px-6 md:px-10 pt-16 pb-40 space-y-0 relative">
       <div className="absolute top-0 left-0 w-full h-[800px] bg-accent-glow/[0.02] blur-[150px] -z-10" />
+
+      {/* Sync Toast Notification */}
+      <AnimatePresence>
+        {syncToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed top-8 right-8 z-[9999] max-w-md"
+          >
+            <div className={`flex items-center gap-4 px-6 py-4 rounded-2xl border backdrop-blur-xl shadow-2xl ${
+              syncToast.type === 'success'
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                : 'bg-red-500/10 border-red-500/30 text-red-300'
+            }`}>
+              {syncToast.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 shrink-0" />
+              ) : (
+                <AlertCircle className="w-5 h-5 shrink-0" />
+              )}
+              <span className="text-sm font-medium">{syncToast.message}</span>
+              <button onClick={() => setSyncToast(null)} className="ml-2 text-white/40 hover:text-white/80 transition-colors text-lg leading-none">×</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Header Slab */}
       <section className="py-20 border-b border-border-primary flex flex-col lg:flex-row items-end justify-between gap-12 relative">
