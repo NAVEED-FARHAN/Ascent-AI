@@ -50,8 +50,8 @@ export default function Planner({ roadmap, progress, searchQuery = '' }: Planner
 
       // Build full schedule from ALL roadmap nodes (not just pending)
       const allTasks: { nodeTitle: string; subTopic: SubTopic }[] = [];
-      roadmap.nodes.forEach(node => {
-        node.subTopics.forEach(sub => {
+      (roadmap?.nodes || []).forEach(node => {
+        (node?.subTopics || []).forEach(sub => {
           allTasks.push({ nodeTitle: node.title, subTopic: sub });
         });
       });
