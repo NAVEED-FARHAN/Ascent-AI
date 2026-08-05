@@ -172,6 +172,44 @@ function RoadmapPreviewModal({
                       <h3 className="text-3xl font-langdon text-text-primary truncate">{node.title}</h3>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 text-text-muted/60">
+                      {(() => {
+                        const goalText = (roadmap.goal || '').toLowerCase();
+                        let targetDays = 30;
+                        const dMatch = goalText.match(/(\d+)\s*day/);
+                        const wMatch = goalText.match(/(\d+)\s*week/);
+                        const mMatch = goalText.match(/(\d+)\s*month/);
+                        if (dMatch) targetDays = parseInt(dMatch[1], 10);
+                        else if (wMatch) targetDays = parseInt(wMatch[1], 10) * 7;
+                        else if (mMatch) targetDays = parseInt(mMatch[1], 10) * 30;
+
+                        const totalRoadmapHours = roadmap.nodes.reduce((acc, n) => acc + (n.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0), 0) || 1;
+                        const currentOverallStartDate = new Date();
+                        currentOverallStartDate.setHours(0, 0, 0, 0);
+
+                        let accumulatedHours = 0;
+                        for (let i = 0; i < idx; i++) {
+                          accumulatedHours += (roadmap.nodes[i].subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+                        }
+                        const thisNodeHours = (node.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+
+                        const startOffsetDays = Math.floor((accumulatedHours / totalRoadmapHours) * targetDays);
+                        const durationDays = Math.max(1, Math.round((thisNodeHours / totalRoadmapHours) * targetDays));
+
+                        const nodeStartDate = new Date(currentOverallStartDate);
+                        nodeStartDate.setDate(nodeStartDate.getDate() + startOffsetDays);
+
+                        const nodeEndDate = new Date(nodeStartDate);
+                        nodeEndDate.setDate(nodeEndDate.getDate() + Math.max(0, durationDays - 1));
+
+                        const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                        return (
+                          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[10px] font-bold text-text-muted">
+                            <Clock className="w-3 h-3 text-accent-glow" />
+                            <span>{formatDate(nodeStartDate)} – {formatDate(nodeEndDate)}</span>
+                          </div>
+                        );
+                      })()}
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5" />
                         <span className="text-[10px] font-black">{nodeHours}h</span>
@@ -479,9 +517,51 @@ export default function RoadmapView({
                         whileHover={{ x: isEven ? -10 : 10 }}
                         className={`w-full group text-left ${isEven ? 'lg:text-right' : 'lg:text-left'} transition-all outline-none`}
                       >
-                        <div className={`inline-flex items-center gap-3 mb-6 text-[10px] font-black uppercase tracking-[0.3em] ${completed ? 'text-accent-glow' : 'text-accent-glow'}`}>
-                          <Zap className="w-3 h-3 fill-current" />
-                          {completed ? 'Protocol Decoded' : 'Active Stream'}
+                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                          <div className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] ${completed ? 'text-accent-glow' : 'text-accent-glow'}`}>
+                            <Zap className="w-3 h-3 fill-current" />
+                            {completed ? 'Protocol Decoded' : 'Active Stream'}
+                          </div>
+                          {(() => {
+                            // Date calculation per phase node based on estimated hours
+                            const goalText = (roadmap.goal || '').toLowerCase();
+                            let targetDays = 30;
+                            const dMatch = goalText.match(/(\d+)\s*day/);
+                            const wMatch = goalText.match(/(\d+)\s*week/);
+                            const mMatch = goalText.match(/(\d+)\s*month/);
+                            if (dMatch) targetDays = parseInt(dMatch[1], 10);
+                            else if (wMatch) targetDays = parseInt(wMatch[1], 10) * 7;
+                            else if (mMatch) targetDays = parseInt(mMatch[1], 10) * 30;
+
+                            const totalRoadmapHours = roadmap.nodes.reduce((acc, n) => acc + (n.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0), 0) || 1;
+                            const currentOverallStartDate = new Date();
+                            currentOverallStartDate.setHours(0, 0, 0, 0);
+
+                            // Accumulate hours before this node
+                            let accumulatedHours = 0;
+                            for (let i = 0; i < index; i++) {
+                              accumulatedHours += (roadmap.nodes[i].subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+                            }
+                            const thisNodeHours = (node.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+
+                            const startOffsetDays = Math.floor((accumulatedHours / totalRoadmapHours) * targetDays);
+                            const durationDays = Math.max(1, Math.round((thisNodeHours / totalRoadmapHours) * targetDays));
+
+                            const nodeStartDate = new Date(currentOverallStartDate);
+                            nodeStartDate.setDate(nodeStartDate.getDate() + startOffsetDays);
+
+                            const nodeEndDate = new Date(nodeStartDate);
+                            nodeEndDate.setDate(nodeEndDate.getDate() + Math.max(0, durationDays - 1));
+
+                            const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                            return (
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.1] text-[10px] font-bold text-text-secondary">
+                                <Clock className="w-3 h-3 text-accent-glow" />
+                                <span>{formatDate(nodeStartDate)} – {formatDate(nodeEndDate)}</span>
+                              </div>
+                            );
+                          })()}
                         </div>
                         <h3 className="text-4xl md:text-5xl font-langdon mb-6 transition-all duration-500 text-text-primary group-hover:text-accent-glow">
                           {node.title}
@@ -515,9 +595,49 @@ export default function RoadmapView({
                         onMouseLeave={handleMouseLeaveLocked}
                         onClick={() => handleClickLocked(node.id)}
                       >
-                        <div className={`inline-flex items-center gap-3 mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-text-muted/50`}>
-                          <Lock className="w-3 h-3" />
-                          Encrypted Phase
+                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                          <div className={`inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-text-muted/50`}>
+                            <Lock className="w-3 h-3" />
+                            Encrypted Phase
+                          </div>
+                          {(() => {
+                            const goalText = (roadmap.goal || '').toLowerCase();
+                            let targetDays = 30;
+                            const dMatch = goalText.match(/(\d+)\s*day/);
+                            const wMatch = goalText.match(/(\d+)\s*week/);
+                            const mMatch = goalText.match(/(\d+)\s*month/);
+                            if (dMatch) targetDays = parseInt(dMatch[1], 10);
+                            else if (wMatch) targetDays = parseInt(wMatch[1], 10) * 7;
+                            else if (mMatch) targetDays = parseInt(mMatch[1], 10) * 30;
+
+                            const totalRoadmapHours = roadmap.nodes.reduce((acc, n) => acc + (n.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0), 0) || 1;
+                            const currentOverallStartDate = new Date();
+                            currentOverallStartDate.setHours(0, 0, 0, 0);
+
+                            let accumulatedHours = 0;
+                            for (let i = 0; i < index; i++) {
+                              accumulatedHours += (roadmap.nodes[i].subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+                            }
+                            const thisNodeHours = (node.subTopics || []).reduce((a, st) => a + (st.estimatedHours || 0), 0);
+
+                            const startOffsetDays = Math.floor((accumulatedHours / totalRoadmapHours) * targetDays);
+                            const durationDays = Math.max(1, Math.round((thisNodeHours / totalRoadmapHours) * targetDays));
+
+                            const nodeStartDate = new Date(currentOverallStartDate);
+                            nodeStartDate.setDate(nodeStartDate.getDate() + startOffsetDays);
+
+                            const nodeEndDate = new Date(nodeStartDate);
+                            nodeEndDate.setDate(nodeEndDate.getDate() + Math.max(0, durationDays - 1));
+
+                            const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                            return (
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.06] text-[10px] font-bold text-text-muted/40">
+                                <Clock className="w-3 h-3 text-text-muted/40" />
+                                <span>{formatDate(nodeStartDate)} – {formatDate(nodeEndDate)}</span>
+                              </div>
+                            );
+                          })()}
                         </div>
                         <h3 className="text-4xl md:text-5xl font-langdon mb-4 text-text-muted/20">
                           {node.title}
